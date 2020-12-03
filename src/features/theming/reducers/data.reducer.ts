@@ -10,7 +10,7 @@ interface State {
 
 export const dataReducer = createReducer<State>(
   {
-    theme: "dark"
+    theme: "light"
   },
   {
     [actions.setTheme.type]: (state: State, {payload}) => {
