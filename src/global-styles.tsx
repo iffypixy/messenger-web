@@ -1,4 +1,4 @@
-import {createGlobalStyle} from "styled-components";
+import {createGlobalStyle, css} from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
     html {
@@ -16,4 +16,36 @@ export const GlobalStyles = createGlobalStyle`
       background-color: ${({theme}) => theme.palette.background.default};
       font-size: ${({theme}) => theme.typography.fontSize};
     }
+    
+    ${({theme}) => css`
+      @media only screen and (min-width: ${theme.breakpoints.xs}px) {
+        html {
+          font-size: 50%;
+        }
+      }
+
+      @media only screen and (min-width: ${theme.breakpoints.sm}px) {
+        html {
+          font-size: 55%;
+        }
+      }
+
+      @media only screen and (min-width: ${theme.breakpoints.md}px) {
+        html {
+          font-size: 60%;
+        }
+      }
+
+      @media only screen and (min-width: ${theme.breakpoints.lg}px) {
+        html {
+          font-size: 65%;
+        }
+      }  
+
+      @media only screen and (min-width: ${theme.breakpoints.xl}px) {
+        html {
+          font-size: 70%;
+        }
+      }
+    `}
 `;
