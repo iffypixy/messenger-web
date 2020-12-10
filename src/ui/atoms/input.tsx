@@ -35,6 +35,7 @@ const InputNative = styled.input<InputNativeProps>`
     
     border: ${({theme, error}) => error ? `1px solid ${theme.palette.error.main}` : "none"};
     border-radius: 5px;
+    outline: none;
     padding: 15px 20px;
 `;
 
