@@ -1,9 +1,7 @@
 import React from "react";
 
-type Icon = "rocket" | "logo";
-
 interface Props extends React.SVGAttributes<SVGElement> {
-  name: Icon;
+  name: "rocket" | "logo";
 }
 
 const getIcon = ({name, ...props}: Props) => {

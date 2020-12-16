@@ -1,37 +1,24 @@
 import React from "react";
 import {useForm} from "react-hook-form";
-import Head from "next/Head";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 
-import {AuthTemplate, AuthToggleButton} from "@features/auth";
+import {authActions, AuthTemplate, AuthToggleButton} from "@features/auth";
 import {Col, Row} from "@lib/layout";
 import {Button, Input} from "@ui/atoms";
+import {useActions} from "@lib/hooks";
 
-interface FormData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  password: string;
-}
+export const RegisterPage: React.FC = () => (
+  <AuthTemplate>
+    <Col width="70%" justify="space-between">
+      <Row width="100%" justify="flex-end">
+        <AuthToggleButton to="/login">Sign in</AuthToggleButton>
+        <AuthToggleButton to="/register" active>Sign up</AuthToggleButton>
+      </Row>
 
-const RegisterPage: React.FC = () => (
-  <>
-    <Head>
-      <title>Messengram: the easiest way to communicate | Register</title>
-    </Head>
-
-    <AuthTemplate>
-      <Col width="70%" justify="space-between">
-        <Row width="100%" justify="flex-end">
-          <AuthToggleButton href="/login">Sign in</AuthToggleButton>
-          <AuthToggleButton href="/register" active>Sign up</AuthToggleButton>
-        </Row>
-
-        <RegisterForm/>
-      </Col>
-    </AuthTemplate>
-  </>
+      <RegisterForm/>
+    </Col>
+  </AuthTemplate>
 );
 
 const schema = yup.object().shape({
@@ -56,18 +43,16 @@ const schema = yup.object().shape({
     .required("Password is required")
 });
 
-const RegisterForm: React.FC = () => {
+export const RegisterForm: React.FC = () => {
   const {register, handleSubmit, errors, formState} = useForm({
     resolver: yupResolver(schema),
     mode: "onChange"
   });
 
-  const onFormSubmit = (data: FormData) => {
-    console.log(data);
-  };
+  const {fetchRegister} = useActions(authActions);
 
   return (
-    <form onSubmit={handleSubmit(onFormSubmit)}>
+    <form onSubmit={handleSubmit(fetchRegister)}>
       <Col gap="60px">
         <Col gap="35px">
           <Input ref={register}
@@ -103,5 +88,3 @@ const RegisterForm: React.FC = () => {
     </form>
   );
 };
-
-export default RegisterPage;

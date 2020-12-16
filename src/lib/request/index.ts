@@ -2,15 +2,17 @@ import axios, {AxiosError} from "axios";
 
 import {authApi} from "@api/auth.api";
 
-export const request = axios.create();
+export const request = axios.create({
+  baseURL: process.env.BACKEND_URL
+});
 
 const applyInterceptor = () => {
   const interceptor = request.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
-      const {config: originalRequest} = error;
+      const {config, response} = error;
 
-      const status = error.response!.status;
+      const status = response!.status;
 
       if (status !== 401) return Promise.reject(error);
 
@@ -19,7 +21,7 @@ const applyInterceptor = () => {
       try {
         const {status} = await authApi.refreshTokens();
 
-        if (status === 201) return request(originalRequest);
+        if (status === 201) return request(config);
       } catch (error) {
         return Promise.reject(error);
       } finally {

@@ -1,36 +1,25 @@
 import React from "react";
-import Head from "next/Head";
 import {useForm} from "react-hook-form";
 import styled from "styled-components";
 import * as yup from "yup";
 import {yupResolver} from "@hookform/resolvers/yup";
 
-import {AuthTemplate, AuthToggleButton} from "@features/auth";
+import {authActions, AuthTemplate, AuthToggleButton} from "@features/auth";
 import {Col, Row} from "@lib/layout";
 import {Button, Input} from "@ui/atoms";
+import {useActions} from "@lib/hooks";
 
-interface FormData {
-  email: string;
-  password: string;
-}
-
-const LoginPage: React.FC = () => (
-  <>
-    <Head>
-      <title>Messenger: making communication easier</title>
-    </Head>
-
+export const LoginPage: React.FC = () => (
     <AuthTemplate>
       <Col width="70%" justify="space-between">
         <Row width="100%" justify="flex-end">
-          <AuthToggleButton href="/login" active>Sign in</AuthToggleButton>
-          <AuthToggleButton href="/register">Sign up</AuthToggleButton>
+          <AuthToggleButton to="/login" active>Sign in</AuthToggleButton>
+          <AuthToggleButton to="/register">Sign up</AuthToggleButton>
         </Row>
 
         <LoginForm/>
       </Col>
     </AuthTemplate>
-  </>
 );
 
 const schema = yup.object().shape({
@@ -46,12 +35,10 @@ const LoginForm: React.FC = () => {
     mode: "onChange"
   });
 
-  const onFormSubmit = (data: FormData) => {
-    console.log(data);
-  };
+  const {fetchLogin} = useActions(authActions);
 
   return (
-    <Form onSubmit={handleSubmit(onFormSubmit)}>
+    <Form onSubmit={handleSubmit(fetchLogin)}>
       <Col width="100%" gap="60px">
         <Col gap="35px">
           <Input ref={register}
@@ -84,5 +71,3 @@ const Form = styled.form`
   width: 100%;
   height: 100%;
 `;
-
-export default LoginPage;
