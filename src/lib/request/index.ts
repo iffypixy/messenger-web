@@ -1,12 +1,17 @@
 import axios, {AxiosError} from "axios";
 
+import {BACKEND_URL} from "@lib/constants";
 import {authApi} from "@api/auth.api";
 
 export const request = axios.create({
-  baseURL: process.env.BACKEND_URL
+  baseURL: BACKEND_URL
 });
 
-const applyInterceptor = () => {
+const STATUS_CODES = [401, 403];
+
+applyInterceptor();
+
+function applyInterceptor() {
   const interceptor = request.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
@@ -14,7 +19,9 @@ const applyInterceptor = () => {
 
       const status = response!.status;
 
-      if (status !== 401) return Promise.reject(error);
+      console.log(status, !STATUS_CODES.includes(status));
+
+      if (!STATUS_CODES.includes(status)) return Promise.reject(error);
 
       request.interceptors.response.eject(interceptor);
 

@@ -13,7 +13,7 @@ interface InputNativeProps {
 }
 
 export const Input = React.forwardRef<HTMLInputElement, Props>(({error, label, ...props}, ref) => (
-  <Col>
+  <Col width="100%">
     {label && <Label>{label}</Label>}
     <InputNative error={!!error} ref={ref} {...props} />
     {error && <ErrorLabel>{error}</ErrorLabel>}

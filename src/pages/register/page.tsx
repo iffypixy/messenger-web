@@ -43,7 +43,7 @@ const schema = yup.object().shape({
     .required("Password is required")
 });
 
-export const RegisterForm: React.FC = () => {
+const RegisterForm: React.FC = () => {
   const {register, handleSubmit, errors, formState} = useForm({
     resolver: yupResolver(schema),
     mode: "onChange"

@@ -34,6 +34,7 @@ declare module "styled-components" {
       warning: IPaletteColor;
       info: IPaletteColor;
       success: IPaletteColor;
+      divider: string;
       text: {
         primary: string;
         secondary: string;

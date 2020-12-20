@@ -41,6 +41,7 @@ export const lightTheme: DefaultTheme = {
       dark: "",
       contrastText: ""
     },
+    divider: "#2D314B",
     text: {
       primary: "#FEFEFE",
       secondary: "#52566E"

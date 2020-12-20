@@ -17,7 +17,7 @@ export const fetchLogin = createAsyncThunk<{credentials: User}, LoginData>(`${ty
 });
 
 export const fetchCredentials = createAsyncThunk<{credentials: User}>(`${typePrefix}/fetchCredentials`, async () => {
-  const {data} = await authApi.getCredentials({});
+  const {data} = await authApi.getCredentials();
 
   return data;
 });

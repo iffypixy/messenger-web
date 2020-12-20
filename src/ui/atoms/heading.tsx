@@ -1,7 +1,7 @@
 import styled, {css} from "styled-components";
 
 interface Props {
-  align: "left" | "center" | "right";
+  align?: "left" | "center" | "right";
 }
 
 const mixins = (props: Props) => css`

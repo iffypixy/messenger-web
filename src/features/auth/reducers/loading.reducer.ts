@@ -12,7 +12,7 @@ export const loadingReducer = createReducer<InitialState>(
   {
     isRegisterFetching: false,
     isLogoutFetching: false,
-    areCredentialsFetching: false
+    areCredentialsFetching: true
   },
   {
     [actions.fetchCredentials.pending.type]: (state) => {

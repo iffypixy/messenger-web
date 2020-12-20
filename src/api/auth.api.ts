@@ -17,9 +17,9 @@ export interface RegisterData {
   password: string;
 }
 
-const register = (data: RegisterData): AxiosPromise<{credentials: User}> => request({
+const register = async (data: RegisterData): Promise<AxiosPromise<{credentials: User}>> => request({
   url: "/auth/register",
-  data: {...data, fingerprint: getFingerprint()},
+  data: {...data, fingerprint: await getFingerprint()},
   method: "POST",
   withCredentials: true
 });
@@ -30,22 +30,17 @@ export interface LoginData {
   password: string;
 }
 
-const login = (data: LoginData): AxiosPromise<{credentials: User}> => request({
+const login = async (data: LoginData): Promise<AxiosPromise<{credentials: User}>> => request({
   url: "/auth/login",
-  data: {...data, fingerprint: getFingerprint()},
+  data: {...data, fingerprint: await getFingerprint()},
   method: "POST",
   withCredentials: true
 });
 
-interface GetCredentialsData {
-  headers?: IncomingHttpHeaders;
-}
-
-const getCredentials = ({headers}: GetCredentialsData): AxiosPromise<{credentials: User}> => request({
+const getCredentials = (): AxiosPromise<{credentials: User}> => request({
   url: "/auth/credentials",
   method: "GET",
-  withCredentials: true,
-  headers
+  withCredentials: true
 });
 
 const logout = (): AxiosPromise<void> => request({
@@ -54,10 +49,10 @@ const logout = (): AxiosPromise<void> => request({
   withCredentials: true
 });
 
-const refreshTokens = (): AxiosPromise<void> => request({
+const refreshTokens = async (): Promise<AxiosPromise<void>> => request({
   url: "/auth/refresh-tokens",
   method: "POST",
-  data: {fingerprint: getFingerprint()},
+  data: {fingerprint: await getFingerprint()},
   withCredentials: true
 });
 
