@@ -14,21 +14,19 @@ export const ChatsList: React.FC = () => {
     useSelector(chatDialogsSelectors.dialogsSelector)
   );
 
-  console.log(dialogs);
-
   return (
     <List>
       {[...dialogs]
         .sort(
           (a, b) =>
-            +new Date(a.latestMessage!.createdAt) -
-            +new Date(b.latestMessage!.createdAt)
+            +new Date(a.messages![0].createdAt) -
+            +new Date(b.messages![0].createdAt)
         )
         .map(({id, companion, messages}) => (
           <ChatsListItem
             key={id}
             companion={companion}
-            message={messages![messages!.length - 1]}
+            message={messages![0]}
           />
         ))}
     </List>
@@ -59,7 +57,7 @@ const ChatsListItem: React.FC<ChatsListItemProps> = ({message, companion}) => (
 
       <ItemContent>
         <UserName>{companion.firstName}</UserName>
-        <Text>{message!.text}</Text>
+        {message && <Text>{message!.text}</Text>}
       </ItemContent>
 
       <ItemInfo>
@@ -74,7 +72,7 @@ const ItemWrapper = styled.div`
   display: flex;
   background-color: ${({theme}) => theme.palette.primary.main};
   border-radius: 5px;
-  padding: 15px;
+  padding: 1.5rem;
 `;
 
 const ComponionAvatarWrapper = styled.div`
@@ -87,7 +85,7 @@ const ItemContent = styled.div`
   justify-content: space-between;
   flex-direction: column;
   width: 70%;
-  padding: 10px 0 10px 15px;
+  padding: 1rem 0 1rem 1.5rem;
 `;
 
 const ItemInfo = styled.div`

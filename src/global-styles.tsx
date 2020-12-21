@@ -16,6 +16,11 @@ export const GlobalStyles = createGlobalStyle`
       background-color: ${({theme}) => theme.palette.background.default};
       font-size: ${({theme}) => theme.typography.fontSize};
     }
+
+    svg {
+      display: block;
+      fill: ${({theme}) => theme.palette.text.primary};
+    }
     
     ${({theme}) => css`
       @media only screen and (min-width: ${theme.breakpoints.xs}px) {

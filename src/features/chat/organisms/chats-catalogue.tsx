@@ -48,7 +48,7 @@ const SearchBar: React.FC = () => {
 
     return (
         <SearchBarWrapper>
-            <Input onChange={handleChange} value={search} placeholder="Search chats" />
+            <Input onChange={handleChange} width="100%" value={search} placeholder="Search chats" />
         </SearchBarWrapper>
     );
 };

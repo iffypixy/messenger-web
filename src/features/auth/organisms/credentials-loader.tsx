@@ -9,7 +9,13 @@ interface Props {
 }
 
 export const CredentialsLoader: React.FC<Props> = ({children}) => {
-  const areCredentialsFetching = useSelector(authSelectors.areCredentialsFetching);
+  const areCredentialsFetching = useSelector(
+    authSelectors.areCredentialsFetching
+  );
+
+  const isAuthenticated = useSelector(
+    authSelectors.isAuthenticatedSelector
+  );
 
   const {fetchCredentials} = useActions(authActions);
 

@@ -1,4 +1,4 @@
-import {createAsyncThunk} from "@reduxjs/toolkit";
+import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 
 import {dialogApi, Message, GetMessagesData, CreateMessageData, Dialog, GetDialogData} from "@api/dialog.api";
 import {RequestQuery} from "@lib/interfaces";
@@ -28,3 +28,5 @@ export const fetchDialog = createAsyncThunk<{dialog: Dialog}, GetDialogData>(`${
 
     return data;
 });
+
+export const setCurrentCompanionId = createAction<number>(`${typePrefix}/setCurrentCompanionId`);

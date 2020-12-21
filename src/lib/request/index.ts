@@ -19,8 +19,6 @@ function applyInterceptor() {
 
       const status = response!.status;
 
-      console.log(status, !STATUS_CODES.includes(status));
-
       if (!STATUS_CODES.includes(status)) return Promise.reject(error);
 
       request.interceptors.response.eject(interceptor);
