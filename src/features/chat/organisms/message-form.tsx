@@ -11,6 +11,7 @@ import {EmojiPicker} from "./emoji-picker";
 
 export const MessageForm: React.FC = () => {
   const [text, setText] = useState<string>("");
+  const [attachments, setAttachments] = useState([]);
 
   const {fetchCreateMessage} = useActions(chatDialogsActions);
 
@@ -24,14 +25,12 @@ export const MessageForm: React.FC = () => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.currentTarget.files![0];
+    
+    const formData = new FormData();
 
-    uploadApi.getPresignedUrl(file.type).then(({data}) => {
-      uploadApi.upload({file, url: data.url}).then((d) => {
-        console.log(d);
+    formData.append("file", file);
 
-        console.log(`${S3_URL}/${data.key}`);
-      });
-    });
+    uploadApi.upload(formData);
   };
 
   return (
