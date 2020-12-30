@@ -11,8 +11,8 @@ export const dataReducer = createReducer<InitialState>(
         search: ""
     },
     {
-        [actions.setSearch.type]: (state, {payload}: PayloadAction<{text: string}>) => {
-            state.search = payload.text;
+        [actions.setSearch.type]: (state, {payload}: PayloadAction<string>) => {
+            state.search = payload;
         }
     }
 );

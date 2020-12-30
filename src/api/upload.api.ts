@@ -5,8 +5,9 @@ import {request} from "@lib/request";
 const upload = (file: FormData): AxiosPromise<void> =>
   request({
     method: "POST",
-    url: "/upload",
-    data: file
+    url: "/api/upload",
+    data: file,
+    withCredentials: true
   });
 
 export const uploadApi = {

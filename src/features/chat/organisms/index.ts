@@ -1,4 +1,5 @@
 import {ChatsCatalogue} from "./chats-catalogue";
-import {ChatPanel} from "./chat-panel";
+import {Message} from "./message";
+import {EmojiPicker} from "./emoji-picker";
 
-export {ChatsCatalogue, ChatPanel};
+export {ChatsCatalogue, Message, EmojiPicker};

@@ -3,6 +3,11 @@ import axios, {AxiosError} from "axios";
 import {BACKEND_URL} from "@lib/constants";
 import {authApi} from "@api/auth.api";
 
+export interface IRequestQuery {
+  skip?: number;
+  take?: number;
+}
+
 export const request = axios.create({
   baseURL: BACKEND_URL
 });

@@ -1,90 +1,95 @@
 import {AxiosPromise} from "axios";
 
-import {request} from "@lib/request";
-import {User} from "./auth.api";
-import {RequestQuery} from "@lib/interfaces";
+import {request, IRequestQuery} from "@lib/request";
+import {IUser} from "./auth.api";
 
-export interface Attachment {
-  audio: string | null;
-  images: string[] | null;
+export interface IAttachments {
+  audio: string | undefined;
+  images: string[] | undefined;
+  files: {
+    id: string;
+    extension: string;
+    name: string;
+    url: string;
+    size: number;
+  }[];
 }
 
-export interface Message {
-  id: number;
-  sender: User;
-  text: string | null;
-  attachment: Attachment;
-  createdAt: Date;
+export interface IMessage {
+  id: string;
+  sender: IUser;
+  text: string | undefined;
+  attachments: IAttachments;
+  isRead: boolean;
+  createdAt: string;
 }
 
 const getDialogs = ({
   skip,
   take
-}: RequestQuery): AxiosPromise<{dialogs: Dialog[]}> =>
+}: IRequestQuery): AxiosPromise<{dialogs: IDialogsListItem[]}> =>
   request({
-    url: "/dialogs",
+    url: "/api/dialogs",
     method: "GET",
     params: {skip, take},
     withCredentials: true
   });
 
-export interface GetMessagesData extends RequestQuery {
-  companionId: number;
+export interface IGetMessagesData extends IRequestQuery {
+  companionId: string;
 }
 
-const getMessages = ({companionId, take, skip}: GetMessagesData) =>
+const getMessages = ({companionId, take, skip}: IGetMessagesData) =>
   request({
-    url: `/dialogs/${companionId}/messages`,
+    url: `/api/dialogs/${companionId}/messages`,
     method: "GET",
     params: {take, skip},
     withCredentials: true
   });
 
-interface MessageData {
-  sender: User;
+interface IMessageData {
   text: string | null;
-  attachment: Attachment;
   createdAt: Date;
+  attachments: {
+    imagesIds: string[];
+    audioId: string;
+    filesIds: string[];
+  };
 }
 
-export interface CreateMessageData {
-  companionId: number;
-  message: MessageData;
+export interface ICreateMessageData {
+  companionId: string;
+  message: IMessageData;
 }
 
 const createMessage = ({
   companionId,
   message
-}: CreateMessageData): AxiosPromise<{message: Message}> =>
+}: ICreateMessageData): AxiosPromise<{message: IMessage}> =>
   request({
-    url: `/dialogs/${companionId}/messages`,
+    url: `/api/dialogs/${companionId}/messages`,
     method: "POST",
-    data: message
-  });
-
-export interface GetDialogData {
-  companionId: number;
-}
-
-export interface Dialog {
-  id: number;
-  companion: User;
-  messages?: Message[];
-  latestMessage?: Message;
-}
-
-const getDialog = ({
-  companionId
-}: GetDialogData): AxiosPromise<{dialog: Dialog}> =>
-  request({
-    url: `/dialogs/${companionId}`,
-    method: "GET",
+    data: message,
     withCredentials: true
   });
+
+export interface IGetDialogData {
+  companionId: string;
+}
+
+export interface IDialogsListItem {
+  id: string;
+  companion: IUser;
+  lastMessage: IMessage;
+}
+
+export interface IDialog {
+  id: string;
+  companion: IUser;
+}
 
 export const dialogApi = {
   getDialogs,
   getMessages,
-  createMessage,
-  getDialog
+  createMessage
 };

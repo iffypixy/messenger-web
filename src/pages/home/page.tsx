@@ -1,9 +1,8 @@
 import React, { useEffect } from "react";
 import styled from "styled-components";
 
-import {ChatsCatalogue, ChatPanel} from "@features/chat";
-import {MainTemplate} from "@ui/templates";
-import {Navbar} from "@ui/organisms";
+import {ChatTemplate} from "@features/chat";
+import {H3} from "@ui/atoms";
 import {useActions} from "@lib/hooks";
 import {chatDialogsActions} from "@features/chat/features/dialogs";
 
@@ -15,19 +14,24 @@ export const HomePage: React.FC = () => {
   }, []); 
 
   return (
-    <MainTemplate>
-      <Wrapper>
-        <Navbar />
-        <ChatsCatalogue />
-        <ChatPanel />
-      </Wrapper>
-    </MainTemplate>
+    <ChatTemplate>
+      <NoChat />
+    </ChatTemplate>
   );
 };
 
-const Wrapper = styled.div`
+const NoChat: React.FC = () => (
+  <NoChatWrapper>
+    <H3>Select chat to start messaging</H3>
+  </NoChatWrapper>
+);
+
+const NoChatWrapper = styled.div`
   display: flex;
-  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background: ${({theme}) => theme.palette.primary.dark};
   width: 100%;
-  height: 100vh;
+  height: 100%;
 `;
+

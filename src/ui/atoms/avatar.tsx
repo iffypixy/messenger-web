@@ -1,6 +1,6 @@
 import styled from "styled-components";
 
-export const UserAvatar = styled.img`
+export const Avatar = styled.img`
     display: block;
     width: 100%;
     height: 100%;

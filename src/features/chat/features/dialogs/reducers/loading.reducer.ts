@@ -7,7 +7,7 @@ interface InitialState {
     areDialogsFetching: boolean;
     areMessagesFetching: boolean;
     isCreateMessageFetching: boolean;
-    isDialogFetching: boolean;
+    isCompanionFetching: boolean;
 }
 
 export const loadingReducer = createReducer<InitialState>(
@@ -15,7 +15,7 @@ export const loadingReducer = createReducer<InitialState>(
       areDialogsFetching: false,
       areMessagesFetching: false,
       isCreateMessageFetching: false,
-      isDialogFetching: false
+      isCompanionFetching: false
   },
   {
     [actions.fetchDialogs.pending.type]: (state) => {
@@ -54,16 +54,16 @@ export const loadingReducer = createReducer<InitialState>(
         state.isCreateMessageFetching = false;
     },
 
-    [actions.fetchDialog.pending.type]: (state) => {
-        state.isDialogFetching = true;
+    [actions.fetchCompanion.pending.type]: (state) => {
+        state.isCompanionFetching = true;
     },
 
-    [actions.fetchDialog.fulfilled.type]: (state) => {
-        state.isDialogFetching = false;
+    [actions.fetchCompanion.fulfilled.type]: (state) => {
+        state.isCompanionFetching = false;
     },
 
-    [actions.fetchDialog.rejected.type]: (state) => {
-        state.isDialogFetching = false;
+    [actions.fetchCompanion.rejected.type]: (state) => {
+        state.isCompanionFetching = false;
     }
   }
 );

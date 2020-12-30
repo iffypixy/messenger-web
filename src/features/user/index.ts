@@ -1,3 +1,3 @@
-import {UserAvatar, UserName} from "./atoms";
+import {UserName} from "./atoms";
 
-export {UserAvatar, UserName};
+export {UserName};
