@@ -1,11 +1,9 @@
 import React from "react";
 import styled, {css} from "styled-components";
 
-export const UserName: React.FC = ({children}) => (
-    <Name>{children}</Name>
-);
+import {Text} from "@ui/atoms";
 
-const Name = styled.span`
+export const UserName = styled(Text)`
     ${({theme}) => css`
         color: ${theme.palette.text.primary};
         font-family: ${theme.typography.fontFamily};

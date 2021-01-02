@@ -1,6 +1,6 @@
 import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
-import {IUser} from "@api/auth.api";
+import {IUser} from "@api/common";
 import * as actions from "../actions";
 
 interface InitialState {

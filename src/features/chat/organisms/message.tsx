@@ -2,40 +2,42 @@ import React from "react";
 import styled, {css} from "styled-components";
 import format from "date-fns/format";
 
-import {User} from "@api/auth.api";
-import {Text, Avatar} from "@ui/atoms";
+import {Col} from "@lib/layout";
+import {IUser} from "@api/common";
+import {Text, Avatar, Icon} from "@ui/atoms";
 
 interface Props {
   id: string;
   text: string | undefined;
-  sender: User;
+  sender: IUser;
   createdAt: string;
   read: boolean;
   own: boolean;
 }
 
-export const Message: React.FC<Props> = ({id, text, sender, createdAt, own, read}) => {
-  return (
-    <Wrapper own={own} data-id={id} data-own={own} data-read={read}>
-      <MessageBlock >
-        <Header own={own}>
-          <DateText>{format(new Date(createdAt), "HH:mm")}</DateText>
-        </Header>
-        <Block own={own}>
-          <AvatarWrapper own={own}>
-            <Avatar src={sender.avatar} />
-          </AvatarWrapper>
+export const Message: React.FC<Props> = ({id, text, sender, createdAt, own, read}) => (
+  <Wrapper own={own} data-id={id} data-own={own} data-read={read}>
+    <MessageBlock>
+      <Header own={own}>
+        <DateText>{format(new Date(createdAt), "HH:mm")}</DateText>
+      </Header>
+      <Block own={own}>
+        <AvatarWrapper own={own}>
+          <Avatar src={sender.avatar}/>
+        </AvatarWrapper>
 
-          <Content>
-            <Bubble own={own}>
-              <MessageText>{text}</MessageText>
-            </Bubble>
-          </Content>
-        </Block>
-      </MessageBlock>
-    </Wrapper>
-  );
-};
+        <Col>
+          <Bubble own={own}>
+            <MessageText>{text}</MessageText>
+          </Bubble>
+        </Col>
+
+        {own && <ReadStatusIcon name={read ? "double-check" : "check"} gray/>}
+      </Block>
+    </MessageBlock>
+  </Wrapper>
+);
+
 
 interface StylingProps {
   own: boolean;
@@ -78,6 +80,8 @@ const Block = styled.div<StylingProps>`
 `;
 
 const AvatarWrapper = styled.div<StylingProps>`
+  min-width: 3.5rem;
+  min-height: 3.5rem;
   width: 3.5rem;
   height: 3.5rem;
 
@@ -87,8 +91,6 @@ const AvatarWrapper = styled.div<StylingProps>`
     margin-right: 0.5rem;
   `}
 `;
-
-const Content = styled.div``;
 
 const Bubble = styled.div<StylingProps>`
   display: flex;
@@ -111,4 +113,14 @@ const DateText = styled(Text)`
 const MessageText = styled(Text)`
   color: ${({theme}) => theme.palette.text.primary};
   font-size: 1.2rem;
+`;
+
+const ReadStatusIcon = styled(Icon)`
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-top: auto;
+  margin-bottom: 0.5rem;
+  margin-right: 0.5rem;
 `;

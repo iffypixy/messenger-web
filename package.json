@@ -15,6 +15,7 @@
     "date-fns": "^2.16.1",
     "emoji-mart": "^3.0.0",
     "fingerprintjs2": "^2.1.2",
+    "nanoid": "^3.1.20",
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "react-hook-form": "^6.13.1",
@@ -30,6 +31,7 @@
   "devDependencies": {
     "@types/emoji-mart": "^3.0.4",
     "@types/fingerprintjs2": "^2.0.0",
+    "@types/nanoid": "^2.1.0",
     "@types/node": "^14.14.14",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",

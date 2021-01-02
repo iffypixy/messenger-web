@@ -1,29 +1,41 @@
 import React from "react";
-import styled from "styled-components";
+import styled, {css} from "styled-components";
 import {useSelector} from "react-redux";
 import {useParams, Link} from "react-router-dom";
 import format from "date-fns/format";
 
-import {H3, Input, Text, Avatar} from "@ui/atoms";
-import {useActions} from "@lib/hooks";
 import {authSelectors} from "@features/auth";
-import {User} from "@api/auth.api";
 import {UserName} from "@features/user";
+import {H3, Input, Text, Avatar, Icon} from "@ui/atoms";
+import {useActions} from "@lib/hooks";
+import {Row, Col} from "@lib/layout";
+import {IUser} from "@api/common";
 import {transformMessageToText} from "../lib";
 import {chatDialogsSelectors} from "../features/dialogs";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
-export const ChatsCatalogue: React.FC = () => (
-  <Catalogue>
-    <Header>
-      <H3>Messages</H3>
-      <Text>+ New chat</Text>
-    </Header>
-    <SearchBar />
-    <ChatsList />
-  </Catalogue>
-);
+export const ChatsCatalogue: React.FC = () => {
+  const dialogs = useSelector(chatDialogsSelectors.listSelector);
+
+  const number = dialogs ? dialogs.reduce((previous, current) => {
+    return previous + current.unreadMessagesNumber;
+  }, 0) : 0;
+
+  return (
+    <Catalogue>
+      <Header>
+        <Row gap="1rem" align="center">
+          <H3>Messages</H3>
+          {number > 0 && <Number number={number} white>{number}</Number>}
+        </Row>
+        <Text>+ New chat</Text>
+      </Header>
+      <SearchBar/>
+      <ChatsList/>
+    </Catalogue>
+  );
+};
 
 const Catalogue = styled.div`
   display: flex;
@@ -39,6 +51,24 @@ const Header = styled.div`
   justify-content: space-between;
   align-items: center;
   margin-bottom: 4rem;
+`;
+
+interface NumberProps {
+  number: number;
+}
+
+const Number = styled(Text)<NumberProps>`
+  font-size: 1.2rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: ${({theme}) => theme.palette.warning.light};
+  border-radius: 50px;
+  
+  ${({number}) => css`
+    width: ${number.toString().length + 1}rem;
+    height: 2rem;
+  `}
 `;
 
 const SearchBar: React.FC = () => {
@@ -78,29 +108,28 @@ const ChatsList: React.FC = () => {
   const {companionId} = useParams<{companionId: string}>();
 
   return (
-    <List>
-      {[...dialogs]
-        .sort(
-          (a, b) =>
-            +new Date(a.lastMessage.createdAt) -
-            +new Date(b.lastMessage.createdAt)
-        )
+    <List gap="2rem">
+      {dialogs && [...dialogs]
+        .sort((a, b) =>
+          +new Date(a.lastMessage.createdAt) - +new Date(b.lastMessage.createdAt))
+
         .filter(({companion}) =>
-          companion.firstName.toLowerCase().startsWith(search.toLowerCase())
-        )
-        .map(({id, companion, lastMessage}) => {
-          const text = transformMessageToText({
-            message: lastMessage,
-            isOwn: lastMessage.sender.id === credentials!.id
-          });
+          companion.firstName.toLowerCase().startsWith(search.toLowerCase()))
+
+        .map(({id, companion, lastMessage, unreadMessagesNumber}) => {
+          const isOwn = lastMessage.sender.id === credentials!.id;
+          const text = transformMessageToText({message: lastMessage, isOwn});
+          const selected = companion.id === companionId;
+
+          const info = isOwn ? (
+            <Icon gray={!selected} name={lastMessage.isRead ? "double-check" : "check"}/>
+          ) : unreadMessagesNumber > 0 && (
+            <Number number={unreadMessagesNumber} white>{unreadMessagesNumber}</Number>
+          );
 
           return (
-            <Item
-              key={id}
-              companion={companion}
-              text={text}
-              isSelected={companion.id === companionId}
-              date={new Date(lastMessage.createdAt)}
+            <Item key={id} companion={companion} text={text} selected={selected}
+                  date={new Date(lastMessage.createdAt)} info={info}
             />
           );
         })}
@@ -108,37 +137,34 @@ const ChatsList: React.FC = () => {
   );
 };
 
-const List = styled.div`
-  display: flex;
-  flex-direction: column;
+const List = styled(Col)`
   width: 100%;
-
-  & > :not(:first-child) {
-    margin-top: 2rem;
-  }
 `;
 
 interface ItemProps {
   text: string;
-  companion: User;
+  companion: IUser;
   date: Date;
-  isSelected: boolean;
+  selected: boolean;
+  info: React.ReactNode;
 }
 
-const Item: React.FC<ItemProps> = ({text, companion, date, isSelected}) => (
+const Item: React.FC<ItemProps> = ({text, companion, date, info, selected}) => (
   <ChatLink to={`/${companion.id}`}>
-    <ItemWrapper blue={isSelected}>
-      <ComponionAvatar>
-        <Avatar src={companion.avatar} />
-      </ComponionAvatar>
+    <ItemWrapper blue={selected}>
+      <CompanionAvatar>
+        <Avatar src={companion.avatar}/>
+      </CompanionAvatar>
 
       <ItemContent>
-        <UserName>{companion.firstName}</UserName>
-        <Text white={isSelected}>{text}</Text>
+        <UserName space="nowrap">{companion.firstName}</UserName>
+        <Text space="nowrap" white={selected}>{text}</Text>
       </ItemContent>
 
       <ItemInfo>
-        {date && <Text white={isSelected}>{format(date, "HH:mm")}</Text>}
+        <Text white={selected}>{format(date, "HH:mm")}</Text>
+
+        {info}
       </ItemInfo>
     </ItemWrapper>
   </ChatLink>
@@ -148,12 +174,12 @@ const ItemWrapper = styled.div<{blue: boolean}>`
   width: 100%;
   display: flex;
   background-color: ${({theme, blue}) =>
-    blue ? theme.palette.secondary.main : theme.palette.primary.main};
+  blue ? theme.palette.secondary.main : theme.palette.primary.main};
   border-radius: 5px;
   padding: 1.5rem;
 `;
 
-const ComponionAvatar = styled.div`
+const CompanionAvatar = styled.div`
   width: 6.5rem;
   height: 6.5rem;
 `;
@@ -168,8 +194,11 @@ const ItemContent = styled.div`
 
 const ItemInfo = styled.div`
   display: flex;
-  justify-content: flex-end;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-between;
   width: calc(30% - 65px);
+  padding: 1rem 0;
 `;
 
 const ChatLink = styled(Link)`

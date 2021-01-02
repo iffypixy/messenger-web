@@ -1,15 +1,15 @@
 import {AxiosPromise} from "axios";
 
 import {request} from "@lib/request";
+import {IFile} from "./common";
 
-const upload = (file: FormData): AxiosPromise<void> =>
-  request({
-    method: "POST",
-    url: "/api/upload",
-    data: file,
-    withCredentials: true
-  });
+const uploadFile = (file: FormData): AxiosPromise<{file: IFile}> => request({
+  method: "POST",
+  url: "/api/upload",
+  data: file,
+  withCredentials: true
+});
 
 export const uploadApi = {
-  upload
+  uploadFile
 };

@@ -2,13 +2,7 @@ import {AxiosPromise} from "axios";
 
 import {request} from "@lib/request";
 import {getFingerprint} from "@lib/fingerprint";
-
-export interface IUser {
-  id: string;
-  firstName: string;
-  lastName: string;
-  avatar: string;
-}
+import {IUser} from "./common";
 
 export interface IRegisterData {
   email: string;
@@ -23,7 +17,6 @@ const register = async (data: IRegisterData): Promise<AxiosPromise<{credentials:
   method: "POST",
   withCredentials: true
 });
-
 
 export interface ILoginData {
   email: string;

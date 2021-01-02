@@ -1,54 +1,36 @@
 import {createReducer, PayloadAction} from "@reduxjs/toolkit";
+import {nanoid} from "nanoid";
 
-import {IDialog, IMessage, IDialogsListItem} from "@api/dialog.api";
-import {IUser} from "@api/auth.api";
+import {IMessage, IDialogsListItem, IUser} from "@api/common";
 import * as actions from "../actions";
 
 interface InitialState {
-  list: IDialogsListItem[];
+  list: IDialogsListItem[] | null;
   currentCompanionId: string | null;
   dialogs: {
     [key: string]: {
-      companion?: IUser;
-      messages?: IMessage[];
+      companion: IUser;
+      messages: IMessage[];
     };
   };
 }
 
 export const dataReducer = createReducer<InitialState>(
   {
-    list: [],
+    list: null,
     currentCompanionId: null,
     dialogs: {}
   },
   {
-    [actions.fetchDialogs.fulfilled.type]: (
-      state,
-      {payload}: PayloadAction<{dialogs: IDialogsListItem[]}>
-    ) => {
+    [actions.setCurrentCompanionId.type]: (state, {payload}: PayloadAction<string>) => {
+      state.currentCompanionId = payload;
+    },
+
+    [actions.fetchDialogs.fulfilled.type]: (state, {payload}: PayloadAction<{dialogs: IDialogsListItem[]}>) => {
       state.list = payload.dialogs;
     },
 
-    [actions.fetchMessages.fulfilled.type]: (
-      {dialogs, currentCompanionId},
-      {payload}: PayloadAction<{messages: IMessage[]}>
-    ) => {
-      const dialog = dialogs[currentCompanionId!] || {};
-
-      dialog.messages = payload.messages;
-
-      dialogs[currentCompanionId!] = dialog;
-    },
-
-    [actions.fetchCreateMessage.fulfilled.type]: (
-      state,
-      {payload}: PayloadAction<{message: IMessage}>
-    ) => {},
-
-    [actions.fetchCompanion.fulfilled.type]: (
-      {dialogs, currentCompanionId},
-      {payload}: PayloadAction<{user: IUser}>
-    ) => {
+    [actions.fetchCompanion.fulfilled.type]: ({dialogs, currentCompanionId}, {payload}: PayloadAction<{user: IUser}>) => {
       const dialog = dialogs[currentCompanionId!] || {};
 
       dialogs[currentCompanionId!] = {
@@ -57,79 +39,96 @@ export const dataReducer = createReducer<InitialState>(
       };
     },
 
-    [actions.setCurrentCompanionId.type]: (
-      state,
-      {payload}: PayloadAction<string>
-    ) => {
-      state.currentCompanionId = payload;
+    [actions.fetchMessages.fulfilled.type]: ({dialogs, currentCompanionId}, {payload}: PayloadAction<{messages: IMessage[]}>) => {
+      const dialog = dialogs[currentCompanionId!] || {};
+
+      dialogs[currentCompanionId!] = {
+        companion: dialog.companion,
+        messages: dialog.messages ? [...payload.messages, ...dialog.messages]
+          : payload.messages
+      };
+    },
+
+    [actions.addMessage.type]: (state, {payload}: PayloadAction<IMessage>) => {
+      const dialog = state.dialogs[state.currentCompanionId!] || {};
+
+      state.dialogs[state.currentCompanionId!] = {
+        companion: dialog.companion,
+        messages: dialog.messages ? [...dialog.messages, payload] : [payload]
+      };
+
+      if (state.list) {
+        let idx = state.list.findIndex(({companion}) => companion.id === state.currentCompanionId);
+
+        if (idx === -1) idx = state.list.length;
+
+        state.list[idx] = {
+          id: state.list[idx]?.id || nanoid(),
+          companion: state.list[idx]?.companion || dialog.companion,
+          unreadMessagesNumber: state.list[idx]?.unreadMessagesNumber,
+          lastMessage: payload
+        };
+      }
     },
 
     [actions.addCompanionMessage.type]: (
-      state,
-      {payload}: PayloadAction<IMessage>
+      state, {payload}: PayloadAction<IMessage>
     ) => {
-      let idx = state.list.findIndex(
-        (item) => item.companion.id === payload.sender.id
-      );
-
-      if (idx === -1) idx = state.list.length;
-
-      state.list[idx] = {
-        id: state.list[idx]?.id,
-        companion: payload.sender,
-        lastMessage: payload
-      };
-
       const dialog = state.dialogs[payload.sender.id] || {};
 
-      dialog.companion = payload.sender;
-      dialog.messages = dialog.messages
-        ? [...dialog.messages, payload]
-        : [payload];
-
-      state.dialogs[payload.sender.id] = dialog;
-    },
-
-    [actions.addMessage.type]: (
-      state,
-      {
-        payload: {companion, message}
-      }: PayloadAction<{companion: IUser; message: IMessage & {id?: number}}>
-    ) => {
-      let idx = state.list.findIndex(
-        (item) => item.companion.id === companion.id
-      );
-
-      if (idx === -1) idx = state.list.length;
-
-      state.list[idx] = {
-        id: state.list[idx]?.id,
-        companion: companion,
-        lastMessage: message
+      state.dialogs[payload.sender.id] = {
+        companion: payload.sender,
+        messages: dialog.messages && [...dialog.messages, payload]
       };
 
-      const dialog = state.dialogs[companion.id] || {};
+      if (state.list) {
+        let idx = state.list.findIndex(({companion}) => companion.id === payload.sender.id);
 
-      dialog.messages = dialog.messages
-        ? [...dialog.messages, message]
-        : [message];
+        if (idx === -1) idx = state.list.length;
 
-      state.dialogs[companion.id] = dialog;
+        state.list[idx] = {
+          id: state.list[idx]?.id || nanoid(),
+          companion: state.list[idx]?.companion || payload.sender,
+          unreadMessagesNumber: state.list[idx]?.unreadMessagesNumber ? state.list[idx]?.unreadMessagesNumber + 1 : 1,
+          lastMessage: payload
+        };
+      }
+    },
+
+    [actions.updateMessage.type]: ({dialogs}, {payload: {companionId, messageId, updatedMessage}}:
+      PayloadAction<{companionId: string; messageId: string; updatedMessage: IMessage}>) => {
+      const dialog = dialogs[companionId!] || {};
+
+      dialogs[companionId!] = {
+        companion: dialog.companion,
+        messages: dialog.messages && dialog.messages.map((msg) => msg.id === messageId ? updatedMessage : msg)
+      };
     },
 
     [actions.setMessagesRead.type]: (
-      {dialogs, currentCompanionId},
-      {payload}: PayloadAction<string[]>
+      state, {payload: {ids, companionId}}: PayloadAction<{ids: string[]; companionId: string}>
     ) => {
-      const dialog = dialogs[currentCompanionId!] || {};
+      const dialog = state.dialogs[companionId] || {};
 
-      dialog.messages = dialog.messages
-        ? dialog.messages.map((msg) =>
-            payload.includes(msg.id) ? {...msg, isRead: true} : msg
-          )
-        : [];
+      const messages = dialog.messages && dialog.messages
+        .map((msg) => ids.includes(msg.id) ? {...msg, isRead: true} : msg);
 
-      dialogs[currentCompanionId!] = dialog;
+      state.dialogs[companionId] = {companion: dialog.companion, messages};
+
+      state.list = state.list && state.list
+        .map((item) =>
+          (item.companion.id === companionId) &&
+          (ids.includes(item.lastMessage.id)) ?
+            {
+              ...item, unreadMessagesNumber: 0,
+              lastMessage: {...item.lastMessage, isRead: true}
+            } : {
+              ...item,
+              unreadMessagesNumber: messages ?
+                messages.filter(({isRead}) => !isRead).length
+                : item.unreadMessagesNumber
+            }
+        );
     }
   }
 );

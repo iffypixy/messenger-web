@@ -1,35 +1,36 @@
 import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 
-import {dialogApi, IMessage, IGetMessagesData, ICreateMessageData, IDialog} from "@api/dialog.api";
-import {IRequestQuery} from "@lib/interfaces";
-import {IUser} from "@api/auth.api";
+import {dialogApi, IGetMessagesData, ICreateMessageData} from "@api/dialog.api";
+import {IUser, IMessage, IDialogsListItem} from "@api/common";
 import {userApi} from "@api/user.api";
 
 const typePrefix = "chat/dialogs";
 
 export const fetchMessages = createAsyncThunk<{messages: IMessage[]}, IGetMessagesData>(`${typePrefix}/fetchMessages`, async (args) => {
-    const {data} = await dialogApi.getMessages(args);
+  const {data} = await dialogApi.getMessages(args);
 
-    return data;
+  return data;
 });
 
-export const fetchDialogs = createAsyncThunk<{dialogs: IDialog[]}, IRequestQuery>(`${typePrefix}/fetchDialogs`, async (args) => {
-    const {data} = await dialogApi.getDialogs(args);
+export const fetchDialogs = createAsyncThunk<{dialogs: IDialogsListItem[]}>(`${typePrefix}/fetchDialogs`, async () => {
+  const {data} = await dialogApi.getDialogs();
 
-    return data;
+  return data;
 });
 
-export const fetchCreateMessage = createAsyncThunk<{message: IMessage}, ICreateMessageData>(`${typePrefix}/fetchCreateMessage`, async (args) => {
-    const {data} = await dialogApi.createMessage(args);
+export const fetchCreateMessage = createAsyncThunk<{message: IMessage}, ICreateMessageData & {tempMessageId: string}>(`${typePrefix}/fetchCreateMessage`, async ({companionId, message}) => {
+  const {data} = await dialogApi.createMessage({companionId, message});
 
-    return data;
+  return data;
 });
 
 export const fetchCompanion = createAsyncThunk<{user: IUser}, string>(`${typePrefix}/fetchCompanion`, async (id) => {
-    const {data} = await userApi.getUser(id);
+  const {data} = await userApi.getUser(id);
 
-    return data;
+  return data;
 });
+
+export const updateMessage = createAction<{messageId: string; companionId: string; updatedMessage: IMessage}>(`${typePrefix}/updateMessage`);
 
 export const addCompanionMessage = createAction<IMessage>(`${typePrefix}/addCompanionMessage`);
 

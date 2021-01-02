@@ -6,24 +6,33 @@ import {authSelectors} from "@features/auth";
 import {BACKEND_URL} from "@lib/constants";
 import {useActions} from "@lib/hooks";
 import {chatDialogsActions} from "@features/chat/features/dialogs";
-import {Message} from "@api/dialog.api";
+import {IMessage} from "@api/common";
 
-export const socket = io(`${BACKEND_URL}`, {reconnection: true});
+export const socket = io(BACKEND_URL);
 
 interface Props {
-    children: React.ReactElement;
+  children: React.ReactElement;
 }
 
 export const SocketInit: React.FC<Props> = ({children}) => {
   const credentials = useSelector(authSelectors.credentialsSelector);
   const isAuthenticated = useSelector(authSelectors.isAuthenticatedSelector);
-  const {addCompanionMessage} = useActions(chatDialogsActions);
+
+  const {addCompanionMessage, setMessagesRead} = useActions(chatDialogsActions);
 
   useEffect(() => {
     if (isAuthenticated) {
       socket.emit("credentials", {userId: credentials!.id});
 
-      socket.on("message", ({message}: {message: Message}) => addCompanionMessage(message));
+      socket.on("message", ({message}: {message: IMessage}) =>
+        addCompanionMessage( message)
+      );
+      
+      socket.on(
+        "read-messages",
+        ({ids, companionId}: {ids: string[]; companionId: string}) =>
+          setMessagesRead({companionId, ids})
+      );
     }
   }, [isAuthenticated]);
 

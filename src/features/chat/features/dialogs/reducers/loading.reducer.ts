@@ -2,7 +2,6 @@ import {createReducer} from "@reduxjs/toolkit";
 
 import * as actions from "../actions";
 
-
 interface InitialState {
     areDialogsFetching: boolean;
     areMessagesFetching: boolean;
