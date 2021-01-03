@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 import {nanoid} from "nanoid";
-import {PayloadAction, unwrapResult} from "@reduxjs/toolkit";
+import {unwrapResult} from "@reduxjs/toolkit";
 import {BaseEmoji} from "emoji-mart";
 
 import {authSelectors} from "@features/auth";

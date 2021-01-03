@@ -14,7 +14,7 @@ export const loadingReducer = createReducer<InitialState>(
       areDialogsFetching: false,
       areMessagesFetching: false,
       isCreateMessageFetching: false,
-      isCompanionFetching: false
+      isCompanionFetching: false,
   },
   {
     [actions.fetchDialogs.pending.type]: (state) => {

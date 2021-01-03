@@ -6,22 +6,25 @@ import {useParams} from "react-router-dom";
 import {unwrapResult} from "@reduxjs/toolkit";
 
 import {authSelectors} from "@features/auth";
-import {chatActions, getForeignUnreadMessagesIds, Message} from "@features/chat";
+import {chatActions, getForeignUnreadMessagesIds, Message, MessageSkeleton} from "@features/chat";
 import {useActions} from "@lib/hooks";
 import {socket} from "@lib/socket";
 import {Text} from "@ui/atoms";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
+const DEFAULT_SKELETON_LIST = 7;
+
 export const MessagesList: React.FC = () => {
   const [isInitiallyScrolled, setIsInitiallyScrolled] = useState<boolean>(false);
 
   const credentials = useSelector(authSelectors.credentialsSelector);
   const dialog = useSelector(selectors.dialogSelector);
+  const areMessagesFetching = useSelector(selectors.areMessagesFetchingSelector);
 
   const {companionId} = useParams<{companionId: string}>();
 
-  const {fetchReadMessages, setMessagesRead} = useActions({...actions, ...chatActions});
+  const {fetchReadMessages, setMessagesRead, fetchMessages} = useActions({...actions, ...chatActions});
 
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -29,6 +32,12 @@ export const MessagesList: React.FC = () => {
 
   const handleListScroll = ({currentTarget}: React.UIEvent<HTMLDivElement>) => {
     const ids = getForeignUnreadMessagesIds(currentTarget);
+
+    if (currentTarget.scrollTop < 250)
+      fetchMessages({
+        companionId, take: 30,
+        skip: dialog?.messages?.length
+      });
 
     if (ids.length) {
       setMessagesRead({ids, companionId});
@@ -61,6 +70,8 @@ export const MessagesList: React.FC = () => {
 
   return (
     <List ref={listRef} onScroll={handleListScroll}>
+      {areMessagesFetching && Array.from({length: DEFAULT_SKELETON_LIST}, (_, idx) => <MessageSkeleton key={idx}/>)}
+
       {messages && messages.map((msg, idx) => {
         const previous = messages[idx - 1];
 
@@ -71,11 +82,11 @@ export const MessagesList: React.FC = () => {
         return (
           <React.Fragment key={msg.id || idx}>
             {isNewDay && (
-              <NewDayBlock>
-                <ListLine/>
+              <NewDay>
+                <Line/>
                 <Text>{format(new Date(msg.createdAt), "dd LLLL")}</Text>
-                <ListLine/>
-              </NewDayBlock>
+                <Line/>
+              </NewDay>
             )}
 
             <Message
@@ -106,15 +117,15 @@ const List = styled.div`
   }
 `;
 
-const NewDayBlock = styled.div`
+const NewDay = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  margin: 2rem 0;
+  margin: 4rem 0 2rem!important;
 `;
 
-const ListLine = styled.div`
+const Line = styled.div`
   width: 40%;
   height: 2px;
   background-color: ${({theme}) => theme.palette.primary.main};

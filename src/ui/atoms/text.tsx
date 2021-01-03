@@ -10,9 +10,18 @@ export const Text = styled.span<Props>`
         color: ${white ? theme.palette.text.primary : theme.palette.text.secondary};
         font-family: ${theme.typography.fontFamily};
         font-weight: ${theme.typography.fontWeight.regular};
-        font-size: 1.4rem;
         white-space: ${space};
-        text-overflow: ellipsis;
-        overflow: hidden;
+    `};
+    
+    font-size: 1.4rem;
+    text-overflow: ellipsis;
+    overflow: hidden;
+`;
+
+export const BoldText = styled(Text)`
+    ${({theme}) => css`
+        color: ${theme.palette.text.primary};
+        font-weight: ${theme.typography.fontWeight.medium};
+        font-size: ${theme.typography.fontSize};
     `}
 `;

@@ -4,7 +4,7 @@ import format from "date-fns/format";
 
 import {Col} from "@lib/layout";
 import {IUser} from "@api/common";
-import {Text, Avatar, Icon} from "@ui/atoms";
+import {Text, Avatar, Icon, Skeleton} from "@ui/atoms";
 
 interface Props {
   id: string;
@@ -38,6 +38,30 @@ export const Message: React.FC<Props> = ({id, text, sender, createdAt, own, read
   </Wrapper>
 );
 
+export const MessageSkeleton: React.FC = () => {
+  const own = Math.round(Math.random()) % 2 === 0;
+
+  return (
+    <Wrapper own={own}>
+      <MessageBlock>
+        <Header own={own}>
+          <Skeleton.Text width="4rem" />
+        </Header>
+        <Block own={own}>
+          <AvatarWrapper own={own}>
+            <Skeleton.Image />
+          </AvatarWrapper>
+
+          <Col>
+            <Bubble own={own}>
+              <Skeleton.Text width="10rem" />
+            </Bubble>
+          </Col>
+        </Block>
+      </MessageBlock>
+    </Wrapper>
+  );
+};
 
 interface StylingProps {
   own: boolean;

@@ -1,4 +1,4 @@
-import {transformMessageToText} from "./transform-message-to-text";
+import {stringifyMessage} from "./stringify-message";
 import {getForeignUnreadMessagesIds} from "./get-foreign-unread-messages-ids";
 
-export {transformMessageToText, getForeignUnreadMessagesIds};
+export {stringifyMessage, getForeignUnreadMessagesIds};

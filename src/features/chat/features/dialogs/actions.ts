@@ -32,6 +32,8 @@ export const fetchCompanion = createAsyncThunk<{user: IUser}, string>(`${typePre
 
 export const updateMessage = createAction<{messageId: string; companionId: string; updatedMessage: IMessage}>(`${typePrefix}/updateMessage`);
 
+export const setTypingStatus = createAction<{companionId: string; typing: boolean}>(`${typePrefix}/setTypingStatus`);
+
 export const addCompanionMessage = createAction<IMessage>(`${typePrefix}/addCompanionMessage`);
 
 export const addMessage = createAction(`${typePrefix}/addMessage`);

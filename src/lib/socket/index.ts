@@ -14,25 +14,35 @@ interface Props {
   children: React.ReactElement;
 }
 
+let typingTimeout: number | null = null;
+
 export const SocketInit: React.FC<Props> = ({children}) => {
   const credentials = useSelector(authSelectors.credentialsSelector);
   const isAuthenticated = useSelector(authSelectors.isAuthenticatedSelector);
 
-  const {addCompanionMessage, setMessagesRead} = useActions(chatDialogsActions);
+  const {addCompanionMessage, setMessagesRead, setTypingStatus} = useActions(chatDialogsActions);
 
   useEffect(() => {
     if (isAuthenticated) {
       socket.emit("credentials", {userId: credentials!.id});
 
       socket.on("message", ({message}: {message: IMessage}) =>
-        addCompanionMessage( message)
+        addCompanionMessage(message)
       );
-      
-      socket.on(
-        "read-messages",
-        ({ids, companionId}: {ids: string[]; companionId: string}) =>
-          setMessagesRead({companionId, ids})
+
+      socket.on("read-messages", ({ids, companionId}: {ids: string[]; companionId: string}) =>
+        setMessagesRead({companionId, ids})
       );
+
+      socket.on("typing", ({companionId}: {companionId: string}) => {
+        if (typingTimeout) clearTimeout(typingTimeout);
+
+        setTypingStatus({companionId, typing: true});
+
+        typingTimeout = setTimeout(() => {
+          setTypingStatus({companionId, typing: false});
+        }, 1000);
+      });
     }
   }, [isAuthenticated]);
 

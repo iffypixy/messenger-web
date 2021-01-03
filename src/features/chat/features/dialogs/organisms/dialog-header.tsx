@@ -2,25 +2,27 @@ import React from "react";
 import {useSelector} from "react-redux";
 import styled from "styled-components";
 
-import {UserName} from "@features/user";
 import {chatDialogsSelectors} from "@features/chat/features/dialogs";
-import {Avatar, Button, Icon, Text} from "@ui/atoms";
+import {Avatar, Button, Icon, Text, BoldText, Skeleton} from "@ui/atoms";
 
 export const DialogHeader: React.FC = () => {
   const dialog = useSelector(chatDialogsSelectors.dialogSelector);
+  const isCompanionFetching = useSelector(chatDialogsSelectors.isCompanionFetchingSelector);
 
   const companion = dialog?.companion;
+
+  const info = dialog?.typing ? "typing..." : "Online/offline";
 
   return (
     <Header>
       <HeaderInfo>
         <HeaderAvatar>
-          <Avatar src={companion?.avatar} />
+          {isCompanionFetching ? <Skeleton.Image secondary /> : <Avatar src={companion?.avatar} />}
         </HeaderAvatar>
 
         <HeaderContent>
-          <UserName>{companion?.firstName}</UserName>
-          <Text>Online/offline</Text>
+          {isCompanionFetching ? <Skeleton.Text width="15rem" secondary /> : <BoldText>{companion?.firstName}</BoldText>}
+          {isCompanionFetching ? <Skeleton.Text width="10rem" secondary /> : <Text>{info}</Text>}
         </HeaderContent>
       </HeaderInfo>
 
@@ -50,8 +52,8 @@ const HeaderInfo = styled.div`
 `;
 
 const HeaderAvatar = styled.div`
-  width: 65px;
-  height: 65px;
+  width: 6.5rem;
+  height: 6.5rem;
 `;
 
 const HeaderContent = styled.div`
