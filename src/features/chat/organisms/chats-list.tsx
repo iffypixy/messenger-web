@@ -5,7 +5,7 @@ import format from "date-fns/format";
 import {Link, useParams} from "react-router-dom";
 
 import {authSelectors} from "@features/auth";
-import {Avatar, Icon, Text, RoundedNumber, BoldText, Skeleton} from "@ui/atoms";
+import {Avatar, Icon, Text, RoundedNumber, Skeleton} from "@ui/atoms";
 import {Col} from "@lib/layout";
 import {chatDialogsSelectors} from "../features/dialogs";
 import {stringifyMessage} from "../lib";
@@ -26,7 +26,7 @@ export const ChatsList: React.FC = () => {
       {areDialogsFetching && Array.from({length: DEFAULT_SKELETON_COUNT}, (_, idx) => (
         <Wrapper key={idx}>
           <ChatAvatar>
-            <Skeleton.Image/>
+            <Skeleton.Avatar/>
           </ChatAvatar>
 
           <Content>
@@ -41,12 +41,12 @@ export const ChatsList: React.FC = () => {
         </Wrapper>
       ))}
 
-      {dialogs && dialogs.map(({id, companion, lastMessage, unreadMessagesNumber, typing}) => {
+      {dialogs && dialogs.map(({id, companion, lastMessage, unreadMessagesNumber, status}) => {
         const selected = companion.id === companionId;
         const own = credentials!.id === lastMessage.sender.id;
 
         const info = unreadMessagesNumber ?
-          <RoundedNumber digits={unreadMessagesNumber.toString().length} white>{unreadMessagesNumber}</RoundedNumber> :
+          <RoundedNumber digits={unreadMessagesNumber.toString().length} primary>{unreadMessagesNumber}</RoundedNumber> :
           own && <Icon name={lastMessage.isRead ? "double-check" : "check"} gray={!selected}/>;
 
         return {
@@ -55,7 +55,7 @@ export const ChatsList: React.FC = () => {
           title: companion.firstName,
           avatar: companion.avatar,
           date: new Date(lastMessage.createdAt),
-          text: typing ? "typing..." : `${own ? "You: " : ""}${stringifyMessage(lastMessage)}`
+          text: status || `${own ? "You: " : ""}${stringifyMessage(lastMessage)}`
         };
       })
         .sort((a, b) => +a.date - +b.date)
@@ -68,12 +68,12 @@ export const ChatsList: React.FC = () => {
                 </ChatAvatar>
 
                 <Content>
-                  <BoldText space="nowrap">{title}</BoldText>
-                  <Text space="nowrap" white={selected}>{text}</Text>
+                  <Text type="bold" space="nowrap" primary>{title}</Text>
+                  <Text space="nowrap" primary={selected}>{text}</Text>
                 </Content>
 
                 <Information>
-                  <Text white={selected}>{format(date, "HH:mm")}</Text>
+                  <Text primary={selected}>{format(date, "HH:mm")}</Text>
 
                   {info}
                 </Information>

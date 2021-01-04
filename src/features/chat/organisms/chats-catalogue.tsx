@@ -2,34 +2,41 @@ import React from "react";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
 
-import {H3, Input, Text, RoundedNumber} from "@ui/atoms";
-import {useActions} from "@lib/hooks";
+import {H3, Input, RoundedNumber, Button} from "@ui/atoms";
+import {useActions, useModal} from "@lib/hooks";
 import {Row} from "@lib/layout";
 import {chatDialogsSelectors} from "../features/dialogs";
 import {ChatsList} from "./chats-list";
+import {NewChatModal} from "./new-chat-modal";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
 export const ChatsCatalogue: React.FC = () => {
+  const {isModalOpen, openModal, closeModal} = useModal();
+
   const dialogs = useSelector(chatDialogsSelectors.listSelector);
 
   const number = dialogs ? dialogs
     .reduce((previous, {unreadMessagesNumber: number}) => previous + number, 0) : 0;
 
   return (
-    <Catalogue>
-      <Header>
-        <Row gap="1rem" align="center">
-          <H3>Messages</H3>
-          {!!number && <RoundedNumber digits={number} white>{number}</RoundedNumber>}
-        </Row>
-        <Text>+ New chat</Text>
-      </Header>
+    <>
+      {isModalOpen && <NewChatModal closeModal={closeModal} />}
 
-      <SearchBar/>
+      <Catalogue>
+        <Header>
+          <Row gap="1rem" align="center">
+            <H3>Messages</H3>
+            {!!number && <RoundedNumber digits={number} primary>{number}</RoundedNumber>}
+          </Row>
+          <NewChatButton onClick={(() => openModal())} pure>+ New chat</NewChatButton>
+        </Header>
 
-      <ChatsList/>
-    </Catalogue>
+        <SearchBar/>
+
+        <ChatsList/>
+      </Catalogue>
+    </>
   );
 };
 
@@ -78,3 +85,6 @@ const Bar = styled.div`
   margin-bottom: 2rem;
 `;
 
+const NewChatButton = styled(Button)`
+  color: ${({theme}) => theme.palette.text.secondary};
+`;

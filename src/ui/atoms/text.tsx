@@ -1,27 +1,21 @@
 import styled, {css} from "styled-components";
 
 interface Props {
-    white?: boolean;
+    primary?: boolean;
     space?: "nowrap" | "pre-wrap";
+    type?: "bold";
 }
 
 export const Text = styled.span<Props>`
-    ${({theme, white, space}) => css`
-        color: ${white ? theme.palette.text.primary : theme.palette.text.secondary};
+    ${({theme, primary, space, type}) => css`
+        color: ${primary ? theme.palette.text.primary : theme.palette.text.secondary};
         font-family: ${theme.typography.fontFamily};
-        font-weight: ${theme.typography.fontWeight.regular};
+        font-weight: ${type === "bold" ? theme.typography.fontWeight.medium : theme.typography.fontWeight.regular};
+        font-size: ${theme.typography.fontSize};
         white-space: ${space};
     `};
     
     font-size: 1.4rem;
     text-overflow: ellipsis;
     overflow: hidden;
-`;
-
-export const BoldText = styled(Text)`
-    ${({theme}) => css`
-        color: ${theme.palette.text.primary};
-        font-weight: ${theme.typography.fontWeight.medium};
-        font-size: ${theme.typography.fontSize};
-    `}
 `;

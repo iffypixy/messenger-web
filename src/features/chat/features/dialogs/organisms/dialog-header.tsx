@@ -3,7 +3,7 @@ import {useSelector} from "react-redux";
 import styled from "styled-components";
 
 import {chatDialogsSelectors} from "@features/chat/features/dialogs";
-import {Avatar, Button, Icon, Text, BoldText, Skeleton} from "@ui/atoms";
+import {Avatar, Button, Icon, Text, Skeleton} from "@ui/atoms";
 
 export const DialogHeader: React.FC = () => {
   const dialog = useSelector(chatDialogsSelectors.dialogSelector);
@@ -11,27 +11,27 @@ export const DialogHeader: React.FC = () => {
 
   const companion = dialog?.companion;
 
-  const info = dialog?.typing ? "typing..." : "Online/offline";
+  const info = dialog?.status || "Online/offline";
 
   return (
     <Header>
       <HeaderInfo>
         <HeaderAvatar>
-          {isCompanionFetching ? <Skeleton.Image secondary /> : <Avatar src={companion?.avatar} />}
+          {isCompanionFetching ? <Skeleton.Avatar secondary /> : <Avatar src={companion?.avatar} />}
         </HeaderAvatar>
 
         <HeaderContent>
-          {isCompanionFetching ? <Skeleton.Text width="15rem" secondary /> : <BoldText>{companion?.firstName}</BoldText>}
+          {isCompanionFetching ? <Skeleton.Text width="15rem" secondary /> : <Text type="bold" primary>{companion?.firstName}</Text>}
           {isCompanionFetching ? <Skeleton.Text width="10rem" secondary /> : <Text>{info}</Text>}
         </HeaderContent>
       </HeaderInfo>
 
       <HeaderOptions>
-        <Button iconic>
+        <Button pure>
           <Icon name="loupe" />
         </Button>
 
-        <Button iconic>
+        <Button pure>
           <Icon name="attachment" />
         </Button>
       </HeaderOptions>

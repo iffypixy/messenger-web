@@ -9,6 +9,7 @@ import {authSelectors} from "@features/auth";
 import {chatActions, getForeignUnreadMessagesIds, Message, MessageSkeleton} from "@features/chat";
 import {useActions} from "@lib/hooks";
 import {socket} from "@lib/socket";
+import {scrollElementToBottom} from "@lib/dom";
 import {Text} from "@ui/atoms";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
@@ -19,68 +20,63 @@ export const MessagesList: React.FC = () => {
   const [isInitiallyScrolled, setIsInitiallyScrolled] = useState<boolean>(false);
 
   const credentials = useSelector(authSelectors.credentialsSelector);
-  const dialog = useSelector(selectors.dialogSelector);
-  const areMessagesFetching = useSelector(selectors.areMessagesFetchingSelector);
+  const {messages, areAllMessagesFetched} = useSelector(selectors.dialogSelector) || {};
+  const areFetching = useSelector(selectors.areMessagesFetchingSelector);
 
   const {companionId} = useParams<{companionId: string}>();
-
   const {fetchReadMessages, setMessagesRead, fetchMessages} = useActions({...actions, ...chatActions});
 
   const listRef = useRef<HTMLDivElement>(null);
 
-  const messages = dialog?.messages;
+  const msg = messages && messages[messages.length - 1];
+
+  useEffect(() => {
+    if (!msg) return;
+
+    const list = listRef.current;
+
+    if (!isInitiallyScrolled) {
+      scrollElementToBottom(list!);
+
+      return setIsInitiallyScrolled(true);
+    }
+
+    const diff = list!.scrollHeight - list!.scrollTop;
+
+    if (msg.sender.id === credentials!.id || diff < 1250) {
+      scrollElementToBottom(list!);
+    }
+  }, [msg]);
 
   const handleListScroll = ({currentTarget}: React.UIEvent<HTMLDivElement>) => {
-    const ids = getForeignUnreadMessagesIds(currentTarget);
+    if (!areAllMessagesFetched && currentTarget.scrollTop < 250) {
+      fetchMessages({companionId, take: 30, skip: messages?.length});
+    }
 
-    if (currentTarget.scrollTop < 250)
-      fetchMessages({
-        companionId, take: 30,
-        skip: dialog?.messages?.length
-      });
+    const ids = getForeignUnreadMessagesIds(currentTarget);
 
     if (ids.length) {
       setMessagesRead({ids, companionId});
 
       fetchReadMessages(ids)
         .then(unwrapResult)
-        .then(() =>
-          socket.emit("read-messages", {ids, recipientId: companionId}))
-        .catch(() => {});
+        .then(() => socket.emit("read-messages", {ids, recipientId: companionId}))
+        .catch(() => null);
     }
   };
 
-  useEffect(() => {
-    if (!messages) return;
-
-    const list = listRef.current;
-
-    if (!isInitiallyScrolled) {
-      list!.scrollTop = list!.scrollHeight;
-
-      setIsInitiallyScrolled(true);
-    } else {
-      const msg = messages[messages.length - 1];
-
-      if (msg?.sender?.id === credentials!.id ||
-        list!.scrollHeight - list!.scrollTop < 1250)
-        list!.scrollTop = list!.scrollHeight;
-    }
-  }, [messages]);
-
   return (
     <List ref={listRef} onScroll={handleListScroll}>
-      {areMessagesFetching && Array.from({length: DEFAULT_SKELETON_LIST}, (_, idx) => <MessageSkeleton key={idx}/>)}
+      {areFetching && Array.from({length: DEFAULT_SKELETON_LIST}, (_, idx) => <MessageSkeleton key={idx}/>)}
 
       {messages && messages.map((msg, idx) => {
         const previous = messages[idx - 1];
 
         const isNewDay = idx === 0 || (previous &&
-          +new Date(previous.createdAt).getDay() !==
-          +new Date(msg.createdAt).getDay());
+          +new Date(previous.createdAt).getDay() !== +new Date(msg.createdAt).getDay());
 
         return (
-          <React.Fragment key={msg.id || idx}>
+          <React.Fragment key={msg.id}>
             {isNewDay && (
               <NewDay>
                 <Line/>

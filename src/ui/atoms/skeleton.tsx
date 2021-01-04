@@ -21,7 +21,7 @@ const Text = styled.div<TextProps>`
   height: 15px;
 `;
 
-const Image = styled.div<Props>`
+const Avatar = styled.div<Props>`
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -32,5 +32,5 @@ const Image = styled.div<Props>`
 
 
 export const Skeleton = {
-  Text, Image
+  Text, Avatar
 };

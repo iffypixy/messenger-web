@@ -1,6 +1,6 @@
 import {AxiosPromise} from "axios";
 
-import {request} from "@lib/request";
+import {IRequestQuery, request} from "@lib/request";
 import {IUser} from "./common";
 
 const getUser = (id: string): AxiosPromise<{user: IUser}> => request({
@@ -9,6 +9,16 @@ const getUser = (id: string): AxiosPromise<{user: IUser}> => request({
   withCredentials: true
 });
 
+const getUsersByQuery = ({take, query}: IRequestQuery & {query: string}): AxiosPromise<{users: IUser[]}> => request({
+  method: "GET",
+  url: "/api/users/search",
+  withCredentials: true,
+  params: {
+    q: query,
+    limit: take
+  }
+})
+
 export const userApi = {
-  getUser
+  getUser, getUsersByQuery
 };

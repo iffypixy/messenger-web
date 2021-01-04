@@ -134,7 +134,7 @@ export const DialogForm: React.FC = () => {
         </InputWrapper>
 
         <FormBlock>
-          <Button type="button" iconic>
+          <Button type="button" pure>
             <Icon name="microphone" gray role="button" type="button"/>
           </Button>
 

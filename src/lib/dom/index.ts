@@ -8,3 +8,7 @@ export function isElementVisible(elem: Element): boolean {
   
   return !(rect.bottom < 0 || rect.top - viewHeight >= 0);
 }
+
+export function scrollElementToBottom(element: Element): void {
+  element.scrollTop = element.scrollHeight;
+}

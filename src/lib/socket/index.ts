@@ -20,7 +20,7 @@ export const SocketInit: React.FC<Props> = ({children}) => {
   const credentials = useSelector(authSelectors.credentialsSelector);
   const isAuthenticated = useSelector(authSelectors.isAuthenticatedSelector);
 
-  const {addCompanionMessage, setMessagesRead, setTypingStatus} = useActions(chatDialogsActions);
+  const {addCompanionMessage, setMessagesRead, setCompanionStatus} = useActions(chatDialogsActions);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -34,13 +34,13 @@ export const SocketInit: React.FC<Props> = ({children}) => {
         setMessagesRead({companionId, ids})
       );
 
-      socket.on("typing", ({companionId}: {companionId: string}) => {
+      socket.on("typing", ({companionId, status}: {companionId: string, status: string}) => {
         if (typingTimeout) clearTimeout(typingTimeout);
 
-        setTypingStatus({companionId, typing: true});
+        setCompanionStatus({companionId, status});
 
         typingTimeout = setTimeout(() => {
-          setTypingStatus({companionId, typing: false});
+          setCompanionStatus({companionId, status: null});
         }, 1000);
       });
     }

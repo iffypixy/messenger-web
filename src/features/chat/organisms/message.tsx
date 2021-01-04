@@ -49,7 +49,7 @@ export const MessageSkeleton: React.FC = () => {
         </Header>
         <Block own={own}>
           <AvatarWrapper own={own}>
-            <Skeleton.Image />
+            <Skeleton.Avatar />
           </AvatarWrapper>
 
           <Col>
@@ -94,7 +94,7 @@ const Header = styled.div<StylingProps>`
   ` : css`
     justify-content: flex-start;
     padding-left: 4.5rem;
-  `}
+  `};
 `;
 
 const Block = styled.div<StylingProps>`

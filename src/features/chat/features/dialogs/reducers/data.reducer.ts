@@ -5,13 +5,14 @@ import {IMessage, IDialogsListItem, IUser} from "@api/common";
 import * as actions from "../actions";
 
 interface InitialState {
-  list: (IDialogsListItem & {typing: boolean})[] | null;
+  list: (IDialogsListItem & {status: string | null})[] | null;
   currentCompanionId: string | null;
   dialogs: {
     [key: string]: {
       companion: IUser;
       messages: IMessage[];
-      typing: boolean;
+      status: string | null;
+      areAllMessagesFetched?: boolean;
     };
   };
 }
@@ -28,16 +29,14 @@ export const dataReducer = createReducer<InitialState>(
     },
 
     [actions.fetchDialogs.fulfilled.type]: (state, {payload}: PayloadAction<{dialogs: IDialogsListItem[]}>) => {
-      state.list = payload.dialogs.map((dialog) => ({...dialog, typing: false}));
+      state.list = payload.dialogs.map((dialog) => ({...dialog, status: null}));
     },
 
     [actions.fetchCompanion.fulfilled.type]: ({dialogs, currentCompanionId}, {payload}: PayloadAction<{user: IUser}>) => {
       const dialog = dialogs[currentCompanionId!] || {};
 
       dialogs[currentCompanionId!] = {
-        companion: payload.user,
-        messages: dialog.messages,
-        typing: dialog.typing || false
+        ...dialog, companion: payload.user
       };
     },
 
@@ -45,9 +44,10 @@ export const dataReducer = createReducer<InitialState>(
       const dialog = dialogs[currentCompanionId!] || {};
 
       dialogs[currentCompanionId!] = {
-        companion: dialog.companion,
-        messages: dialog.messages ? [...payload.messages, ...dialog.messages] : payload.messages,
-        typing: dialog.typing || false
+        ...dialog,
+        messages: dialog.messages ?
+          [...payload.messages, ...dialog.messages] : payload.messages,
+        areAllMessagesFetched: payload.messages.length === 0
       };
     },
 
@@ -55,9 +55,8 @@ export const dataReducer = createReducer<InitialState>(
       const dialog = state.dialogs[state.currentCompanionId!] || {};
 
       state.dialogs[state.currentCompanionId!] = {
-        companion: dialog.companion,
-        messages: dialog.messages ? [...dialog.messages, payload] : [payload],
-        typing: dialog.typing || false
+        ...dialog,
+        messages: dialog.messages ? [...dialog.messages, payload] : [payload]
       };
 
       if (state.list) {
@@ -65,11 +64,12 @@ export const dataReducer = createReducer<InitialState>(
 
         if (idx === -1) idx = state.list.length;
 
+        const item = state.list[idx] || {};
+
         state.list[idx] = {
-          id: state.list[idx]?.id || nanoid(),
-          companion: state.list[idx]?.companion || dialog.companion,
-          unreadMessagesNumber: state.list[idx]?.unreadMessagesNumber,
-          typing: state.list[idx]?.typing || false,
+          ...item,
+          id: item.id || nanoid(),
+          companion: item.companion || dialog.companion,
           lastMessage: payload
         };
       }
@@ -81,9 +81,9 @@ export const dataReducer = createReducer<InitialState>(
       const dialog = state.dialogs[payload.sender.id] || {};
 
       state.dialogs[payload.sender.id] = {
+        ...dialog,
         companion: payload.sender,
         messages: dialog.messages && [...dialog.messages, payload],
-        typing: dialog.typing || false
       };
 
       if (state.list) {
@@ -91,27 +91,25 @@ export const dataReducer = createReducer<InitialState>(
 
         if (idx === -1) idx = state.list.length;
 
+        const item = state.list[idx] || {};
+
         state.list[idx] = {
-          id: state.list[idx]?.id || nanoid(),
-          companion: state.list[idx]?.companion || payload.sender,
-          unreadMessagesNumber: state.list[idx]?.unreadMessagesNumber ? state.list[idx]?.unreadMessagesNumber + 1 : 1,
-          typing: state.list[idx]?.typing || false,
+          ...item,
+          id: item.id || nanoid(),
+          companion: item.companion || payload.sender,
+          unreadMessagesNumber: item.unreadMessagesNumber ? item.unreadMessagesNumber + 1 : 1,
           lastMessage: payload
         };
       }
     },
 
-    [actions.setTypingStatus.type]: (state, {payload: {companionId, typing}}:
-      PayloadAction<{companionId: string, typing: boolean}>) => {
-      const dialog = state.dialogs[companionId];
+    [actions.setCompanionStatus.type]: (state, {payload: {companionId, status}}:
+      PayloadAction<{companionId: string, status: string | null}>) => {
+      const dialog = state.dialogs[companionId] || {};
 
-      state.dialogs[companionId] = {
-        companion: dialog.companion,
-        messages: dialog.messages,
-        typing
-      };
+      state.dialogs[companionId] = {...dialog, status};
 
-      state.list = state.list && state.list.map((item) => item.companion.id === companionId ? {...item, typing} : item);
+      state.list = state.list && state.list.map((item) => item.companion.id === companionId ? {...item, status} : item);
     },
 
     [actions.updateMessage.type]: ({dialogs}, {payload: {companionId, messageId, updatedMessage}}:
@@ -119,9 +117,9 @@ export const dataReducer = createReducer<InitialState>(
       const dialog = dialogs[companionId!] || {};
 
       dialogs[companionId!] = {
-        companion: dialog.companion,
-        messages: dialog.messages && dialog.messages.map((msg) => msg.id === messageId ? updatedMessage : msg),
-        typing: dialog.typing || false
+        ...dialog,
+        messages: dialog.messages &&
+          dialog.messages.map((msg) => msg.id === messageId ? updatedMessage : msg),
       };
     },
 
@@ -133,11 +131,7 @@ export const dataReducer = createReducer<InitialState>(
       const messages = dialog.messages && dialog.messages
         .map((msg) => ids.includes(msg.id) ? {...msg, isRead: true} : msg);
 
-      state.dialogs[companionId] = {
-        companion: dialog.companion,
-        typing: dialog.typing || false,
-        messages
-      };
+      state.dialogs[companionId] = {...dialog, messages};
 
       state.list = state.list && state.list
         .map((item) =>
