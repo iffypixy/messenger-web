@@ -4,6 +4,7 @@ import {useHistory} from "react-router-dom";
 import {useSelector} from "react-redux";
 
 import {Avatar, H4, Input, Text, Button, Skeleton, Icon} from "@ui/atoms";
+import {ModalBackground} from "@ui/organisms";
 import {Col, Row} from "@lib/layout";
 import {useActions} from "@lib/hooks";
 import {IUser} from "@api/common";
@@ -16,33 +17,35 @@ interface Props {
 
 const DEFAULT_SKELETON_LIST = 5;
 
-let previousReqPromise: {abort: () => null} | null = null;
+let previousReqPromise: {
+  abort: (reason?: string) => void
+} | null = null;
 
 export const NewChatModal: React.FC<Props> = ({closeModal}) => {
   const [query, setQuery] = useState<string>("");
   const [user, setUser] = useState<IUser | null>(null);
 
+  const {fetchQueriedUsers, setQueriedUsers} = useActions(actions);
+
+  const users = useSelector(selectors.queriedUsersSelector);
+  const areUsersFetching = useSelector(selectors.areQueriedUsersFetchingSelector);
+
   const history = useHistory();
-
-  const {fetchNewUsers, setNewUsers} = useActions(actions);
-
-  const users = useSelector(selectors.newUsersSelector);
-  const areUsersFetching = useSelector(selectors.areNewUsersFetchingSelector);
 
   useEffect(() => {
     return () => {
-      setNewUsers(null);
+      setQueriedUsers({users: null});
     };
   }, []);
 
   const handleInputChange = ({currentTarget: {value}}: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(value);
 
-    if (!value) return setNewUsers(null);
+    if (!value) return setQueriedUsers({users: null});
 
     if (previousReqPromise) previousReqPromise.abort();
 
-    previousReqPromise = fetchNewUsers({query: value, take: 5});
+    previousReqPromise = fetchQueriedUsers({query: value, take: 5});
   };
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -57,7 +60,7 @@ export const NewChatModal: React.FC<Props> = ({closeModal}) => {
 
   return (
     <>
-      <Wrapper onClick={closeModal}/>
+      <ModalBackground onClick={closeModal}/>
 
       <Modal gap="2rem">
         <Title>New chat</Title>
@@ -126,17 +129,6 @@ export const NewChatModal: React.FC<Props> = ({closeModal}) => {
     </>
   );
 };
-
-const Wrapper = styled.div`
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.3);
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-`;
 
 const Modal = styled(Col)`
   width: 20%;

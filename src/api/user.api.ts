@@ -1,23 +1,34 @@
 import {AxiosPromise} from "axios";
 
-import {IRequestQuery, request} from "@lib/request";
-import {IUser} from "./common";
+import {IRequestQuery, request, IRequestOptions} from "@lib/request";
+import {IUser, ID} from "./common";
 
-const getUser = (id: string): AxiosPromise<{user: IUser}> => request({
+
+export interface GetUserData {
+  id: ID;
+}
+
+const getUser = ({id}: GetUserData): AxiosPromise<{user: IUser}> => request({
   method: "GET",
   url: `/api/users/${id}`,
   withCredentials: true
 });
 
-const getUsersByQuery = ({take, query}: IRequestQuery & {query: string}): AxiosPromise<{users: IUser[]}> => request({
+export interface GetUsersByQuery extends IRequestQuery {
+  query: string;
+}
+
+const getUsersByQuery = ({take, query}: GetUsersByQuery, {cancelToken}: IRequestOptions):
+  AxiosPromise<{users: IUser[]}> => request({
   method: "GET",
   url: "/api/users/search",
   withCredentials: true,
+  cancelToken,
   params: {
     q: query,
     limit: take
   }
-})
+});
 
 export const userApi = {
   getUser, getUsersByQuery

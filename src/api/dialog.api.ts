@@ -1,7 +1,7 @@
 import {AxiosPromise} from "axios";
 
 import {request, IRequestQuery} from "@lib/request";
-import {IMessage, IDialogsListItem} from "./common";
+import {IMessage, IDialogsListItem, ID} from "./common";
 
 const getDialogs = (): AxiosPromise<{dialogs: IDialogsListItem[]}> => request({
   url: "/api/dialogs",
@@ -10,7 +10,7 @@ const getDialogs = (): AxiosPromise<{dialogs: IDialogsListItem[]}> => request({
 });
 
 export interface IGetMessagesData extends IRequestQuery {
-  companionId: string;
+  companionId: ID;
 }
 
 const getMessages = ({companionId, take, skip}: IGetMessagesData):
@@ -22,10 +22,9 @@ const getMessages = ({companionId, take, skip}: IGetMessagesData):
 });
 
 export interface ICreateMessageData {
-  companionId: string;
+  companionId: ID;
   message: {
     text?: string | undefined;
-    createdAt: string;
     attachments?: {
       imagesIds?: string[];
       audioId?: string;

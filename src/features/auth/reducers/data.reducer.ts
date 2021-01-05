@@ -1,4 +1,4 @@
-import {createReducer, PayloadAction} from "@reduxjs/toolkit";
+import {createReducer, PayloadAction, Reducer} from "@reduxjs/toolkit";
 
 import {IUser} from "@api/common";
 import * as actions from "../actions";
@@ -8,7 +8,7 @@ interface InitialState {
   isAuthenticated: boolean;
 }
 
-export const dataReducer = createReducer<InitialState>(
+export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
   {
     isAuthenticated: false,
     credentials: null

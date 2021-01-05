@@ -6,6 +6,7 @@ import {authSelectors} from "@features/auth";
 import {ChatTemplate} from "@features/chat";
 import {chatDialogsActions, chatDialogsSelectors, DialogForm, DialogHeader, MessagesList} from "@features/chat/features/dialogs";
 import {useActions} from "@lib/hooks";
+import {ID} from "@api/common";
 
 export const ViewPage: React.FC = () => {
   const credentials = useSelector(authSelectors.credentialsSelector);
@@ -14,12 +15,12 @@ export const ViewPage: React.FC = () => {
 
   const {fetchCompanion, fetchMessages, setCurrentCompanionId, fetchDialogs} = useActions(chatDialogsActions);
 
-  const {companionId} = useParams<{companionId: string}>();
+  const {companionId} = useParams<{companionId: ID}>();
 
   const history = useHistory();
 
   useEffect(() => {
-    setCurrentCompanionId(companionId);
+    setCurrentCompanionId({id: companionId});
   }, [companionId]);
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export const ViewPage: React.FC = () => {
       history.push("/");
 
     if (!dialog?.companion)
-      fetchCompanion(companionId);
+      fetchCompanion({id: companionId});
 
     if (!dialog?.messages)
       fetchMessages({companionId, take: 30, skip: 0});

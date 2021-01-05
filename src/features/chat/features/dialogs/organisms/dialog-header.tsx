@@ -2,15 +2,14 @@ import React from "react";
 import {useSelector} from "react-redux";
 import styled from "styled-components";
 
-import {chatDialogsSelectors} from "@features/chat/features/dialogs";
 import {Avatar, Button, Icon, Text, Skeleton} from "@ui/atoms";
+import * as selectors from "../selectors";
 
 export const DialogHeader: React.FC = () => {
-  const dialog = useSelector(chatDialogsSelectors.dialogSelector);
-  const isCompanionFetching = useSelector(chatDialogsSelectors.isCompanionFetchingSelector);
+  const dialog = useSelector(selectors.dialogSelector);
+  const isCompanionFetching = useSelector(selectors.isCompanionFetchingSelector);
 
   const companion = dialog?.companion;
-
   const info = dialog?.status || "Online/offline";
 
   return (

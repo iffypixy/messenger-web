@@ -16,8 +16,7 @@ export const ChatsCatalogue: React.FC = () => {
 
   const dialogs = useSelector(chatDialogsSelectors.listSelector);
 
-  const number = dialogs ? dialogs
-    .reduce((previous, {unreadMessagesNumber: number}) => previous + number, 0) : 0;
+  const number = dialogs?.reduce((prev, {unreadMessagesNumber: number}) => prev + number, 0) || 0;
 
   return (
     <>
@@ -29,7 +28,8 @@ export const ChatsCatalogue: React.FC = () => {
             <H3>Messages</H3>
             {!!number && <RoundedNumber digits={number} primary>{number}</RoundedNumber>}
           </Row>
-          <NewChatButton onClick={(() => openModal())} pure>+ New chat</NewChatButton>
+
+          <NewChatButton onClick={openModal} pure>+ New chat</NewChatButton>
         </Header>
 
         <SearchBar/>
@@ -62,7 +62,7 @@ const SearchBar: React.FC = () => {
   const search = useSelector(selectors.searchSelector);
 
   const handleChange = ({currentTarget}: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(currentTarget.value);
+    setSearch({search: currentTarget.value});
   };
 
   return (

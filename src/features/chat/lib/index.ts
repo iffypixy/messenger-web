@@ -1,4 +1,4 @@
 import {stringifyMessage} from "./stringify-message";
-import {getForeignUnreadMessagesIds} from "./get-foreign-unread-messages-ids";
+import {getMessagesIds} from "./get-messages-ids";
 
-export {stringifyMessage, getForeignUnreadMessagesIds};
+export {stringifyMessage, getMessagesIds};

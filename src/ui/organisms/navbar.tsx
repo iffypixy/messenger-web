@@ -1,26 +1,47 @@
 import React from "react";
 import styled from "styled-components";
+import {useSelector} from "react-redux";
 
-import {Avatar} from "@ui/atoms";
+import {authSelectors} from "@features/auth";
+import {ProfileModal} from "@features/profile";
+import {Avatar, Icon} from "@ui/atoms";
+import {useModal} from "@lib/hooks";
 
-const link = "https://sun1.beeline-kz.userapi.com/impf/c845419/v845419855/1a64bb/ZiPNWiIH6CU.jpg?size=50x0&quality=96&crop=0,210,990,990&sign=f4f42f615dd1ecb236da6604b5d737c9&ava=1";
+export const Navbar: React.FC = () => {
+  const {closeModal, openModal, isModalOpen} = useModal();
+  const credentials = useSelector(authSelectors.credentialsSelector);
 
-export const Navbar: React.FC = () => (
-    <Wrapper>        
-        <UserAvatar src={link} />
-    </Wrapper>
-);
+  return (
+    <>
+      {isModalOpen && <ProfileModal closeModal={closeModal} />}
+
+      <Wrapper>
+        <LogoIcon name="logo"/>
+
+        <UserAvatar onClick={openModal}>
+          <Avatar src={credentials?.avatar}/>
+        </UserAvatar>
+      </Wrapper>
+    </>
+  );
+};
 
 const Wrapper = styled.div`
     display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
     width: 10%;
     background-color: ${(({theme}) => theme.palette.primary.main)};
+    padding: 2% 0;
 `;
 
-const UserAvatar = styled(Avatar)`
-    display: none;
+const UserAvatar = styled.div`
+  width: 30%;
+  cursor: pointer;
+`;
 
-    @media only screen and (min-width: ${({theme}) => theme.breakpoints.md}) {
-        display: block;
-    }
+const LogoIcon = styled(Icon)`
+  width: 30%;
+  height: auto;
 `;

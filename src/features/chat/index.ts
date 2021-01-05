@@ -1,13 +1,13 @@
-import {ChatsCatalogue, Message, EmojiPicker, MessageSkeleton} from "./organisms";
+import {ChatsCatalogue, Message, MessageSkeleton} from "./organisms";
 import {ChatTemplate} from "./templates";
-import {stringifyMessage, getForeignUnreadMessagesIds} from "./lib";
+import {stringifyMessage, getMessagesIds} from "./lib";
 import {reducer} from "./reducers";
 import * as actions from "./actions";
 
 export {
-    ChatsCatalogue, Message, EmojiPicker,
+    ChatsCatalogue, Message,
     ChatTemplate, stringifyMessage,
-    getForeignUnreadMessagesIds, MessageSkeleton,
+    getMessagesIds, MessageSkeleton,
     reducer as chatReducer,
     actions as chatActions
 };

@@ -6,27 +6,35 @@ import {useParams} from "react-router-dom";
 import {unwrapResult} from "@reduxjs/toolkit";
 
 import {authSelectors} from "@features/auth";
-import {chatActions, getForeignUnreadMessagesIds, Message, MessageSkeleton} from "@features/chat";
+import {chatActions, getMessagesIds, Message, MessageSkeleton} from "@features/chat";
 import {useActions} from "@lib/hooks";
 import {socket} from "@lib/socket";
 import {scrollElementToBottom} from "@lib/dom";
 import {Text} from "@ui/atoms";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
+import {ID} from "@api/common";
 
 const DEFAULT_SKELETON_LIST = 7;
+
+const MESSAGE_READING_OFFSET_PERCENT = 1.3;
+
+const MESSAGE_FETCHING_OFFSET = 0.3;
 
 export const MessagesList: React.FC = () => {
   const [isInitiallyScrolled, setIsInitiallyScrolled] = useState<boolean>(false);
 
   const credentials = useSelector(authSelectors.credentialsSelector);
-  const {messages, areAllMessagesFetched} = useSelector(selectors.dialogSelector) || {};
+  const dialog = useSelector(selectors.dialogSelector);
   const areFetching = useSelector(selectors.areMessagesFetchingSelector);
 
-  const {companionId} = useParams<{companionId: string}>();
+  const {companionId} = useParams<{companionId: ID}>();
   const {fetchReadMessages, setMessagesRead, fetchMessages} = useActions({...actions, ...chatActions});
 
   const listRef = useRef<HTMLDivElement>(null);
+
+  const messages = dialog?.messages;
+  const areAllMessagesFetched = dialog?.areAllMessagesFetched;
 
   const msg = messages && messages[messages.length - 1];
 
@@ -43,22 +51,20 @@ export const MessagesList: React.FC = () => {
 
     const diff = list!.scrollHeight - list!.scrollTop;
 
-    if (msg.sender.id === credentials!.id || diff < 1250) {
+    if (msg.sender.id === credentials!.id || diff < (document.documentElement.clientHeight * MESSAGE_READING_OFFSET_PERCENT))
       scrollElementToBottom(list!);
-    }
   }, [msg]);
 
   const handleListScroll = ({currentTarget}: React.UIEvent<HTMLDivElement>) => {
-    if (!areAllMessagesFetched && currentTarget.scrollTop < 250) {
+    if (!areAllMessagesFetched && currentTarget.scrollTop < document.documentElement.clientHeight * MESSAGE_FETCHING_OFFSET)
       fetchMessages({companionId, take: 30, skip: messages?.length});
-    }
 
-    const ids = getForeignUnreadMessagesIds(currentTarget);
+    const ids = getMessagesIds(currentTarget, {own: false, read: false});
 
     if (ids.length) {
       setMessagesRead({ids, companionId});
 
-      fetchReadMessages(ids)
+      fetchReadMessages({ids})
         .then(unwrapResult)
         .then(() => socket.emit("read-messages", {ids, recipientId: companionId}))
         .catch(() => null);
@@ -69,7 +75,7 @@ export const MessagesList: React.FC = () => {
     <List ref={listRef} onScroll={handleListScroll}>
       {areFetching && Array.from({length: DEFAULT_SKELETON_LIST}, (_, idx) => <MessageSkeleton key={idx}/>)}
 
-      {messages && messages.map((msg, idx) => {
+      {messages?.map((msg, idx) => {
         const previous = messages[idx - 1];
 
         const isNewDay = idx === 0 || (previous &&

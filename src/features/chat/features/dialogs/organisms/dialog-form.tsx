@@ -7,11 +7,11 @@ import {unwrapResult} from "@reduxjs/toolkit";
 import {BaseEmoji} from "emoji-mart";
 
 import {authSelectors} from "@features/auth";
-import {EmojiPicker} from "@features/chat";
 import {useActions} from "@lib/hooks";
 import {socket} from "@lib/socket";
 import {Input, Button, Icon} from "@ui/atoms";
-import {IMessage} from "@api/common";
+import {EmojiPicker} from "@ui/organisms";
+import {ID, IMessage} from "@api/common";
 import {uploadApi} from "@api/upload.api";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
@@ -22,7 +22,7 @@ export const DialogForm: React.FC = () => {
   const credentials = useSelector(authSelectors.credentialsSelector);
   const dialog = useSelector(selectors.dialogSelector);
 
-  const {companionId} = useParams<{companionId: string}>();
+  const {companionId} = useParams<{companionId: ID}>();
 
   const {fetchCreateMessage, addMessage, updateMessage} = useActions(actions);
 
@@ -34,8 +34,10 @@ export const DialogForm: React.FC = () => {
     const id = nanoid();
 
     addMessage({
-      id, sender: credentials, isRead: false,
-      createdAt: new Date().toISOString(), text
+      message: {
+        id, sender: credentials, isRead: false,
+        createdAt: new Date().toISOString(), text
+      }
     });
 
     fetchCreateMessage({companionId, message: {text}})
@@ -46,8 +48,7 @@ export const DialogForm: React.FC = () => {
           socket.emit("message", {recipientId: companionId, message});
         }
       )
-      .catch(() => {
-      });
+      .catch(() => null);
 
     setText("");
   };

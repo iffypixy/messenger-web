@@ -72,7 +72,7 @@ const Wrapper = styled.div<StylingProps>`
 
   ${(props) => css`
     flex-direction: ${props.own ? "row-reverse" : "row"};
-  `}
+  `};
 `;
 
 const MessageBlock = styled.div`

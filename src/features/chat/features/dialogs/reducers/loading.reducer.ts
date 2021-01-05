@@ -1,4 +1,4 @@
-import {createReducer} from "@reduxjs/toolkit";
+import {createReducer, Reducer} from "@reduxjs/toolkit";
 
 import * as actions from "../actions";
 
@@ -9,7 +9,7 @@ interface InitialState {
     isCompanionFetching: boolean;
 }
 
-export const loadingReducer = createReducer<InitialState>(
+export const loadingReducer: Reducer<InitialState> = createReducer<InitialState>(
   {
       areDialogsFetching: false,
       areMessagesFetching: false,

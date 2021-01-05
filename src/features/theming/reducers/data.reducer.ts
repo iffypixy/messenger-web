@@ -1,19 +1,19 @@
-import {createReducer} from "@reduxjs/toolkit";
+import {createReducer, Reducer} from "@reduxjs/toolkit";
 
 import * as actions from "../actions";
 
 type Theme = "light" | "dark";
 
-interface State {
+interface InitialState {
   theme: Theme;
 }
 
-export const dataReducer = createReducer<State>(
+export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
   {
     theme: "light"
   },
   {
-    [actions.setTheme.type]: (state: State, {payload}) => {
+    [actions.setTheme.type]: (state, {payload}) => {
       state.theme = payload.theme;
     }
   }

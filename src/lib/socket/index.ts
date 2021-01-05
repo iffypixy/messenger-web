@@ -27,7 +27,7 @@ export const SocketInit: React.FC<Props> = ({children}) => {
       socket.emit("credentials", {userId: credentials!.id});
 
       socket.on("message", ({message}: {message: IMessage}) =>
-        addCompanionMessage(message)
+        addCompanionMessage({message})
       );
 
       socket.on("read-messages", ({ids, companionId}: {ids: string[]; companionId: string}) =>

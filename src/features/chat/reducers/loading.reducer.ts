@@ -3,24 +3,24 @@ import {createReducer, Reducer} from "@reduxjs/toolkit";
 import * as actions from "../actions";
 
 interface InitialState {
-  areNewUsersFetching: boolean;
+  areQueriedUsersFetching: boolean;
 }
 
 export const loadingReducer: Reducer<InitialState> = createReducer<InitialState>(
   {
-    areNewUsersFetching: false
+    areQueriedUsersFetching: false
   },
   {
-    [actions.fetchNewUsers.pending.type]: (state) => {
-      state.areNewUsersFetching = true;
+    [actions.fetchQueriedUsers.pending.type]: (state) => {
+      state.areQueriedUsersFetching = true;
     },
 
-    [actions.fetchNewUsers.fulfilled.type]: (state) => {
-      state.areNewUsersFetching = false;
+    [actions.fetchQueriedUsers.fulfilled.type]: (state) => {
+      state.areQueriedUsersFetching = false;
     },
 
-    [actions.fetchNewUsers.rejected.type]: (state) => {
-      state.areNewUsersFetching = false;
+    [actions.fetchQueriedUsers.rejected.type]: (state) => {
+      state.areQueriedUsersFetching = false;
     }
   }
 );

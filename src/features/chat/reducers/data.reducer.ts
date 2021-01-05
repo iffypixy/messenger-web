@@ -5,25 +5,25 @@ import * as actions from "../actions";
 
 interface InitialState {
     search: string;
-    newUsers: IUser[] | null;
+    queriedUsers: IUser[] | null;
 }
 
 export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
     {
         search: "",
-        newUsers: null
+        queriedUsers: null
     },
     {
-        [actions.setSearch.type]: (state, {payload}: PayloadAction<string>) => {
-            state.search = payload;
+        [actions.setSearch.type]: (state, {payload}: PayloadAction<{search: string}>) => {
+            state.search = payload.search;
         },
 
-        [actions.fetchNewUsers.fulfilled.type]: (state, {payload}: PayloadAction<{users: IUser[]}>) => {
-            state.newUsers = payload.users;
+        [actions.fetchQueriedUsers.fulfilled.type]: (state, {payload}: PayloadAction<{users: IUser[]}>) => {
+            state.queriedUsers = payload.users;
         },
 
-        [actions.setNewUsers.type]: (state, {payload}: PayloadAction<IUser[]>) => {
-            state.newUsers = payload;
+        [actions.setQueriedUsers.type]: (state, {payload}: PayloadAction<{users: IUser[]}>) => {
+            state.queriedUsers = payload.users;
         }
     }
 );

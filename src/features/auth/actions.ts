@@ -1,17 +1,18 @@
 import {createAsyncThunk} from "@reduxjs/toolkit";
 
-import {authApi, ILoginData, IRegisterData, IUser} from "@api/auth.api";
+import {authApi, ILoginData, IRegisterData} from "@api/auth.api";
+import {IUser} from "@api/common";
 
 const typePrefix = "auth";
 
-export const fetchRegister = createAsyncThunk<{credentials: IUser}, IRegisterData>(`${typePrefix}/fetchRegister`, async (registerData) => {
-  const {data} = await authApi.register(registerData);
+export const fetchRegister = createAsyncThunk<{credentials: IUser}, IRegisterData>(`${typePrefix}/fetchRegister`, async ({email, firstName, lastName, password}) => {
+  const {data} = await authApi.register({email, firstName, lastName, password});
 
   return data;
 });
 
-export const fetchLogin = createAsyncThunk<{credentials: IUser}, ILoginData>(`${typePrefix}/fetchLogin`, async (loginData) => {
-  const {data} = await authApi.login(loginData);
+export const fetchLogin = createAsyncThunk<{credentials: IUser}, ILoginData>(`${typePrefix}/fetchLogin`, async ({email, password}) => {
+  const {data} = await authApi.login({email, password});
 
   return data;
 });

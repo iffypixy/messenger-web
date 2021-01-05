@@ -1,4 +1,4 @@
-import axios, {AxiosError} from "axios";
+import axios, {AxiosError, CancelToken} from "axios";
 
 import {BACKEND_URL} from "@lib/constants";
 import {authApi} from "@api/auth.api";
@@ -8,11 +8,15 @@ export interface IRequestQuery {
   take?: number;
 }
 
+export interface IRequestOptions {
+  cancelToken?: CancelToken;
+}
+
 export const request = axios.create({
   baseURL: BACKEND_URL
 });
 
-const STATUS_CODES = [401, 403];
+const BAD_STATUS_CODES = [401, 403];
 
 applyInterceptor();
 
@@ -24,7 +28,7 @@ function applyInterceptor() {
 
       const status = response!.status;
 
-      if (!STATUS_CODES.includes(status)) return Promise.reject(error);
+      if (!BAD_STATUS_CODES.includes(status)) return Promise.reject(error);
 
       request.interceptors.response.eject(interceptor);
 
