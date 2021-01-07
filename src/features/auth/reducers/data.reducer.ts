@@ -1,6 +1,7 @@
 import {createReducer, PayloadAction, Reducer} from "@reduxjs/toolkit";
 
 import {IUser} from "@api/common";
+import {profileActions} from "@features/profile";
 import * as actions from "../actions";
 
 interface InitialState {
@@ -32,6 +33,10 @@ export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
     [actions.fetchLogout.fulfilled.type]: (state) => {
       state.isAuthenticated = false;
       state.credentials = null;
+    },
+
+    [profileActions.fetchUpdateProfile.fulfilled.type]: (state, {payload}: PayloadAction<{credentials: IUser}>) => {
+      state.credentials = payload.credentials;
     }
   }
 );

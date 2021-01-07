@@ -1,5 +1,5 @@
 import React from "react";
-import styled from "styled-components";
+import styled, {css} from "styled-components";
 
 interface Props extends React.SVGAttributes<SVGElement> {
   name:
@@ -16,8 +16,11 @@ interface Props extends React.SVGAttributes<SVGElement> {
     | "double-check"
     | "picture"
     | "cross"
-    | "pencil";
-  gray?: boolean;
+    | "pencil"
+    | "img-upload";
+  secondary?: boolean;
+  width?: string;
+  height?: string;
 }
 
 const getIcon = ({name, ...props}: Props) => {
@@ -25,8 +28,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "rocket":
       return (
         <Svg
-          width="200"
-          height="200"
+          width="20rem"
+          height="20rem"
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"
           viewBox="0 0 512 512"
@@ -296,8 +299,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "logo":
       return (
         <Svg
-          width="60"
-          height="60"
+          width="6rem"
+          height="6rem"
           viewBox="0 0 512 512"
           xmlns="http://www.w3.org/2000/svg"
           {...props}
@@ -320,8 +323,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "loupe":
       return (
         <Svg
-          width="20"
-          height="20"
+          width="2rem"
+          height="2rem"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -360,8 +363,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "attachment":
       return (
         <Svg
-          width="20"
-          height="20"
+          width="2rem"
+          height="2rem"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -403,8 +406,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "smile":
       return (
         <Svg
-          width="20"
-          height="20"
+          width="2rem"
+          height="2rem"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -463,8 +466,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "microphone":
       return (
         <Svg
-          width="20"
-          height="20"
+          width="2rem"
+          height="2rem"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -507,8 +510,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "telegram":
       return (
         <Svg
-          width="20"
-          height="20"
+          width="2rem"
+          height="2rem"
           viewBox="0 -39 512.00011 512"
           xmlns="http://www.w3.org/2000/svg"
           {...props}
@@ -521,8 +524,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "pause":
       return (
         <Svg
-          width="25"
-          height="25"
+          width="2.5rem"
+          height="2.5rem"
           viewBox="0 0 511.448 511.448"
           xmlns="http://www.w3.org/2000/svg"
           {...props}
@@ -539,8 +542,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "wave":
       return (
         <Svg
-          width="40"
-          height="40"
+          width="4rem"
+          height="4rem"
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"
           viewBox="0 0 512 512"
@@ -648,8 +651,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "check":
       return (
         <Svg
-          width="11"
-          height="11"
+          width="1.1rem"
+          height="1.1rem"
           version="1.1"
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -679,8 +682,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "double-check":
       return (
         <Svg
-          width="15"
-          height="15"
+          width="1rem"
+          height="1rem"
           viewBox="0 0 512 512"
           xmlns="http://www.w3.org/2000/svg"
           {...props}
@@ -694,7 +697,7 @@ const getIcon = ({name, ...props}: Props) => {
 
     case "picture":
       return (
-        <Svg width="20" height="20"
+        <Svg width="2rem" height="2rem"
              viewBox="0 0 512 512"
              xmlns="http://www.w3.org/2000/svg"
              {...props}>
@@ -709,8 +712,8 @@ const getIcon = ({name, ...props}: Props) => {
 
     case "cross":
       return (
-        <Svg width="10"
-             height="10"
+        <Svg width="1rem"
+             height="1rem"
              xmlns="http://www.w3.org/2000/svg"
              xmlnsXlink="http://www.w3.org/1999/xlink"
              viewBox="0 0 22.88 22.88"
@@ -756,8 +759,8 @@ const getIcon = ({name, ...props}: Props) => {
     case "pencil":
       return (
         <Svg
-          width="15"
-          height="15"
+          width="1.5rem"
+          height="1.5rem"
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"
           viewBox="0 0 512.001 512.001"
@@ -806,6 +809,17 @@ const getIcon = ({name, ...props}: Props) => {
         </Svg>
       );
 
+    case "img-upload":
+      return (
+        <Svg width="1.5rem"
+             height="1.5rem"
+             viewBox="0 -18 512 512"
+             xmlns="http://www.w3.org/2000/svg" {...props}>
+          <path
+            d="m432 0h-352c-44.113281 0-80 35.886719-80 80v280c0 44.113281 35.886719 80 80 80h190c7.628906 0 14.59375-4.339844 17.957031-11.191406 3.359375-6.847656 2.53125-15.015625-2.140625-21.046875l-52.3125-67.609375 144.992188-184.425782 93.503906 111.546876v33.726562c0 11.046875 8.953125 20 20 20s20-8.953125 20-20v-221c0-44.113281-35.886719-80-80-80zm-38.671875 111.152344c-3.871094-4.617188-9.609375-7.253906-15.640625-7.148438-6.027344.09375-11.6875 2.898438-15.410156 7.636719l-154.015625 195.894531-52.445313-67.773437c-3.789062-4.898438-9.628906-7.761719-15.816406-7.761719-.007812 0-.019531 0-.027344 0-6.199218.007812-12.046875 2.890625-15.824218 7.804688l-44.015626 57.21875c-6.734374 8.757812-5.097656 21.3125 3.65625 28.046874 8.757813 6.738282 21.3125 5.097657 28.046876-3.65625l28.210937-36.671874 89.1875 115.257812h-149.234375c-22.054688 0-40-17.945312-40-40v-280c0-22.054688 17.945312-40 40-40h352c22.054688 0 40 17.945312 40 40v125.007812zm-253.328125-39.152344c-33.085938 0-60 26.914062-60 60s26.914062 60 60 60 60-26.914062 60-60-26.914062-60-60-60zm0 80c-11.027344 0-20-8.972656-20-20s8.972656-20 20-20 20 8.972656 20 20-8.972656 20-20 20zm372 229c0 11.046875-8.953125 20-20 20h-55v55c0 11.046875-8.953125 20-20 20s-20-8.953125-20-20v-55h-55c-11.046875 0-20-8.953125-20-20s8.953125-20 20-20h55v-55c0-11.046875 8.953125-20 20-20s20 8.953125 20 20v55h55c11.046875 0 20 8.953125 20 20zm0 0"/>
+        </Svg>
+      );
+
     default:
       return null;
   }
@@ -814,10 +828,15 @@ const getIcon = ({name, ...props}: Props) => {
 export const Icon: React.FC<Props> = (props) => getIcon(props);
 
 interface SvgProps {
-  gray?: boolean;
+  secondary?: boolean;
+  width?: string;
+  height?: string;
 }
 
 const Svg = styled.svg<SvgProps>`
-  fill: ${({theme, gray}) =>
-  gray ? theme.palette.text.secondary : theme.palette.text.primary};
+  ${({theme, secondary, width, height}) => css`
+    fill: ${secondary ? theme.palette.text.secondary : theme.palette.text.primary};
+    width: ${width};
+    height: ${height};
+  `};
 `;

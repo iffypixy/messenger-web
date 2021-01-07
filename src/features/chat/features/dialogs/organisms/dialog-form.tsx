@@ -68,7 +68,7 @@ export const DialogForm: React.FC = () => {
 
     formData.append("file", file);
 
-    uploadApi.uploadFile(formData);
+    uploadApi.uploadFile({file: formData});
   };
 
   return (
@@ -85,7 +85,7 @@ export const DialogForm: React.FC = () => {
                 type="button"
                 cursor="pointer"
                 name="attachment"
-                gray
+                secondary
               />
             }
             name="files"
@@ -101,7 +101,7 @@ export const DialogForm: React.FC = () => {
                 type="button"
                 cursor="pointer"
                 name="picture"
-                gray
+                secondary
               />
             }
             name="images"
@@ -111,7 +111,7 @@ export const DialogForm: React.FC = () => {
           />
 
           <EmojiWrapper>
-            <Icon name="smile" gray/>
+            <Icon name="smile" secondary/>
             <EmojiPickerWrapper>
               <EmojiPicker
                 onSelect={(emoji: BaseEmoji) =>
@@ -136,7 +136,7 @@ export const DialogForm: React.FC = () => {
 
         <FormBlock>
           <Button type="button" pure>
-            <Icon name="microphone" gray role="button" type="button"/>
+            <Icon name="microphone" secondary role="button" type="button"/>
           </Button>
 
           <SubmitButton type="submit">

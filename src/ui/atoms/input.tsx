@@ -7,11 +7,13 @@ interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   label?: React.ReactNode;
   transparent?: boolean;
+  small?: boolean;
 }
 
 interface InputNativeProps {
   error?: boolean;
   transparent?: boolean;
+  small?: boolean;
 }
 
 export const Input = React.forwardRef<HTMLInputElement, Props>(({error, label, name, width, ...props}, ref) => (
@@ -33,12 +35,13 @@ const Wrapper = styled(Col)`
 `;
 
 const InputNative = styled.input<InputNativeProps>`
-    ${({theme, transparent}) => css`
+    ${({theme, transparent, small}) => css`
       color: ${theme.palette.text.primary};
-      font-size: ${theme.typography.fontSize};
+      font-size: ${small ? "1.2rem" : theme.typography.fontSize};
       font-family: ${theme.typography.fontFamily};
       font-weight: ${theme.typography.fontWeight.regular};
-      background-color: ${() => transparent ? "transparent" : theme.palette.primary.main};
+      background-color: ${transparent ? "transparent" : theme.palette.primary.main};
+      padding: ${small ? "1rem 1.5rem" : "1.5rem 2rem"};
       
       &::placeholder {
         color: ${theme.palette.text.secondary};
@@ -48,7 +51,6 @@ const InputNative = styled.input<InputNativeProps>`
     border: ${({theme, error}) => error ? `1px solid ${theme.palette.error.main}` : "none"};
     border-radius: 5px;
     outline: none;
-    padding: 1.5rem 2rem;
 `;
 
 const Label = styled.label`
