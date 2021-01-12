@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, {useEffect} from "react";
 import styled from "styled-components";
 
 import {ChatTemplate} from "@features/chat";
@@ -10,21 +10,17 @@ export const HomePage: React.FC = () => {
   const {fetchDialogs} = useActions(chatDialogsActions);
 
   useEffect(() => {
-    fetchDialogs({skip: 0, take: 5});
-  }, []); 
+    fetchDialogs();
+  }, []);
 
   return (
     <ChatTemplate>
-      <NoChat />
+      <NoChatWrapper>
+        <H3>Select chat to start messaging</H3>
+      </NoChatWrapper>
     </ChatTemplate>
   );
 };
-
-const NoChat: React.FC = () => (
-  <NoChatWrapper>
-    <H3>Select chat to start messaging</H3>
-  </NoChatWrapper>
-);
 
 const NoChatWrapper = styled.div`
   display: flex;

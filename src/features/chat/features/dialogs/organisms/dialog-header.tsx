@@ -2,6 +2,7 @@ import React from "react";
 import {useSelector} from "react-redux";
 import styled from "styled-components";
 
+import {UserAvatar} from "@features/user";
 import {Avatar, Button, Icon, Text, Skeleton} from "@ui/atoms";
 import * as selectors from "../selectors";
 
@@ -10,17 +11,17 @@ export const DialogHeader: React.FC = () => {
   const isCompanionFetching = useSelector(selectors.isCompanionFetchingSelector);
 
   const companion = dialog?.companion;
-  const info = dialog?.status || "Online/offline";
+  const info = dialog?.status || (companion?.online ? "Online" : "Offline");
 
   return (
     <Header>
       <HeaderInfo>
         <HeaderAvatar>
-          {isCompanionFetching ? <Skeleton.Avatar secondary /> : <Avatar src={companion?.avatar} />}
+          {isCompanionFetching ? <Skeleton.Avatar secondary /> : companion ? <UserAvatar user={companion} /> : null}
         </HeaderAvatar>
 
         <HeaderContent>
-          {isCompanionFetching ? <Skeleton.Text width="15rem" secondary /> : <Text type="bold" primary>{companion?.firstName}</Text>}
+          {isCompanionFetching ? <Skeleton.Text width="15rem" secondary /> : <Text type="bold" space="nowrap" primary>{companion?.fullName}</Text>}
           {isCompanionFetching ? <Skeleton.Text width="10rem" secondary /> : <Text>{info}</Text>}
         </HeaderContent>
       </HeaderInfo>
@@ -48,6 +49,7 @@ const Header = styled.div`
 
 const HeaderInfo = styled.div`
   display: flex;
+  width: 75%;
 `;
 
 const HeaderAvatar = styled.div`
@@ -59,6 +61,7 @@ const HeaderContent = styled.div`
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  width: 75%;
   padding: 1rem 0 1rem 1.5rem;
 `;
 

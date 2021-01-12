@@ -6,7 +6,7 @@ import {authSelectors} from "@features/auth";
 import {BACKEND_URL} from "@lib/constants";
 import {useActions} from "@lib/hooks";
 import {chatDialogsActions} from "@features/chat/features/dialogs";
-import {IMessage} from "@api/common";
+import {ID, IMessage} from "@api/common";
 
 export const socket = io(BACKEND_URL);
 
@@ -20,7 +20,7 @@ export const SocketInit: React.FC<Props> = ({children}) => {
   const credentials = useSelector(authSelectors.credentialsSelector);
   const isAuthenticated = useSelector(authSelectors.isAuthenticatedSelector);
 
-  const {addCompanionMessage, setMessagesRead, setCompanionStatus} = useActions(chatDialogsActions);
+  const {addCompanionMessage, setMessagesRead, setCompanionStatus, setCompanionOnlineStatus} = useActions(chatDialogsActions);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -30,11 +30,11 @@ export const SocketInit: React.FC<Props> = ({children}) => {
         addCompanionMessage({message})
       );
 
-      socket.on("read-messages", ({ids, companionId}: {ids: string[]; companionId: string}) =>
+      socket.on("read-messages", ({ids, companionId}: {ids: ID[]; companionId: ID}) =>
         setMessagesRead({companionId, ids})
       );
 
-      socket.on("typing", ({companionId, status}: {companionId: string, status: string}) => {
+      socket.on("typing", ({companionId, status}: {companionId: ID, status: string}) => {
         if (typingTimeout) clearTimeout(typingTimeout);
 
         setCompanionStatus({companionId, status});
@@ -42,6 +42,14 @@ export const SocketInit: React.FC<Props> = ({children}) => {
         typingTimeout = setTimeout(() => {
           setCompanionStatus({companionId, status: null});
         }, 1000);
+      });
+
+      socket.on("online", ({userId}: {userId: ID}) => {
+        setCompanionOnlineStatus({companionId: userId, online: true});
+      });
+
+      socket.on("offline", ({userId}: {userId: ID}) => {
+        setCompanionOnlineStatus({companionId: userId, online: false});
       });
     }
   }, [isAuthenticated]);

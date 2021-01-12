@@ -37,7 +37,7 @@ export const lightTheme: DefaultTheme = {
     },
     success: {
       light: "",
-      main: "",
+      main: "#4BB34B",
       dark: "",
       contrastText: ""
     },

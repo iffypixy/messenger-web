@@ -3,12 +3,12 @@ import axios, {AxiosError, CancelToken} from "axios";
 import {BACKEND_URL} from "@lib/constants";
 import {authApi} from "@api/auth.api";
 
-export interface IRequestQuery {
+export interface RequestQuery {
   skip?: number;
-  take?: number;
+  limit?: number;
 }
 
-export interface IRequestOptions {
+export interface RequestOptions {
   cancelToken?: CancelToken;
 }
 

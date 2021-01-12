@@ -6,6 +6,7 @@ interface Props {
     type?: "bold";
     transform?: "uppercase" | "lowercase" | "capitalize";
     small?: boolean;
+    rounded?: boolean;
 }
 
 export const Text = styled.span<Props>`
@@ -20,4 +21,11 @@ export const Text = styled.span<Props>`
     
     text-overflow: ellipsis;
     overflow: hidden;
+    
+    ${({rounded}) => rounded && css`
+        font-size: 1.2rem;
+        background-color: ${({theme}) => theme.palette.warning.light};
+        border-radius: 20px;
+        padding: 1rem;
+    `};
 `;

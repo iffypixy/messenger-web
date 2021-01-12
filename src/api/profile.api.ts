@@ -1,19 +1,28 @@
 import {AxiosPromise} from "axios";
 
 import {request} from "@lib/request";
-import {IUser} from "@api/common";
+import {User} from "@api/common";
 
 export interface UpdateData {
   firstName: string;
   lastName: string;
+  avatar: Blob;
 }
 
-const update = ({firstName, lastName}: UpdateData): AxiosPromise<{credentials: IUser}> => request({
-  method: "PUT",
-  url: "/api/profile/update",
-  data: {firstName, lastName},
-  withCredentials: true
-});
+const update = (data: UpdateData): AxiosPromise<{credentials: User}> => {
+  const formData = new FormData();
+
+  formData.append("firstName", data.firstName);
+  formData.append("lastName", data.lastName);
+  formData.append("avatar", data.avatar);
+
+  return request({
+    method: "PUT",
+    url: "/api/profile/update",
+    withCredentials: true,
+    data: formData
+  });
+}
 
 export const profileApi = {
   update

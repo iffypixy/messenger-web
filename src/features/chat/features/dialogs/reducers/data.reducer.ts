@@ -153,6 +153,18 @@ export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
                 : item.unreadMessagesNumber
             }
         );
+    },
+
+    [actions.setCompanionOnlineStatus.type]: (state, {payload}: PayloadAction<{online: boolean; companionId: ID}>) => {
+      const dialog = state.dialogs[payload.companionId] || {};
+
+      const companion = dialog.companion && {...dialog.companion, online: payload.online};
+
+      state.dialogs[payload.companionId] = {...dialog, companion};
+
+      state.list = state.list && state.list.map((item) =>
+        item.companion.id === payload.companionId ?
+          {...item, companion: {...item.companion, online: payload.online}} : item);
     }
   }
 );

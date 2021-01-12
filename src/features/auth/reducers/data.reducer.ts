@@ -1,11 +1,11 @@
 import {createReducer, PayloadAction, Reducer} from "@reduxjs/toolkit";
 
-import {IUser} from "@api/common";
+import {User} from "@api/common";
 import {profileActions} from "@features/profile";
 import * as actions from "../actions";
 
 interface InitialState {
-  credentials: IUser | null;
+  credentials: User | null;
   isAuthenticated: boolean;
 }
 
@@ -15,17 +15,17 @@ export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
     credentials: null
   },
   {
-    [actions.fetchCredentials.fulfilled.type]: (state, {payload}: PayloadAction<{credentials: IUser}>) => {
+    [actions.fetchCredentials.fulfilled.type]: (state, {payload}: PayloadAction<{credentials: User}>) => {
       state.credentials = payload.credentials;
       state.isAuthenticated = true;
     },
 
-    [actions.fetchRegister.fulfilled.type]: (state, {payload}: PayloadAction<{credentials: IUser}>) => {
+    [actions.fetchRegister.fulfilled.type]: (state, {payload}: PayloadAction<{credentials: User}>) => {
       state.credentials = payload.credentials;
       state.isAuthenticated = true;
     },
 
-    [actions.fetchLogin.fulfilled.type]: (state, {payload}: PayloadAction<{credentials: IUser}>) => {
+    [actions.fetchLogin.fulfilled.type]: (state, {payload}: PayloadAction<{credentials: User}>) => {
       state.credentials = payload.credentials;
       state.isAuthenticated = true;
     },
@@ -35,7 +35,7 @@ export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
       state.credentials = null;
     },
 
-    [profileActions.fetchUpdateProfile.fulfilled.type]: (state, {payload}: PayloadAction<{credentials: IUser}>) => {
+    [profileActions.fetchUpdateProfile.fulfilled.type]: (state, {payload}: PayloadAction<{credentials: User}>) => {
       state.credentials = payload.credentials;
     }
   }

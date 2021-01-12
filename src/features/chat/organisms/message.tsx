@@ -32,7 +32,7 @@ export const Message: React.FC<Props> = ({id, text, sender, createdAt, own, read
           </Bubble>
         </Col>
 
-        {own && <ReadStatusIcon name={read ? "double-check" : "check"} gray/>}
+        {own && <ReadStatusIcon name={read ? "double-check" : "check"} secondary/>}
       </Block>
     </MessageBlock>
   </Wrapper>
@@ -99,8 +99,8 @@ const Header = styled.div<StylingProps>`
 
 const Block = styled.div<StylingProps>`
   display: flex;
-  align-items: center;
-  flex-direction: ${(props) => props.own ? "row-reverse" : "row"};
+  flex-direction: ${({own}) => own ? "row-reverse" : "row"};
+  align-items: flex-start;
 `;
 
 const AvatarWrapper = styled.div<StylingProps>`

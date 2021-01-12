@@ -75,7 +75,7 @@ export const NewChatModal: React.FC<Props> = ({closeModal}) => {
                     <Avatar src={user.avatar}/>
                   </UserAvatar>
 
-                  <Text type="bold" primary>{user.firstName}</Text>
+                  <Text type="bold" primary>{user.fullName}</Text>
 
                   <ItemIcon name="cross" onClick={() => setUser(null)}/>
                 </Item>
@@ -101,7 +101,7 @@ export const NewChatModal: React.FC<Props> = ({closeModal}) => {
                               <Avatar src={user.avatar}/>
                             </UserAvatar>
 
-                            <Text type="bold" primary>{user.firstName}</Text>
+                            <Text type="bold" primary space="nowrap">{user.fullName}</Text>
                           </Item>
                         ))}
 
@@ -156,6 +156,7 @@ const ListWrapper = styled.div`
   left: 0;
   right: 0;
   padding-top: 1rem;
+  z-index: 1001;
 `;
 
 const List = styled.div`

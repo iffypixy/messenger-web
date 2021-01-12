@@ -37,11 +37,15 @@ const Wrapper = styled.div`
 `;
 
 const UserAvatar = styled.div`
-  width: 30%;
+  width: 6rem;
+  height: 6rem;
+  background-color: ${({theme}) => theme.palette.primary.dark};
+  border-radius: 50%;
+  box-shadow: 0 0 10px 2px #000000;
   cursor: pointer;
 `;
 
 const LogoIcon = styled(Icon)`
-  width: 30%;
-  height: auto;
+  width: 5rem;
+  height: 5rem;
 `;

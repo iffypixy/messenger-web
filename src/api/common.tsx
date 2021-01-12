@@ -1,38 +1,67 @@
 export type ID = string;
 
-export interface IUser {
-  id: string;
+export type User = {
+  id: ID;
   firstName: string;
   lastName: string;
+  fullName: string;
   avatar: string;
+  lastSeen: string;
+  online: boolean;
 }
 
-export interface IFile {
-  id: string;
+export type File = {
+  id: ID;
   extension: string;
   name: string;
   url: string;
   size: number;
 }
 
-export interface IAttachments {
-  audio?: string;
-  images?: string[];
-  files?: IFile[];
+export type Attachment = {
+  audio: string | null;
+  images: string[] | null;
+  files: File[] | null;
 }
 
-export interface IMessage {
-  id: string;
-  sender: IUser;
-  text: string | undefined;
-  attachments: IAttachments | undefined;
-  isRead: boolean;
+export type Message = {
+  id: ID;
+  sender: User;
+  text: string | null;
+  attachments: Attachment | null;
+  read: boolean;
+  chatId: ID;
   createdAt: string;
 }
 
-export interface IDialogsListItem {
-  id: string;
-  companion: IUser;
-  lastMessage: IMessage;
+export type Dialog = {
+  id: ID;
+  companion: User;
+  lastMessage: Message;
   unreadMessagesNumber: number;
 }
+
+export type Discussion = {
+  id: ID;
+  members: User[];
+  title: string;
+  avatar: string;
+}
+
+export type DiscussionsListItem = {
+  id: ID;
+  members: User[];
+  title: string;
+  avatar: string;
+  lastMessage: Message;
+  unreadMessagesNumber: number;
+}
+
+export interface MessageData {
+  text?: string;
+  attachments?: {
+    imagesIds?: string[];
+    audioId?: string;
+    filesIds?: string[];
+  };
+};

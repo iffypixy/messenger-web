@@ -26,7 +26,7 @@ export const ChatsCatalogue: React.FC = () => {
         <Header>
           <Row gap="1rem" align="center">
             <H3>Messages</H3>
-            {!!number && <RoundedNumber digits={number} primary>{number}</RoundedNumber>}
+            {!!number && <RoundedNumber digits={number.toString().length} primary>{number}</RoundedNumber>}
           </Row>
 
           <NewChatButton onClick={openModal} pure>+ New chat</NewChatButton>

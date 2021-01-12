@@ -11,12 +11,13 @@ import {ID} from "@api/common";
 import {chatDialogsSelectors} from "../features/dialogs";
 import {stringifyMessage} from "../lib";
 import * as selectors from "../selectors";
+import {UserAvatar} from "@features/user";
 
 interface Item {
   id: ID;
   path: string;
   title: string;
-  avatar: string;
+  avatar: React.ReactNode;
   text: string;
   info: React.ReactNode;
   date: Date;
@@ -37,16 +38,16 @@ export const ChatsList: React.FC = () => {
     return dialogs!.map(({id, companion, lastMessage, unreadMessagesNumber, status}) => {
       const selected = companion.id === companionId;
       const own = credentials!.id === lastMessage.sender.id;
+      const avatar = <UserAvatar user={companion} />;
 
       const info = unreadMessagesNumber ?
         <RoundedNumber digits={unreadMessagesNumber.toString().length} primary>{unreadMessagesNumber}</RoundedNumber> :
-        own && <Icon name={lastMessage.isRead ? "double-check" : "check"} gray={!selected}/>;
+        own && <Icon name={lastMessage.isRead ? "double-check" : "check"} secondary={!selected}/>;
 
       return {
-        id, info, selected,
+        id, info, selected, avatar,
         path: `/${companion.id}`,
-        title: companion.firstName,
-        avatar: companion.avatar,
+        title: companion.fullName,
         date: new Date(lastMessage.createdAt),
         text: status || `${own ? "You: " : ""}${stringifyMessage(lastMessage)}`
       };
@@ -63,9 +64,7 @@ export const ChatsList: React.FC = () => {
         .map(({id, path, title, avatar, text, date, selected, info}) => (
             <ChatLink key={id} to={path}>
               <Wrapper selected={selected}>
-                <ChatAvatar>
-                  <Avatar src={avatar}/>
-                </ChatAvatar>
+                <ChatAvatar>{avatar}</ChatAvatar>
 
                 <Content>
                   <Text type="bold" space="nowrap" primary>{title}</Text>

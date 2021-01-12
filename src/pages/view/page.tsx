@@ -8,6 +8,8 @@ import {chatDialogsActions, chatDialogsSelectors, DialogForm, DialogHeader, Mess
 import {useActions} from "@lib/hooks";
 import {ID} from "@api/common";
 
+const DEFAULT_NUMBER_OF_FETCHING_MESSAGES = 30;
+
 export const ViewPage: React.FC = () => {
   const credentials = useSelector(authSelectors.credentialsSelector);
   const dialog = useSelector(chatDialogsSelectors.dialogSelector);
@@ -24,8 +26,7 @@ export const ViewPage: React.FC = () => {
   }, [companionId]);
 
   useEffect(() => {
-    if (!list)
-      fetchDialogs();
+    if (!list) fetchDialogs();
   }, []);
 
   useEffect(() => {
@@ -36,7 +37,10 @@ export const ViewPage: React.FC = () => {
       fetchCompanion({id: companionId});
 
     if (!dialog?.messages)
-      fetchMessages({companionId, take: 30, skip: 0});
+      fetchMessages({
+        companionId, skip: 0,
+        take: DEFAULT_NUMBER_OF_FETCHING_MESSAGES
+      });
   }, [companionId]);
 
   return (

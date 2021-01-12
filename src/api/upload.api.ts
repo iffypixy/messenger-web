@@ -1,13 +1,13 @@
 import {AxiosPromise} from "axios";
 
 import {request} from "@lib/request";
-import {IFile} from "./common";
+import {File} from "./common";
 
-interface UploadFileData {
+export interface UploadFileData {
   file: FormData;
 }
 
-const uploadFile = ({file}: UploadFileData): AxiosPromise<{file: IFile}> => request({
+const uploadFile = ({file}: UploadFileData): AxiosPromise<{file: File}> => request({
   method: "POST",
   url: "/api/upload",
   data: file,

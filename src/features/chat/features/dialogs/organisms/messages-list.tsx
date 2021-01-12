@@ -38,28 +38,15 @@ export const MessagesList: React.FC = () => {
 
   const msg = messages && messages[messages.length - 1];
 
-  useEffect(() => {
-    if (!msg) return;
+  const handleListScroll = (list: Element) => {
+    console.log("what???");
 
-    const list = listRef.current;
+    if (document.hidden) return;
 
-    if (!isInitiallyScrolled) {
-      scrollElementToBottom(list!);
-
-      return setIsInitiallyScrolled(true);
-    }
-
-    const diff = list!.scrollHeight - list!.scrollTop;
-
-    if (msg.sender.id === credentials!.id || diff < (document.documentElement.clientHeight * MESSAGE_READING_OFFSET_PERCENT))
-      scrollElementToBottom(list!);
-  }, [msg]);
-
-  const handleListScroll = ({currentTarget}: React.UIEvent<HTMLDivElement>) => {
-    if (!areAllMessagesFetched && currentTarget.scrollTop < document.documentElement.clientHeight * MESSAGE_FETCHING_OFFSET)
+    if (!areAllMessagesFetched && list.scrollTop < document.documentElement.clientHeight * MESSAGE_FETCHING_OFFSET)
       fetchMessages({companionId, take: 30, skip: messages?.length});
 
-    const ids = getMessagesIds(currentTarget, {own: false, read: false});
+    const ids = getMessagesIds(list, {own: false, read: false});
 
     if (ids.length) {
       setMessagesRead({ids, companionId});
@@ -71,8 +58,27 @@ export const MessagesList: React.FC = () => {
     }
   };
 
+  useEffect(() => {
+    if (!msg) return;
+
+    const list = listRef.current;
+
+    handleListScroll(list!);
+
+    if (!isInitiallyScrolled) {
+      scrollElementToBottom(list!);
+
+      return setIsInitiallyScrolled(true);
+    }
+
+    const diff = list!.scrollHeight - list!.scrollTop;
+
+    if (msg.sender.id === credentials!.id || diff < (document.documentElement.clientHeight * MESSAGE_READING_OFFSET_PERCENT))
+      scrollElementToBottom(list!)
+  }, [msg]);
+
   return (
-    <List ref={listRef} onScroll={handleListScroll}>
+    <List ref={listRef} onScroll={({currentTarget}) => handleListScroll(currentTarget)}>
       {areFetching && Array.from({length: DEFAULT_SKELETON_LIST}, (_, idx) => <MessageSkeleton key={idx}/>)}
 
       {messages?.map((msg, idx) => {

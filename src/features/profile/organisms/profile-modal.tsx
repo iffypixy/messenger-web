@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, MouseEvent} from "react";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
 
@@ -8,41 +8,27 @@ import {Col, Row} from "@lib/layout";
 import {useActions} from "@lib/hooks";
 import {AvatarEditor} from "@lib/avatar-editor";
 import {authSelectors, authActions} from "@features/auth";
+import {User} from "@api/common";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
-import {uploadApi} from "@api/upload.api";
 
 interface Props {
   closeModal: () => void;
-}
-
-interface IFields {
-  firstName?: string;
-  lastName?: string;
 }
 
 export const ProfileModal: React.FC<Props> = ({closeModal}) => {
   const credentials = useSelector(authSelectors.credentialsSelector);
   const isUpdateProfileFetching = useSelector(selectors.isUpdateProfileFetchingSelector);
 
-  const [fields, setFields] = useState<IFields>({
-    firstName: credentials!.firstName,
-    lastName: credentials!.lastName
-  });
+  const [data, setData] = useState<User>(credentials!);
+  const [image, setImage] = useState<File | null>(null);
 
-  const [isEditorOpen, setIsEditorOpen] = useState(false);
-  const [url, setUrl] = useState<string>("");
-  const [scale, setScale] = useState(1);
-
-  const {firstName, lastName} = fields;
+  const {firstName, lastName} = data;
 
   const {fetchUpdateProfile, fetchLogout} = useActions({...actions, ...authActions});
 
   const handleSaveButtonClick = () => {
-    if (!fields.firstName) delete fields.firstName;
-    if (!fields.lastName) delete fields.lastName;
-
-    fetchUpdateProfile(fields)
+    fetchUpdateProfile(data)
       .then(closeModal);
   };
 
@@ -53,27 +39,47 @@ export const ProfileModal: React.FC<Props> = ({closeModal}) => {
   const handleAvatarInputChange = ({currentTarget}: React.ChangeEvent<HTMLInputElement>) => {
     const file = currentTarget.files![0];
 
+    setImage(file);
+  };
+
+  const handleAvatarInputClick = ({currentTarget}: MouseEvent<HTMLInputElement>) => {
+    currentTarget.value = "";
+  }
+
+  const handleEditorSave = (blob: Blob) => {
     const formData = new FormData();
 
-    formData.append("file", file);
+    formData.append("file", blob);
+    formData.append("firstName", firstName);
+    formData.append("lastName", lastName);
 
-    uploadApi.uploadFile({file: formData})
-      .then(({data}) => {
-        setUrl(data.file.url);
+    fetchUpdateProfile(formData);
 
-        setIsEditorOpen(true);
-      })
+    setImage(null);
+  };
+
+  const handleEditorClose = () => {
+    setImage(null);
   };
 
   return (
     <>
       <ModalBackground onClick={closeModal}/>
 
-      {(isEditorOpen && url) && <AvatarEditor />}
+      {image && (
+        <AvatarEditor title="Edit avatar"
+                      onSave={handleEditorSave}
+                      onClose={handleEditorClose}
+                      width={300}
+                      height={300}
+                      borderRadius={150}
+                      border={75}
+                      image={image}/>
+      )}
 
       <Modal>
         <Profile>
-          <Input type="file" hidden name="avatar" label={(
+          <Input type="file" hidden name="avatar" onClick={handleAvatarInputClick} label={(
             <UserAvatar>
               <Avatar src={credentials!.avatar}/>
 
@@ -83,7 +89,7 @@ export const ProfileModal: React.FC<Props> = ({closeModal}) => {
             </UserAvatar>
           )} onChange={handleAvatarInputChange}/>
 
-          <Text primary type="bold">{credentials!.firstName}</Text>
+          <Text primary type="bold">{credentials!.fullName}</Text>
         </Profile>
 
         <Settings gap="1.5rem">
@@ -93,7 +99,7 @@ export const ProfileModal: React.FC<Props> = ({closeModal}) => {
               <Input
                 value={firstName}
                 width="100%"
-                onChange={({currentTarget}) => setFields({...fields, firstName: currentTarget.value})}
+                onChange={({currentTarget}) => setData({...data, firstName: currentTarget.value})}
                 small/>
             </Row>
           </Col>
@@ -103,7 +109,7 @@ export const ProfileModal: React.FC<Props> = ({closeModal}) => {
             <Row width="100%" justify="space-between" align="center">
               <Input value={lastName}
                      width="100%"
-                     onChange={({currentTarget}) => setFields({...fields, lastName: currentTarget.value})}
+                     onChange={({currentTarget}) => setData({...data, lastName: currentTarget.value})}
                      small/>
             </Row>
           </Col>
