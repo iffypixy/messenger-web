@@ -4,17 +4,17 @@ import {request} from "@lib/request";
 import {User} from "@api/common";
 
 export interface UpdateData {
-  firstName: string;
-  lastName: string;
-  avatar: Blob;
+  firstName?: string;
+  lastName?: string;
+  avatar?: Blob;
 }
 
-const update = (data: UpdateData): AxiosPromise<{credentials: User}> => {
+const update = ({avatar, lastName, firstName}: UpdateData): AxiosPromise<{credentials: User}> => {
   const formData = new FormData();
 
-  formData.append("firstName", data.firstName);
-  formData.append("lastName", data.lastName);
-  formData.append("avatar", data.avatar);
+  if (firstName) formData.append("firstName", firstName);
+  if (lastName) formData.append("lastName", lastName);
+  if (avatar) formData.append("avatar", avatar);
 
   return request({
     method: "PUT",
@@ -22,7 +22,7 @@ const update = (data: UpdateData): AxiosPromise<{credentials: User}> => {
     withCredentials: true,
     data: formData
   });
-}
+};
 
 export const profileApi = {
   update

@@ -47,13 +47,7 @@ export const ProfileModal: React.FC<Props> = ({closeModal}) => {
   }
 
   const handleEditorSave = (blob: Blob) => {
-    const formData = new FormData();
-
-    formData.append("file", blob);
-    formData.append("firstName", firstName);
-    formData.append("lastName", lastName);
-
-    fetchUpdateProfile(formData);
+    fetchUpdateProfile({avatar: blob});
 
     setImage(null);
   };
@@ -79,7 +73,7 @@ export const ProfileModal: React.FC<Props> = ({closeModal}) => {
 
       <Modal>
         <Profile>
-          <Input type="file" hidden name="avatar" onClick={handleAvatarInputClick} label={(
+          <Input type="file" hidden name="avatar" accept="image/*" onClick={handleAvatarInputClick} label={(
             <UserAvatar>
               <Avatar src={credentials!.avatar}/>
 
