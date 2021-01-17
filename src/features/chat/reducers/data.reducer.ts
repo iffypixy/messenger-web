@@ -1,11 +1,11 @@
 import {createReducer, PayloadAction, Reducer} from "@reduxjs/toolkit";
 
-import {IUser} from "@api/common";
+import {User} from "@api/common";
 import * as actions from "../actions";
 
 interface InitialState {
     search: string;
-    queriedUsers: IUser[] | null;
+    queriedUsers: User[] | null;
 }
 
 export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
@@ -18,11 +18,11 @@ export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
             state.search = payload.search;
         },
 
-        [actions.fetchQueriedUsers.fulfilled.type]: (state, {payload}: PayloadAction<{users: IUser[]}>) => {
+        [actions.fetchQueriedUsers.fulfilled.type]: (state, {payload}: PayloadAction<{users: User[]}>) => {
             state.queriedUsers = payload.users;
         },
 
-        [actions.setQueriedUsers.type]: (state, {payload}: PayloadAction<{users: IUser[]}>) => {
+        [actions.setQueriedUsers.type]: (state, {payload}: PayloadAction<{users: User[]}>) => {
             state.queriedUsers = payload.users;
         }
     }

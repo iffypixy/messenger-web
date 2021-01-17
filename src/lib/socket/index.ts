@@ -6,7 +6,24 @@ import {authSelectors} from "@features/auth";
 import {BACKEND_URL} from "@lib/constants";
 import {useActions} from "@lib/hooks";
 import {chatDialogsActions} from "@features/chat/features/dialogs";
-import {ID, IMessage} from "@api/common";
+import {ID, Message} from "@api/common";
+
+export const events = {
+  auth: {
+    CREDENTIALS: "AUTH:CREDENTIALS"
+  },
+
+  profile: {
+    ONLINE: "PROFILE:ONLINE",
+    OFFLINE: "PROFILE:OFFLINE"
+  },
+
+  dialogs: {
+    READ_MESSAGES: "DIALOGS:READ-MESSAGES",
+    CREATE_MESSAGE: "DIALOGS:CREATE-MESSAGE",
+    TYPING: "DIALOGS:TYPING"
+  }
+};
 
 export const socket = io(BACKEND_URL);
 
@@ -24,17 +41,17 @@ export const SocketInit: React.FC<Props> = ({children}) => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      socket.emit("credentials", {userId: credentials!.id});
+      socket.emit(events.auth.CREDENTIALS, {userId: credentials!.id});
 
-      socket.on("message", ({message}: {message: IMessage}) =>
+      socket.on(events.dialogs.CREATE_MESSAGE, ({message}: {message: Message}) =>
         addCompanionMessage({message})
       );
 
-      socket.on("read-messages", ({ids, companionId}: {ids: ID[]; companionId: ID}) =>
-        setMessagesRead({companionId, ids})
+      socket.on(events.dialogs.READ_MESSAGES, ({messagesIds, companionId}: {messagesIds: ID[]; companionId: ID}) =>
+        setMessagesRead({companionId, messagesIds})
       );
 
-      socket.on("typing", ({companionId, status}: {companionId: ID, status: string}) => {
+      socket.on(events.dialogs.TYPING, ({companionId, status}: {companionId: ID, status: string}) => {
         if (typingTimeout) clearTimeout(typingTimeout);
 
         setCompanionStatus({companionId, status});
@@ -44,11 +61,11 @@ export const SocketInit: React.FC<Props> = ({children}) => {
         }, 1000);
       });
 
-      socket.on("online", ({userId}: {userId: ID}) => {
+      socket.on(events.profile.ONLINE, ({userId}: {userId: ID}) => {
         setCompanionOnlineStatus({companionId: userId, online: true});
       });
 
-      socket.on("offline", ({userId}: {userId: ID}) => {
+      socket.on(events.profile.OFFLINE, ({userId}: {userId: ID}) => {
         setCompanionOnlineStatus({companionId: userId, online: false});
       });
     }

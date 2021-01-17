@@ -1,7 +1,7 @@
 import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 
-import {dialogApi, GetMessagesData, CreateMessageData} from "@api/dialog.api";
-import {User, Message, Dialog, ID} from "@api/common";
+import {dialogApi, GetMessagesData, CreateMessageData, SetMessagesReadData} from "@api/dialog.api";
+import {User, Message, DialogsListItem, ID} from "@api/common";
 import {userApi, GetUserData} from "@api/user.api";
 
 const typePrefix = "chat/dialogs";
@@ -12,7 +12,7 @@ export const fetchMessages = createAsyncThunk<{messages: Message[]}, GetMessages
   return data;
 });
 
-export const fetchDialogs = createAsyncThunk<{dialogs: Dialog[]}>(`${typePrefix}/fetchDialogs`, async () => {
+export const fetchDialogs = createAsyncThunk<{dialogs: DialogsListItem[]}>(`${typePrefix}/fetchDialogs`, async () => {
   const {data} = await dialogApi.getDialogs();
 
   return data;
@@ -26,6 +26,12 @@ export const fetchCreateMessage = createAsyncThunk<{message: Message}, CreateMes
 
 export const fetchCompanion = createAsyncThunk<{user: User}, GetUserData>(`${typePrefix}/fetchCompanion`, async ({id}) => {
   const {data} = await userApi.getUser({id});
+
+  return data;
+});
+
+export const fetchReadMessages = createAsyncThunk<void, SetMessagesReadData>(`${typePrefix}/fetchReadMessages`, async ({companionId, messagesIds}) => {
+  const {data} = await dialogApi.setMessagesRead({companionId, messagesIds});
 
   return data;
 });

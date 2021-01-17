@@ -3,13 +3,13 @@ import styled, {css} from "styled-components";
 import format from "date-fns/format";
 
 import {Col} from "@lib/layout";
-import {IUser} from "@api/common";
+import {User} from "@api/common";
 import {Text, Avatar, Icon, Skeleton} from "@ui/atoms";
 
 interface Props {
   id: string;
-  text: string | undefined;
-  sender: IUser;
+  text: string | null;
+  sender: User;
   createdAt: string;
   read: boolean;
   own: boolean;

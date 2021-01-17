@@ -5,15 +5,15 @@ import format from "date-fns/format";
 import {Link, useParams} from "react-router-dom";
 
 import {authSelectors} from "@features/auth";
-import {Avatar, Icon, Text, RoundedNumber, Skeleton} from "@ui/atoms";
+import {Icon, Text, Skeleton} from "@ui/atoms";
 import {Col} from "@lib/layout";
 import {ID} from "@api/common";
+import {UserAvatar} from "@features/user";
 import {chatDialogsSelectors} from "../features/dialogs";
 import {stringifyMessage} from "../lib";
 import * as selectors from "../selectors";
-import {UserAvatar} from "@features/user";
 
-interface Item {
+interface ChatsListItem {
   id: ID;
   path: string;
   title: string;
@@ -27,32 +27,29 @@ interface Item {
 const DEFAULT_SKELETON_COUNT = 5;
 
 export const ChatsList: React.FC = () => {
-  const credentials = useSelector(authSelectors.credentialsSelector);
+  const credentials = useSelector(authSelectors.credentialsSelector)!;
   const dialogs = useSelector(chatDialogsSelectors.listSelector);
   const search = useSelector(selectors.searchSelector);
   const areDialogsFetching = useSelector(chatDialogsSelectors.areDialogsFetchingSelector);
 
   const {companionId} = useParams<{companionId: ID}>();
 
-  const mapDialogsToItems = (): Item[] => {
-    return dialogs!.map(({id, companion, lastMessage, unreadMessagesNumber, status}) => {
-      const selected = companion.id === companionId;
-      const own = credentials!.id === lastMessage.sender.id;
-      const avatar = <UserAvatar user={companion} />;
+  const mapDialogsToItems = (): ChatsListItem[] => dialogs!.map(({id, companion, lastMessage, unreadMessagesNumber}) => {
+    const selected = companion.id === companionId;
+    const own = credentials.id === lastMessage.sender.id;
+    const avatar = <UserAvatar user={companion}/>;
 
-      const info = unreadMessagesNumber ?
-        <RoundedNumber digits={unreadMessagesNumber.toString().length} primary>{unreadMessagesNumber}</RoundedNumber> :
-        own && <Icon name={lastMessage.isRead ? "double-check" : "check"} secondary={!selected}/>;
+    const info = unreadMessagesNumber ? <Text rounded primary>{unreadMessagesNumber}</Text> :
+      own && <Icon name={lastMessage.read ? "double-check" : "check"} secondary={!selected}/>;
 
-      return {
-        id, info, selected, avatar,
-        path: `/${companion.id}`,
-        title: companion.fullName,
-        date: new Date(lastMessage.createdAt),
-        text: status || `${own ? "You: " : ""}${stringifyMessage(lastMessage)}`
-      };
-    });
-  };
+    return {
+      id, info, selected, avatar,
+      path: `/${companion.id}`,
+      title: companion.fullName,
+      date: new Date(lastMessage.createdAt),
+      text: companion.status || `${own ? "You: " : ""}${stringifyMessage(lastMessage)}`
+    };
+  });
 
   return (
     <List gap="2rem">

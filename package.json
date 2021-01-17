@@ -16,6 +16,8 @@
     "emoji-mart": "^3.0.0",
     "fingerprintjs2": "^2.1.2",
     "nanoid": "^3.1.20",
+    "pretty-bytes": "^5.5.0",
+    "pretty-ms": "^7.0.1",
     "react": "16.14.0",
     "react-avatar-editor": "^11.1.0",
     "react-dom": "16.14.0",
@@ -27,9 +29,11 @@
     "styled-components": "^5.2.1",
     "styled-normalize": "^8.0.7",
     "ua-parser-js": "^0.7.23",
+    "wavesurfer.js": "^4.4.0",
     "yup": "^0.32.8"
   },
   "devDependencies": {
+    "@types/dom-mediacapture-record": "^1.0.7",
     "@types/emoji-mart": "^3.0.4",
     "@types/fingerprintjs2": "^2.0.0",
     "@types/nanoid": "^2.1.0",
@@ -43,6 +47,7 @@
     "@types/socket.io-client": "^1.4.34",
     "@types/styled-components": "^5.1.5",
     "@types/ua-parser-js": "^0.7.35",
+    "@types/wavesurfer.js": "^3.3.1",
     "@types/yup": "^0.29.10",
     "razzle": "3.3.8",
     "typescript": "^4.1.3"

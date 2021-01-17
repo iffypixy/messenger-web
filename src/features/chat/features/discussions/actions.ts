@@ -1,6 +1,6 @@
-import {createAsyncThunk} from "@reduxjs/toolkit";
+import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 
-import {Discussion, DiscussionsListItem, Message} from "@api/common";
+import {Discussion, DiscussionsListItem, ID, Message} from "@api/common";
 import {
   CreateDiscussionData,
   CreateMessageData,
@@ -40,3 +40,5 @@ export const fetchCreateDiscussion = createAsyncThunk<{discussion: Discussion}, 
 
   return data;
 });
+
+export const setDiscussionId = createAction<{id: ID}>(`${typePrefix}/setDiscussionId`);

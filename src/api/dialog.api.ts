@@ -1,9 +1,9 @@
 import {AxiosPromise} from "axios";
 
 import {request, RequestQuery} from "@lib/request";
-import {Message, Dialog, ID, MessageData} from "./common";
+import {Message, DialogsListItem, ID, MessageData} from "./common";
 
-const getDialogs = (): AxiosPromise<{dialogs: Dialog[]}> => request({
+const getDialogs = (): AxiosPromise<{dialogs: DialogsListItem[]}> => request({
   url: "/api/dialogs",
   method: "GET",
   withCredentials: true

@@ -10,6 +10,8 @@ export interface RequestQuery {
 
 export interface RequestOptions {
   cancelToken?: CancelToken;
+  onDownloadProgress?: (progressEvent: any) => void;
+  onUploadProgress?: (progressEvent: any) => void;
 }
 
 export const request = axios.create({
@@ -26,9 +28,7 @@ function applyInterceptor() {
     async (error: AxiosError) => {
       const {config, response} = error;
 
-      const status = response!.status;
-
-      if (!BAD_STATUS_CODES.includes(status)) return Promise.reject(error);
+      if (!response || !BAD_STATUS_CODES.includes(response.status)) return Promise.reject(error);
 
       request.interceptors.response.eject(interceptor);
 

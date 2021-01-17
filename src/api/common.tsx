@@ -28,13 +28,12 @@ export type Message = {
   id: ID;
   sender: User;
   text: string | null;
-  attachments: Attachment | null;
+  attachment: Attachment | null;
   read: boolean;
-  chatId: ID;
   createdAt: string;
 }
 
-export type Dialog = {
+export type DialogsListItem = {
   id: ID;
   companion: User;
   lastMessage: Message;
@@ -53,15 +52,13 @@ export type DiscussionsListItem = {
   members: User[];
   title: string;
   avatar: string;
-  lastMessage: Message;
+  lastMessage: Message | null;
   unreadMessagesNumber: number;
 }
 
 export interface MessageData {
-  text?: string;
-  attachments?: {
-    imagesIds?: string[];
-    audioId?: string;
-    filesIds?: string[];
-  };
+  text: string;
+  imagesIds: string[];
+  audioId: string | null;
+  filesIds: string[];
 };

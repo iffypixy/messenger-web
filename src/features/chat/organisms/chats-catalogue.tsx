@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
 
-import {H3, Input, RoundedNumber, Button} from "@ui/atoms";
+import {H3, Input, Text, Button} from "@ui/atoms";
 import {useActions, useModal} from "@lib/hooks";
 import {Row} from "@lib/layout";
 import {chatDialogsSelectors} from "../features/dialogs";
@@ -26,7 +26,7 @@ export const ChatsCatalogue: React.FC = () => {
         <Header>
           <Row gap="1rem" align="center">
             <H3>Messages</H3>
-            {!!number && <RoundedNumber digits={number.toString().length} primary>{number}</RoundedNumber>}
+            {!!number && <Text rounded primary>{number}</Text>}
           </Row>
 
           <NewChatButton onClick={openModal} pure>+ New chat</NewChatButton>
@@ -34,7 +34,7 @@ export const ChatsCatalogue: React.FC = () => {
 
         <SearchBar/>
 
-        <ChatsList/>
+        <ChatsList />
       </Catalogue>
     </>
   );

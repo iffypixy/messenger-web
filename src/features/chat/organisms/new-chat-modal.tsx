@@ -7,7 +7,7 @@ import {Avatar, H4, Input, Text, Button, Skeleton, Icon} from "@ui/atoms";
 import {ModalBackground} from "@ui/organisms";
 import {Col, Row} from "@lib/layout";
 import {useActions} from "@lib/hooks";
-import {IUser} from "@api/common";
+import {User} from "@api/common";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
@@ -23,7 +23,7 @@ let previousReqPromise: {
 
 export const NewChatModal: React.FC<Props> = ({closeModal}) => {
   const [query, setQuery] = useState<string>("");
-  const [user, setUser] = useState<IUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   const {fetchQueriedUsers, setQueriedUsers} = useActions(actions);
 
