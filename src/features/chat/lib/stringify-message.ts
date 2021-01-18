@@ -1,9 +1,9 @@
-import {IMessage} from "@api/common";
+import {Message} from "@api/common";
 
-export function stringifyMessage({text, attachments}: IMessage): string {
+export function stringifyMessage({text, attachment}: Message): string {
   return text ? text
-    : attachments?.files ? "Files"
-      : attachments?.images ? "Images"
-        : attachments?.audio ? "Audio"
+    : attachment?.files ? "Files"
+      : attachment?.images ? "Images"
+        : attachment?.audio ? "Audio"
           : "";
 }

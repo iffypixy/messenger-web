@@ -75,6 +75,7 @@ export const MessagesList: React.FC<Props> = ({messages, areFetching, handleList
               own={credentials!.id === msg.sender.id}
               text={msg.text}
               sender={msg.sender}
+              attachment={msg.attachment}
               createdAt={msg.createdAt}
               read={msg.read}
             />

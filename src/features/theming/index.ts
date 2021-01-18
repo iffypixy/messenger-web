@@ -1,7 +1,9 @@
-import {ThemeToggleProvider} from "./lib/theme-toggle-provider";
 import {reducer} from "./reducers";
+import {lightTheme, darkTheme, ThemeToggleProvider} from "./lib";
+import * as selectors from "./selectors";
 
 export {
-  ThemeToggleProvider,
-  reducer as themingReducer
+  ThemeToggleProvider, lightTheme, darkTheme,
+  reducer as themingReducer,
+  selectors as themingSelectors
 };
