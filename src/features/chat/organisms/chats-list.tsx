@@ -64,8 +64,8 @@ export const ChatsList: React.FC = () => {
                 <ChatAvatar>{avatar}</ChatAvatar>
 
                 <Content>
-                  <Text type="bold" space="nowrap" primary>{title}</Text>
-                  <Text space="nowrap" primary={selected}>{text}</Text>
+                  <Text type="bold" space="nowrap" overflow="ellipsis" primary>{title}</Text>
+                  <Text space="nowrap" overflow="ellipsis" primary={selected}>{text}</Text>
                 </Content>
 
                 <Information>

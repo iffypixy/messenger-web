@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {SyntheticEvent, useEffect, useRef, useState} from "react";
 import styled, {css} from "styled-components";
 import format from "date-fns/format";
 import WaveSurfer from "wavesurfer.js";
@@ -10,6 +10,9 @@ import {Col, Row} from "@lib/layout";
 import {Attachment, User} from "@api/common";
 import {Text, Avatar, Icon, Skeleton} from "@ui/atoms";
 import {themingSelectors, lightTheme, darkTheme} from "@features/theming";
+import {scrollElementToBottom} from "@lib/dom";
+
+const DEFAULT_IMG_SIZE = 200;
 
 interface Props {
   id: string;
@@ -33,8 +36,31 @@ export const Message: React.FC<Props> = ({id, text, sender, createdAt, own, read
   const theme = currentTheme === "light" ? lightTheme : darkTheme;
 
   const waveRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const isAudioExist = attachment && attachment.audio;
-  const areFilesExist = attachment && attachment.files && attachment.files.length;
+  const toRenderFiles = attachment && attachment.files && !!attachment.files.length && !isAudioExist;
+  const toRenderImages = attachment && attachment.images && !!attachment.images.length && !isAudioExist;
+
+  const toRenderReadSign = own && !isAudioExist && !toRenderImages && !toRenderFiles;
+
+  const handleImgLoad = ({currentTarget}: SyntheticEvent<HTMLImageElement, Event>) => {
+    const width = currentTarget.width;
+    const height = currentTarget.height;
+
+    if (width > height && width > DEFAULT_IMG_SIZE) {
+      currentTarget.width = DEFAULT_IMG_SIZE;
+      currentTarget.height = height * (DEFAULT_IMG_SIZE / width);
+    } else if (height >= width && height > DEFAULT_IMG_SIZE) {
+      currentTarget.height = DEFAULT_IMG_SIZE;
+      currentTarget.width = width * (DEFAULT_IMG_SIZE / height);
+    } else {
+      currentTarget.width = width;
+      currentTarget.height = height;
+    }
+
+    if (containerRef) scrollElementToBottom(containerRef.current!.parentElement!);
+  };
 
   useEffect(() => {
     if (isAudioExist) {
@@ -81,78 +107,96 @@ export const Message: React.FC<Props> = ({id, text, sender, createdAt, own, read
     if (audioOptions.wave) audioOptions.wave.playPause();
   };
 
+  const readStatus = <ReadStatusIcon name={read ? "double-check" : "check"} secondary own={own}/>;
+
   return (
-    <Wrapper own={own} data-id={id} data-own={own} data-read={read}>
-      <MessageBlock>
+    <Container own={own} data-id={id} data-own={own} data-read={read} ref={containerRef}>
+      <Wrapper>
         <Header own={own}>
           <DateText>{format(new Date(createdAt), "HH:mm")}</DateText>
         </Header>
-        <Block own={own}>
+        <Body own={own}>
           <AvatarWrapper own={own}>
             <Avatar src={sender.avatar}/>
           </AvatarWrapper>
 
-          <Col gap="1rem" align={own ? "flex-end" : "flex-start"}>
+          <Content gap="1rem" own={own}>
             {text && (
               <Bubble own={own}>
-                <MessageText>{text}</MessageText>
+                <MessageText breakw="break-all">{text}</MessageText>
               </Bubble>
             )}
 
-            {areFilesExist && (
-              <Col gap="1rem" align={own ? "flex-end" : "flex-start"}>
-                {attachment!.files!.map((file, idx, arr) => (
-                  <ContentWrapper own={own} key={file.id}>
-                    {(idx === arr.length - 1) &&
-                    <ReadStatusIcon name={read ? "double-check" : "check"} secondary own={own}/>}
+            {toRenderImages && (
+              <ImagesWrapper>
+                {attachment!.images!.map((url, idx, {length}) => (
+                  <Row reverse>
+                    <img src={url} onLoad={handleImgLoad} alt="Message attachment"/>
 
-                    <FileWrapper href={file.url}>
+                    {(!toRenderFiles && idx === length - 1) && readStatus}
+                  </Row>
+                ))}
+              </ImagesWrapper>
+            )}
+
+            {toRenderFiles && (
+              <Col gap="1rem" align={own ? "flex-end" : "flex-start"}>
+                {attachment!.files!.map((file, idx, {length}) => (
+                  <Row width="fit-content" reverse={own}>
+                    <FileLink href={file.url} target="_blank">
                       <Bubble own={own}>
-                        <Row gap="1.5rem" align="center">
+                        <Row gap="1rem" align="center">
                           <Icon name="document"/>
 
                           <Col gap="0.5rem">
-                            <Text primary small>{file.name}</Text>
+                            <Row maxw="20rem">
+                              <Text primary small space="nowrap" overflow="ellipsis">{file.name}</Text>
+                            </Row>
                             <Text primary small>{prettyBytes(file.size)}</Text>
                           </Col>
                         </Row>
                       </Bubble>
-                    </FileWrapper>
-                  </ContentWrapper>
+                    </FileLink>
+
+                    {(own && idx === length - 1) && readStatus}
+                  </Row>
                 ))}
               </Col>
             )}
 
             {isAudioExist && (
-              <Bubble own={own}>
-                <Row width="100%" align="center" gap="1rem">
-                  {audioOptions.paused ? <Icon name="play" onClick={handleAudioButtonClick}/> :
-                    <Icon name="pause" onClick={handleAudioButtonClick}/>}
-                  <AudioWave ref={waveRef}/>
-                  <Text primary small>{prettyMs(audioOptions.duration * 1000, {colonNotation: true})}</Text>
-                </Row>
-              </Bubble>
-            )}
-          </Col>
+              <Row reverse>
+                <Bubble own={own}>
+                  <Row width="100%" align="center" gap="1rem">
+                    {audioOptions.paused ? <Icon name="play" onClick={handleAudioButtonClick} cursor="pointer"/> :
+                      <Icon name="pause" onClick={handleAudioButtonClick} cursor="pointer"/>}
+                    <AudioWave ref={waveRef}/>
+                    <Text primary small>{prettyMs(audioOptions.duration * 1000, {colonNotation: true})}</Text>
+                  </Row>
+                </Bubble>
 
-          {(own && !areFilesExist) && <ReadStatusIcon name={read ? "double-check" : "check"} secondary own={own}/>}
-        </Block>
-      </MessageBlock>
-    </Wrapper>
+                {readStatus}
+              </Row>
+            )}
+          </Content>
+
+          {toRenderReadSign && readStatus}
+        </Body>
+      </Wrapper>
+    </Container>
   );
 };
-
 
 export const MessageSkeleton: React.FC = () => {
   const own = Math.round(Math.random()) % 2 === 0;
 
   return (
-    <Wrapper own={own}>
-      <MessageBlock>
+    <Container own={own}>
+      <Wrapper>
         <Header own={own}>
           <Skeleton.Text width="4rem"/>
         </Header>
-        <Block own={own}>
+        <Body own={own}>
           <AvatarWrapper own={own}>
             <Skeleton.Avatar/>
           </AvatarWrapper>
@@ -162,9 +206,9 @@ export const MessageSkeleton: React.FC = () => {
               <Skeleton.Text width="10rem"/>
             </Bubble>
           </Col>
-        </Block>
-      </MessageBlock>
-    </Wrapper>
+        </Body>
+      </Wrapper>
+    </Container>
   );
 };
 
@@ -172,18 +216,21 @@ interface StylingProps {
   own: boolean;
 }
 
-const Wrapper = styled.div<StylingProps>`
+const Container = styled.div<StylingProps>`
   display: flex;
+  width: 100%;
+  max-width: 100%;
 
   ${(props) => css`
     flex-direction: ${props.own ? "row-reverse" : "row"};
   `};
 `;
 
-const MessageBlock = styled.div`
+const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: fit-content;
+  max-width: 100%;
 
   & > :not(:first-child) {
     margin-top: 0.5rem;
@@ -195,17 +242,11 @@ const Header = styled.div<StylingProps>`
 
   ${(props) => props.own ? css`
     justify-content: flex-end;
-    padding-right: 4.5rem;
+    padding-right: 4rem;
   ` : css`
     justify-content: flex-start;
-    padding-left: 4.5rem;
+    padding-left: 4rem;
   `};
-`;
-
-const Block = styled.div<StylingProps>`
-  display: flex;
-  flex-direction: ${({own}) => own ? "row-reverse" : "row"};
-  align-items: flex-start;
 `;
 
 const AvatarWrapper = styled.div<StylingProps>`
@@ -221,6 +262,17 @@ const AvatarWrapper = styled.div<StylingProps>`
   `}
 `;
 
+
+const Body = styled.div<StylingProps>`
+  display: flex;
+  flex-direction: ${({own}) => own ? "row-reverse" : "row"};
+  align-items: flex-start;
+`;
+
+const Content = styled(Col)<StylingProps>`
+  align-items: ${({own}) => own ? "flex-end" : "flex-start"};
+`;
+
 interface BubbleProps extends StylingProps {
   transparent?: boolean;
 }
@@ -228,6 +280,7 @@ interface BubbleProps extends StylingProps {
 const Bubble = styled.div<BubbleProps>`
   display: flex;
   align-items: center;
+  max-width: 100%;
   background-color: ${({theme, own, transparent}) => transparent ? "none" : own ? theme.palette.secondary.main : theme.palette.primary.main};
   border-radius: 10px;
   padding: 1.5rem;
@@ -239,15 +292,28 @@ const Bubble = styled.div<BubbleProps>`
   `}
 `;
 
-const ContentWrapper = styled.div<StylingProps>`
-  display: flex;
-  flex-direction: ${({own}) => own ? "row" : "row-reverse"};
-`;
-
-const FileWrapper = styled.a.attrs(() => ({
+const FileLink = styled.a.attrs(() => ({
   target: "_blank"
 }))`
   text-decoration: none;
+`;
+
+const ImagesWrapper = styled.div`
+  display: flex;
+  align-items: baseline;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  max-width: 45rem;
+
+  & > div {
+    margin: 0.5rem;
+  }
+  
+  & img {
+    background-color: ${({theme}) => theme.palette.background.default};
+    max-width: 200px;
+    max-height: 200px;
+  }
 `;
 
 const DateText = styled(Text)`
@@ -269,7 +335,6 @@ const ReadStatusIcon = styled(Icon)<StylingProps>`
   width: 1.5rem;
   height: 1.5rem;
   margin-top: auto;
-  margin-bottom: 0.5rem;
   
   ${({own}) => own ? css`
     margin-right: 0.5rem; 

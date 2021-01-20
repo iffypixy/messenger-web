@@ -2,6 +2,7 @@ import styled, {css} from "styled-components";
 
 interface Props {
   width?: string | number;
+  maxw?: string | number;
   alignContent?: "flex-start" | "flex-end" | "center" | "space-around" | "space-between" | "stretch";
   align?: "flex-start" | "flex-end" | "center" | "baseline" | "stretch";
   basis?: string | number;
@@ -11,10 +12,12 @@ interface Props {
   order?: string | number;
   padding?: string | number;
   gap?: string | number;
+  reverse?: boolean;
 }
 
 export const mixins = (props: Props) => css`
   width: ${props.width};
+  max-width: ${props.maxw};
   align-content: ${props.alignContent};
   align-items: ${props.align};
   flex-basis: ${props.basis};
@@ -27,7 +30,7 @@ export const mixins = (props: Props) => css`
 
 export const Row = styled.div<Props>`
   display: flex;
-  flex-direction: row;
+  flex-direction: ${({reverse}) => reverse ? "row-reverse" : "row"};
   ${mixins};
   
   ${(props) =>
@@ -40,7 +43,7 @@ export const Row = styled.div<Props>`
 
 export const Col = styled.div<Props>`
   display: flex;
-  flex-direction: column;
+  flex-direction: ${({reverse}) => reverse ? "column-reverse" : "column"};
   ${mixins};
   
   ${(props) =>

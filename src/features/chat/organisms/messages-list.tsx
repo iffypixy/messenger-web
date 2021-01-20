@@ -51,7 +51,7 @@ export const MessagesList: React.FC<Props> = ({messages, areFetching, handleList
   }, [msg]);
 
   return (
-    <List ref={listRef} onScroll={({currentTarget}) => handleListScroll(currentTarget)}>
+    <List id="messages-list" ref={listRef} onScroll={({currentTarget}) => handleListScroll(currentTarget)}>
       {areFetching && Array.from({length: DEFAULT_SKELETON_LIST}, (_, idx) => <MessageSkeleton key={idx}/>)}
 
       {messages && messages.map((msg, idx) => {
@@ -92,6 +92,7 @@ const List = styled.div`
   flex-grow: 1;
   width: 100%;
   overflow-y: scroll;
+  overflow-x: hidden;
   padding: 2rem 3.5rem 4rem;
 
   & > :not(:first-child) {
