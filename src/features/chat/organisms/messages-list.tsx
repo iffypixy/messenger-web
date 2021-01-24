@@ -19,9 +19,9 @@ interface Props {
   handleListScroll: (element: Element) => void;
 }
 
-let isScrolled = false;
-
 export const MessagesList: React.FC<Props> = ({messages, areFetching, handleListScroll}) => {
+  const [isScrolled, setIsScrolled] = useState(false);
+
   const credentials = useSelector(authSelectors.credentialsSelector)!;
 
   const listRef = useRef<HTMLDivElement>(null);
@@ -29,29 +29,27 @@ export const MessagesList: React.FC<Props> = ({messages, areFetching, handleList
   const msg = messages && messages[messages.length - 1];
 
   useEffect(() => {
-    if (msg) {
-      const list = listRef.current!;
+    if (!msg) return;
 
-      if (!isScrolled) {
-        isScrolled = true;
+    const list = listRef.current!;
 
-        return scrollElementToBottom(list);
-      } else {
-        handleListScroll(list);
+    if (!isScrolled) {
+      setIsScrolled(true);
 
-        const isScrolledToTheBottomEnough = list.scrollHeight - list.scrollTop <
-          (document.documentElement.clientHeight * MESSAGE_READING_OFFSET_PERCENT);
-
-        const own = msg.sender.id === credentials.id;
-
-        if (own || isScrolledToTheBottomEnough)
-          scrollElementToBottom(list);
-      }
+      return scrollElementToBottom(list);
     }
+
+    handleListScroll(list);
+
+    const isScrolledToTheBottomEnough = list.scrollHeight - list.scrollTop <
+      (document.documentElement.clientHeight * MESSAGE_READING_OFFSET_PERCENT);
+    const own = msg.sender.id === credentials.id;
+
+    if (own || isScrolledToTheBottomEnough) scrollElementToBottom(list);
   }, [msg]);
 
   return (
-    <List id="messages-list" ref={listRef} onScroll={({currentTarget}) => handleListScroll(currentTarget)}>
+    <List ref={listRef} onScroll={({currentTarget}) => handleListScroll(currentTarget)}>
       {areFetching && Array.from({length: DEFAULT_SKELETON_LIST}, (_, idx) => <MessageSkeleton key={idx}/>)}
 
       {messages && messages.map((msg, idx) => {
@@ -94,6 +92,19 @@ const List = styled.div`
   overflow-y: scroll;
   overflow-x: hidden;
   padding: 2rem 3.5rem 4rem;
+  
+  &::-webkit-scrollbar {
+     width: 7px;
+  }
+ 
+  &::-webkit-scrollbar-track {
+     background-color: #37383A;
+  }
+   
+  &::-webkit-scrollbar-thumb {
+     background-color: #5D5E5E;
+     border-radius: 5px;
+  }
 
   & > :not(:first-child) {
     margin-top: 2rem;

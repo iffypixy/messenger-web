@@ -44,9 +44,20 @@ const setMessagesRead = ({companionId, messagesIds}: SetMessagesReadData): Axios
   withCredentials: true
 });
 
+export interface GetAttachmentNumber {
+  companionId: ID;
+}
+
+const getAttachmentNumber = ({companionId}: GetAttachmentNumber) => request({
+  method: "GET",
+  url: `/api/dialogs/${companionId}/attachment`,
+  withCredentials: true
+});
+
 export const dialogApi = {
   getDialogs,
   getMessages,
   createMessage,
-  setMessagesRead
+  setMessagesRead,
+  getAttachmentNumber
 };

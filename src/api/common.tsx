@@ -7,7 +7,6 @@ export type User = {
   fullName: string;
   avatar: string;
   lastSeen: string;
-  online: boolean;
 }
 
 export type File = {

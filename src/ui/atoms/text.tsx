@@ -26,9 +26,10 @@ export const Text = styled.span<Props>`
     overflow: hidden;
     
     ${({rounded}) => rounded && css`
-        font-size: 1.2rem;
+        font-size: 1rem;
+        font-weight: 700;
         background-color: ${({theme}) => theme.palette.warning.light};
         border-radius: 20px;
-        padding: 1rem;
+        padding: 0.4rem;
     `};
 `;

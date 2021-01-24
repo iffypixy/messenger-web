@@ -1,5 +1,5 @@
 import {stringifyMessage} from "./stringify-message";
 import {getMessagesIds} from "./get-messages-ids";
-import {ChatMemberStatus} from "./interfaces";
+import {CompanionOptions} from "./interfaces";
 
-export {stringifyMessage, getMessagesIds, ChatMemberStatus};
+export {stringifyMessage, getMessagesIds, CompanionOptions};

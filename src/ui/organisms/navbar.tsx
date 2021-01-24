@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
+import {Link} from "react-router-dom";
 
 import {authSelectors} from "@features/auth";
 import {ProfileModal} from "@features/profile";
@@ -16,7 +17,9 @@ export const Navbar: React.FC = () => {
       {isModalOpen && <ProfileModal closeModal={closeModal} />}
 
       <Wrapper>
-        <LogoIcon name="logo"/>
+        <Link to="/">
+          <LogoIcon name="logo"/>
+        </Link>
 
         <UserAvatar onClick={openModal}>
           <Avatar src={credentials?.avatar}/>

@@ -11,6 +11,8 @@ import {Attachment, User} from "@api/common";
 import {Text, Avatar, Icon, Skeleton} from "@ui/atoms";
 import {themingSelectors, lightTheme, darkTheme} from "@features/theming";
 import {scrollElementToBottom} from "@lib/dom";
+import {useModal} from "@lib/hooks";
+import {ImageModal} from "@lib/image-modal";
 
 const DEFAULT_IMG_SIZE = 200;
 
@@ -31,6 +33,8 @@ export const Message: React.FC<Props> = ({id, text, sender, createdAt, own, read
     progress: 0,
     duration: 0
   });
+
+  const {isModalOpen: isImageModalOpen, closeModal: closeImageModal, openModal: openImageModal} = useModal();
 
   const currentTheme = useSelector(themingSelectors.themeSelector);
   const theme = currentTheme === "light" ? lightTheme : darkTheme;
@@ -130,8 +134,10 @@ export const Message: React.FC<Props> = ({id, text, sender, createdAt, own, read
             {toRenderImages && (
               <ImagesWrapper>
                 {attachment!.images!.map((url, idx, {length}) => (
-                  <Row reverse>
-                    <img src={url} onLoad={handleImgLoad} alt="Message attachment"/>
+                  <Row reverse key={idx}>
+                    {isImageModalOpen && <ImageModal url={url} closeModal={closeImageModal}/>}
+
+                    <Image src={url} onClick={() => openImageModal()} onLoad={handleImgLoad} alt="Message attachment"/>
 
                     {(!toRenderFiles && idx === length - 1) && readStatus}
                   </Row>
@@ -142,7 +148,7 @@ export const Message: React.FC<Props> = ({id, text, sender, createdAt, own, read
             {toRenderFiles && (
               <Col gap="1rem" align={own ? "flex-end" : "flex-start"}>
                 {attachment!.files!.map((file, idx, {length}) => (
-                  <Row width="fit-content" reverse={own}>
+                  <Row width="fit-content" reverse={own} key={file.id}>
                     <FileLink href={file.url} target="_blank">
                       <Bubble own={own}>
                         <Row gap="1rem" align="center">
@@ -308,12 +314,13 @@ const ImagesWrapper = styled.div`
   & > div {
     margin: 0.5rem;
   }
-  
-  & img {
-    background-color: ${({theme}) => theme.palette.background.default};
-    max-width: 200px;
-    max-height: 200px;
-  }
+`;
+
+const Image = styled.img`
+  background-color: ${({theme}) => theme.palette.background.default};
+  max-width: 20rem;
+  max-height: 20rem;
+  cursor: pointer;
 `;
 
 const DateText = styled(Text)`

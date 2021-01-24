@@ -10,5 +10,5 @@ export function isElementVisible(elem: HTMLElement): boolean {
 }
 
 export function scrollElementToBottom(element: HTMLElement): void {
-  element.scrollTop = element.scrollHeight;
+  element.scroll(0, element.scrollHeight);
 }

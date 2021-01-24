@@ -44,7 +44,7 @@ export const ProfileModal: React.FC<Props> = ({closeModal}) => {
 
   const handleAvatarInputClick = ({currentTarget}: MouseEvent<HTMLInputElement>) => {
     currentTarget.value = "";
-  }
+  };
 
   const handleEditorSave = (blob: Blob) => {
     fetchUpdateProfile({avatar: blob});

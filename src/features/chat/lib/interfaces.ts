@@ -1,1 +1,4 @@
-export type ChatMemberStatus = string | null;
+export interface CompanionOptions {
+  online: Boolean;
+  status: string | null;
+}

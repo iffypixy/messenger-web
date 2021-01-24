@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect} from "react";
 import {useSelector} from "react-redux";
 import styled from "styled-components";
 import format from "date-fns/format";
@@ -8,10 +8,11 @@ import {authSelectors} from "@features/auth";
 import {Icon, Text, Skeleton} from "@ui/atoms";
 import {Col} from "@lib/layout";
 import {ID} from "@api/common";
-import {UserAvatar} from "@features/user";
-import {chatDialogsSelectors} from "../features/dialogs";
+import {UserAvatar, userSelectors} from "@features/user";
+import {chatDialogsActions, chatDialogsSelectors} from "../features/dialogs";
 import {stringifyMessage} from "../lib";
 import * as selectors from "../selectors";
+import {useActions} from "@lib/hooks";
 
 interface ChatsListItem {
   id: ID;
@@ -40,7 +41,8 @@ export const ChatsList: React.FC = () => {
     const avatar = <UserAvatar user={companion}/>;
 
     const info = unreadMessagesNumber ? <Text rounded primary>{unreadMessagesNumber}</Text> :
-      own && <Icon name={lastMessage.read ? "double-check" : "check"} secondary={!selected}/>;
+      own && <Icon name={lastMessage.read ? "double-check" : "check"}
+                   width="1.4rem" height="1.4rem" secondary={!selected}/>;
 
     return {
       id, info, selected, avatar,

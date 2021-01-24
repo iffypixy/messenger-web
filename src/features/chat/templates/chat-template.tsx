@@ -8,8 +8,8 @@ import {MainTemplate} from "@ui/templates";
 export const ChatTemplate: React.FC = ({children}) => (
   <MainTemplate>
     <Wrapper>
-      <Navbar />
-      <ChatsCatalogue />
+      <Navbar/>
+      <ChatsCatalogue/>
       <Panel>{children}</Panel>
     </Wrapper>
   </MainTemplate>
@@ -23,10 +23,9 @@ const Wrapper = styled.div`
 `;
 
 const Panel = styled.div`
-  display: flex;
-  flex-direction: column;
   width: 55%;
   height: 100%;
+  display: flex;
   background-color: ${({theme}) => theme.palette.primary.dark};
   border-left: 2px solid ${({theme}) => theme.palette.divider};
 `;

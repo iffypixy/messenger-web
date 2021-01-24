@@ -1,15 +1,15 @@
 import {createReducer, PayloadAction, Reducer} from "@reduxjs/toolkit";
 
-import {ChatMemberStatus} from "@features/chat";
+import {CompanionOptions} from "@features/chat";
 import {Discussion, DiscussionsListItem, ID, Message, User} from "@api/common";
 import * as actions from "../actions";
 
 interface ExtendedDiscussionsListItem extends DiscussionsListItem {
-  members: (User & {status: ChatMemberStatus})[];
+  members: (User & CompanionOptions)[];
 }
 
 interface DiscussionChat extends Discussion {
-  members: (User & {status: ChatMemberStatus})[];
+  members: (User & CompanionOptions)[];
   messages: Message[];
   areAllMessagesFetched: boolean;
 }
