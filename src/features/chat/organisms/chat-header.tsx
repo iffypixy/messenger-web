@@ -8,9 +8,10 @@ interface Props {
   subtitle: string;
   isFetching: boolean;
   avatar: React.ReactNode;
+  handleInformationButtonClick: () => void;
 }
 
-export const ChatHeader: React.FC<Props> = ({title, subtitle, isFetching, avatar}) => (
+export const ChatHeader: React.FC<Props> = ({title, subtitle, isFetching, avatar, handleInformationButtonClick}) => (
   <Header>
     <HeaderInfo>
       <HeaderAvatar>
@@ -25,11 +26,7 @@ export const ChatHeader: React.FC<Props> = ({title, subtitle, isFetching, avatar
     </HeaderInfo>
 
     <HeaderOptions>
-      <Button pure>
-        <Icon name="loupe"/>
-      </Button>
-
-      <Button pure>
+      <Button pure onClick={handleInformationButtonClick}>
         <Icon name="attachment"/>
       </Button>
     </HeaderOptions>

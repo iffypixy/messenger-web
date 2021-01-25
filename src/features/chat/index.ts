@@ -1,4 +1,4 @@
-import {ChatsCatalogue, Message, MessageSkeleton, ChatHeader, MessageForm, MessagesList, AttachmentSidebar} from "./organisms";
+import {ChatsCatalogue, Message, MessageSkeleton, ChatHeader, MessageForm, MessagesList, ChatSidebar} from "./organisms";
 import {ChatTemplate} from "./templates";
 import {stringifyMessage, getMessagesIds} from "./lib";
 import {CompanionOptions} from "./lib";
@@ -10,7 +10,7 @@ export {
     ChatTemplate, stringifyMessage,
     getMessagesIds, MessageSkeleton,
     CompanionOptions, MessageForm, MessagesList, ChatHeader,
-    AttachmentSidebar,
+    ChatSidebar,
     reducer as chatReducer,
     actions as chatActions
 };

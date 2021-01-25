@@ -1,7 +1,7 @@
 import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 import {AppState} from "redux";
 
-import {dialogApi, GetMessagesData, CreateMessageData, SetMessagesReadData} from "@api/dialog.api";
+import {dialogApi, GetMessagesData, CreateMessageData, SetMessagesReadData, GetAttachmentNumberData} from "@api/dialog.api";
 import {User, Message, DialogsListItem, ID} from "@api/common";
 import {userApi, GetUserData} from "@api/user.api";
 import {CompanionOptions} from "@features/chat";
@@ -57,6 +57,12 @@ export const fetchReadMessages = createAsyncThunk<void, SetMessagesReadData>(`${
   return data;
 });
 
+export const fetchAttachmentNumber = createAsyncThunk<{audios: number; files: number; images: number}, GetAttachmentNumberData>(`${typePrefix}/fetchAttachmentNumber`, async ({companionId}) => {
+  const {data} = await dialogApi.getAttachmentNumber({companionId});
+
+  return data;
+});
+
 export const updateMessage = createAction<{messageId: ID; companionId: ID; updatedMessage: Message}>(`${typePrefix}/updateMessage`);
 
 export const addCompanionMessage = createAction<{message: Message}>(`${typePrefix}/addCompanionMessage`);
@@ -68,3 +74,5 @@ export const setCurrentCompanionId = createAction<{id: ID}>(`${typePrefix}/setCu
 export const setMessagesRead = createAction<{ids: ID[]; companionId: ID}>(`${typePrefix}/setMessagesRead`);
 
 export const updateCompanion = createAction(`${typePrefix}/updateCompanion`);
+
+export const toggleSidebar = createAction(`${typePrefix}/toggleSidebar`);

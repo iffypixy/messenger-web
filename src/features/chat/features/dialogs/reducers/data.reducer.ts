@@ -13,11 +13,17 @@ interface DialogChat {
   companion: User & CompanionOptions;
   messages: Message[] | null;
   areAllMessagesFetched?: boolean;
+  attachment: {
+    audios: number;
+    images: number;
+    files: number;
+  };
 }
 
 interface InitialState {
   list: ExtendedDialogsListItem[] | null;
   currentCompanionId: ID | null;
+  isSidebarOpen: boolean;
   dialogs: {
     [key: string]: DialogChat;
   };
@@ -26,14 +32,16 @@ interface InitialState {
 const emptyDialog = {
   areAllMessagesFetched: false,
   companion: null,
-  messages: null
+  messages: null,
+  attachment: {}
 };
 
 export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
   {
     list: null,
     currentCompanionId: null,
-    dialogs: {}
+    dialogs: {},
+    isSidebarOpen: false
   },
   {
     [actions.setCurrentCompanionId.type]: (state, {payload}: PayloadAction<{id: ID}>) => {
@@ -50,6 +58,14 @@ export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
       dialogs[currentCompanionId!] = {
         ...dialog, companion: dialog.companion ?
           {...dialog.companion, ...payload.companion} : payload.companion
+      };
+    },
+
+    [actions.fetchAttachmentNumber.fulfilled.type]: ({dialogs, currentCompanionId}, {payload}: PayloadAction<{audios: number; files: number; images: number}>) => {
+      const dialog = dialogs[currentCompanionId!] || emptyDialog;
+
+      dialogs[currentCompanionId!] = {
+        ...dialog, attachment: payload
       };
     },
 
@@ -70,7 +86,12 @@ export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
 
       state.dialogs[companionId] = {
         ...dialog, companion,
-        messages: dialog.messages ? [...dialog.messages, message] : [message]
+        messages: dialog.messages ? [...dialog.messages, message] : [message],
+        attachment: {
+          audios: (message.attachment && message.attachment.audio) ? dialog.attachment.audios + 1 : dialog.attachment.audios,
+          images: (message.attachment && message.attachment.images) ? dialog.attachment.images + 1 : dialog.attachment.images,
+          files: (message.attachment && message.attachment.files) ? dialog.attachment.files + 1 : dialog.attachment.files,
+        }
       };
 
       if (state.list) {
@@ -135,6 +156,10 @@ export const dataReducer: Reducer<InitialState> = createReducer<InitialState>(
       state.list = state.list && state.list.map((item) =>
         item.companion.id === payload.companionId ?
           {...item, companion: {...item.companion, ...payload.companion}} : item);
+    },
+
+    [actions.toggleSidebar.type]: (state) => {
+      state.isSidebarOpen = !state.isSidebarOpen;
     }
   }
 );

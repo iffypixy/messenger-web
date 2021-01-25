@@ -7,7 +7,7 @@ import styled from "styled-components";
 import formatDistanceToNow from "date-fns/formatDistanceToNow";
 
 import {authSelectors} from "@features/auth";
-import {ChatTemplate, ChatHeader, MessagesList, MessageForm, getMessagesIds, AttachmentSidebar} from "@features/chat";
+import {ChatTemplate, ChatHeader, MessagesList, MessageForm, getMessagesIds, ChatSidebar} from "@features/chat";
 import {chatDialogsActions, chatDialogsSelectors} from "@features/chat/features/dialogs";
 import {useActions} from "@lib/hooks";
 import {socket, events} from "@lib/socket";
@@ -22,12 +22,11 @@ export const ViewPage: React.FC = () => {
   const {companionId} = useParams<{companionId: ID}>();
   const history = useHistory();
 
-  const [sidebarOptions, setSidebarOptions] = useState({open: false});
-
   const credentials = useSelector(authSelectors.credentialsSelector)!;
   const dialogs = useSelector(chatDialogsSelectors.dialogsSelector);
   const list = useSelector(chatDialogsSelectors.listSelector);
   const onlineUsersIds = useSelector(userSelectors.onlineUsersIds);
+  const isSidebarOpen = useSelector(chatDialogsSelectors.isSidebarOpen);
 
   const {fetchCompanion, fetchMessages, setCurrentCompanionId, fetchDialogs, updateCompanion} =
     useActions(chatDialogsActions);
@@ -63,13 +62,13 @@ export const ViewPage: React.FC = () => {
 
   return (
     <ChatTemplate>
-      <DialogWrapper fullWidth={!true}>
+      <DialogWrapper fullWidth={!isSidebarOpen}>
         <DialogHeader/>
         <DialogMessages/>
         <DialogForm/>
       </DialogWrapper>
 
-      {true && <DialogAttachmentSidebar files={{number: 2}} audios={{number: 32}} images={{number: 3}}/>}
+      {isSidebarOpen && <DialogSidebar />}
     </ChatTemplate>
   );
 };
@@ -77,6 +76,8 @@ export const ViewPage: React.FC = () => {
 const DialogHeader: React.FC = () => {
   const isCompanionFetching = useSelector(chatDialogsSelectors.isCompanionFetchingSelector);
   const dialog = useSelector(chatDialogsSelectors.dialogSelector);
+
+  const {toggleSidebar} = useActions(chatDialogsActions);
 
   const companion = dialog && dialog.companion;
 
@@ -92,6 +93,7 @@ const DialogHeader: React.FC = () => {
       isFetching={isCompanionFetching}
       avatar={avatar}
       title={title}
+      handleInformationButtonClick={() => toggleSidebar()}
       subtitle={subtitle}/>
   );
 };
@@ -178,17 +180,47 @@ const DialogForm: React.FC = () => {
   );
 };
 
-const DialogAttachmentSidebar: React.FC = () => {
+const DialogSidebar: React.FC = () => {
   const {companionId} = useParams<{companionId: ID}>();
 
+  const {fetchAttachmentNumber, toggleSidebar} = useActions(chatDialogsActions);
+  const dialogs = useSelector(chatDialogsSelectors.dialogsSelector);
+  const isCompanionFetching = useSelector(chatDialogsSelectors.isCompanionFetchingSelector);
+  const isAttachmentNumberFetching = useSelector(chatDialogsSelectors.isAttachmentNumberFetchingSelector);
+
   useEffect(() => {
-    dialogApi.getAttachmentNumber({companionId});
+    fetchAttachmentNumber({companionId});
   }, []);
 
+  const dialog = dialogs[companionId];
+  const companion = dialog?.companion;
+
+  const files = {
+    number: dialog?.attachment.files || 0
+  };
+
+  const images = {
+    number: dialog?.attachment.images || 0
+  };
+
+  const audios = {
+    number: dialog?.attachment.audios || 0
+  };
+
+  const title = companion?.fullName;
+  const subtitle = companion && (companion.online ? "Online" : companion.lastSeen && formatDistanceToNow(new Date(companion.lastSeen), {addSuffix: true}));
+  const avatar = companion?.avatar;
+  const fetching = isCompanionFetching || isAttachmentNumberFetching;
+
   return (
-    <AttachmentSidebar
-      files={{number: 2}} audios={{number: 32}}
-      images={{number: 3}} fetching={false}/>
+    <ChatSidebar
+      title={title}
+      avatar={avatar}
+      subtitle={subtitle}
+      handleClose={() => toggleSidebar()}
+      fetching={fetching}
+      files={files} audios={audios}
+      images={images} fetching={false}/>
   );
 };
 

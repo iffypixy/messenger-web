@@ -19,3 +19,9 @@ export const isCompanionFetchingSelector = (state: AppState) =>
 
 export const areMessagesFetchingSelector = (state: AppState) =>
   chatDialogsSelector(state).loading.areMessagesFetching;
+
+export const isAttachmentNumberFetchingSelector = (state: AppState) =>
+  chatDialogsSelector(state).loading.isAttachmentNumberFetching;
+
+export const isSidebarOpen = (state: AppState) =>
+  chatDialogsSelector(state).data.isSidebarOpen;

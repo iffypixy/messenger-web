@@ -44,14 +44,44 @@ const setMessagesRead = ({companionId, messagesIds}: SetMessagesReadData): Axios
   withCredentials: true
 });
 
-export interface GetAttachmentNumber {
+export interface GetAttachmentNumberData {
   companionId: ID;
 }
 
-const getAttachmentNumber = ({companionId}: GetAttachmentNumber) => request({
+const getAttachmentNumber = ({companionId}: GetAttachmentNumberData): AxiosPromise<{audios: number; images: number; files: number}> => request({
   method: "GET",
   url: `/api/dialogs/${companionId}/attachment`,
   withCredentials: true
+});
+
+export interface GetImagesData extends RequestQuery {
+  companionId: ID;
+}
+
+const getImages = ({companionId, limit, skip}: GetImagesData): AxiosPromise<{images: string[]}> => request({
+  method: "GET",
+  url: `/api/dialogs/${companionId}/images`,
+  params: {limit, skip}
+});
+
+export interface GetFilesData extends RequestQuery {
+  companionId: ID;
+}
+
+const getFiles = ({companionId, limit, skip}: GetFilesData): AxiosPromise<{images: string[]}> => request({
+  method: "GET",
+  url: `/api/dialogs/${companionId}/files`,
+  params: {limit, skip}
+});
+
+export interface GetAudiosData extends RequestQuery {
+  companionId: ID;
+}
+
+const getAudios = ({companionId, limit, skip}: GetAudiosData): AxiosPromise<{images: string[]}> => request({
+  method: "GET",
+  url: `/api/dialogs/${companionId}/audios`,
+  params: {limit, skip}
 });
 
 export const dialogApi = {
