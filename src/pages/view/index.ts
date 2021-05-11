@@ -1,1 +1,3 @@
-export {ViewPage} from "./page";
+import {ViewPage} from "./page";
+
+export {ViewPage};
