@@ -1,18 +1,18 @@
-import React from "react";
-import ReactDOM from "react-dom";
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 import {Provider} from "react-redux";
-import {BrowserRouter} from "react-router-dom";
 
 import {store} from "@lib/store";
 import {App} from "./app";
+import {ThemingProvider} from "@lib/theming";
 
 const root = document.getElementById("root");
 
 ReactDOM.render(
-  <Provider store={store}>
-    <BrowserRouter>
-      <App/>
-    </BrowserRouter>
-  </Provider>,
-  root
+    <Provider store={store}>
+        <ThemingProvider>
+            <App />
+        </ThemingProvider>
+    </Provider>,
+    root
 );

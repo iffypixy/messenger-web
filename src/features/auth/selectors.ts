@@ -1,7 +1,7 @@
-import {AppState} from "redux";
+import {RootState} from "@lib/typings";
 
-const authSelector = (state: AppState) => state.auth;
+const stateSelector = (state: RootState) => state.auth;
 
-export const isAuthenticatedSelector = (state: AppState) => authSelector(state).data.isAuthenticated;
-export const credentialsSelector = (state: AppState) => authSelector(state).data.credentials;
-export const areCredentialsFetching = (state: AppState) => authSelector(state).loading.areCredentialsFetching;
+export const credentials = (state: RootState) => stateSelector(state).credentials;
+
+export const isAuthenticated = (state: RootState) => stateSelector(state).isAuthenticated;

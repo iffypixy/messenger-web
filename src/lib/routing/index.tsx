@@ -1,21 +1,25 @@
-import React from "react";
-import { Redirect, Route, RouteProps } from "react-router-dom";
-import { useSelector } from "react-redux";
+import * as React from "react";
+import {RouteProps, Redirect, Route} from "react-router-dom";
+import {useSelector} from "react-redux";
 
-import { authSelectors } from "@features/auth";
+import {authSelectors} from "@features/auth";
 
-export const PrivateRoute: React.FC<RouteProps> = (props) => {
-  const isAuthenticated = useSelector(authSelectors.isAuthenticatedSelector);
+interface PrivateRouteProps extends RouteProps {}
 
-  if (isAuthenticated) return <Route {...props} />;
+export const PrivateRoute: React.FC<PrivateRouteProps> = (props) => {
+    const isAuthenticated = useSelector(authSelectors.isAuthenticated);
 
-  return <Redirect to="/login" />
+    if (!isAuthenticated) return <Redirect to="/login" />;
+
+    return <Route {...props} />
 };
 
-export const PublicOnlyRoute: React.FC<RouteProps> = (props) => {
-  const isAuthenticated = useSelector(authSelectors.isAuthenticatedSelector);
+interface PublicOnlyRouteProps extends RouteProps {}
 
-  if (isAuthenticated) return <Redirect to="/" />;
+export const PublicOnlyRoute: React.FC<PublicOnlyRouteProps> = (props) => {
+    const isAuthenticated = useSelector(authSelectors.isAuthenticated);
 
-  return <Route {...props} />;
+    if (isAuthenticated) return <Redirect to="/" />;
+
+    return <Route {...props} />
 };
