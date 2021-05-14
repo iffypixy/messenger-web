@@ -11,7 +11,7 @@ export const PrivateRoute: React.FC<PrivateRouteProps> = (props) => {
 
     if (!isAuthenticated) return <Redirect to="/login" />;
 
-    return <Route {...props} />
+    return <Route {...props} />;
 };
 
 interface PublicOnlyRouteProps extends RouteProps {}
@@ -21,5 +21,5 @@ export const PublicOnlyRoute: React.FC<PublicOnlyRouteProps> = (props) => {
 
     if (isAuthenticated) return <Redirect to="/" />;
 
-    return <Route {...props} />
+    return <Route {...props} />;
 };

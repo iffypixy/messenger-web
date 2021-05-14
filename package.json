@@ -9,22 +9,31 @@
     "start:prod": "NODE_ENV=production node build/server.js"
   },
   "dependencies": {
+    "@hookform/resolvers": "^2.5.0",
     "@reduxjs/toolkit": "^1.5.1",
     "axios": "^0.21.1",
+    "fingerprintjs2": "^2.1.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-hook-form": "^7.5.3",
     "react-redux": "^7.2.4",
     "react-router-dom": "^5.2.0",
-    "styled-components": "^5.3.0"
+    "styled-components": "^5.3.0",
+    "ua-parser-js": "^0.7.28",
+    "yup": "^0.32.9"
   },
   "devDependencies": {
+    "@types/fingerprintjs2": "^2.0.0",
     "@types/node": "^15.0.2",
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.4",
     "@types/react-redux": "^7.1.16",
     "@types/react-router-dom": "^5.1.7",
+    "@types/requestidlecallback": "^0.3.1",
     "@types/styled-components": "^5.1.9",
+    "@types/ua-parser-js": "^0.7.36",
     "@types/webpack-env": "^1.16.0",
+    "@types/yup": "^0.29.11",
     "@typescript-eslint/eslint-plugin": "^4.23.0",
     "@typescript-eslint/parser": "^4.23.0",
     "babel-preset-razzle": "4.0.4",

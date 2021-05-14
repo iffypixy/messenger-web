@@ -21,7 +21,7 @@
     "strict": false,
     "pretty": true,
     "suppressImplicitAnyIndexErrors": true,
-    "target": "esnext",
+    "target": "es6",
     "baseUrl": "./src",
     "paths": {
       "@features/*": ["./features", "./features/*"],
