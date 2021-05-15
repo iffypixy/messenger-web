@@ -1,5 +1,5 @@
-
 {
+  "extends": "./tsconfig.paths.json",
   "compilerOptions": {
     "allowJs": true,
     "allowUnreachableCode": false,
@@ -8,9 +8,14 @@
     "downlevelIteration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "jsx": "react",
-    "lib": ["es6", "es2015", "es2017", "dom"],
-    "module": "commonjs",
+    "jsx": "react-jsx",
+    "lib": [
+      "es6",
+      "es2015",
+      "es2017",
+      "dom"
+    ],
+    "module": "esnext",
     "moduleResolution": "Node",
     "noImplicitAny": true,
     "noImplicitReturns": true,
@@ -22,14 +27,10 @@
     "pretty": true,
     "suppressImplicitAnyIndexErrors": true,
     "target": "es6",
-    "baseUrl": "./src",
-    "paths": {
-      "@features/*": ["./features", "./features/*"],
-      "@lib/*": ["./lib", "./lib/*"],
-      "@ui/*": ["./ui", "./ui/*"],
-      "@pages/*": ["./pages", "./pages/*"],
-      "@api/*": ["./api", "./api/*"]
-    }
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true
   },
   "exclude": [
     "node_modules",
@@ -38,7 +39,14 @@
     "acceptance-tests",
     "webpack",
     "jest",
-    "razzle.config.js"
+    "craco.config.js"
   ],
-  "types": ["typePatches", "node", "webpack-env"]
+  "types": [
+    "typePatches",
+    "node",
+    "webpack-env"
+  ],
+  "include": [
+    "src"
+  ]
 }

@@ -29,9 +29,9 @@ export const H2 = styled.h2<HeadingProps>`
         font-size: ${theme.typography.h2.fontSize};
         letter-spacing: ${theme.typography.h2.letterSpacing};
         line-height: ${theme.typography.h2.lineHeight};
-    `}
+    `};
     
-    ${mixins}
+    ${mixins};
 `;
 
 export const H3 = styled.h3<HeadingProps>`

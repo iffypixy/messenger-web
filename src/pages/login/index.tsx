@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {useDispatch} from "react-redux";
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
-import yup from "yup";
+import * as yup from "yup";
 
 import {AuthTemplate, AuthToggleButton, authActions} from "@features/auth";
 import {Col, Row} from "@lib/layout";
@@ -22,7 +22,7 @@ export const LoginPage: React.FC = () => (
     </AuthTemplate>
 );
 
-interface LoginForm {
+interface LoginFields {
     username: string;
     password: string;
 }
@@ -37,7 +37,7 @@ const schema = yup.object().shape({
 const LoginForm: React.FC = () => {
     const dispatch = useDispatch();
 
-    const {register, handleSubmit, formState: {errors, isValid}} = useForm<LoginForm>({
+    const {register, handleSubmit, formState: {errors, isValid}} = useForm<LoginFields>({
         resolver: yupResolver(schema),
         mode: "onChange"
     });
@@ -46,14 +46,14 @@ const LoginForm: React.FC = () => {
         <Form onSubmit={handleSubmit((data) => dispatch(authActions.fetchLogin(data)))}>
             <Col width="100%" gap="60px">
                 <Col gap="35px">
-                    <Input ref={register as React.Ref<HTMLInputElement>}
+                    <Input ref={{...register("username")} as unknown as React.Ref<HTMLInputElement>}
                            type="text"
                            name="username"
                            error={errors.username?.message}
                            label="Username"
                            placeholder="alex23"/>
 
-                    <Input ref={register as React.Ref<HTMLInputElement>}
+                    <Input ref={{...register("password")} as unknown as React.Ref<HTMLInputElement>}
                            type="password"
                            name="password"
                            error={errors.password?.message}

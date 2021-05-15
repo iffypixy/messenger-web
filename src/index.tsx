@@ -10,12 +10,12 @@ import {App} from "./app";
 const root = document.getElementById("root");
 
 ReactDOM.render(
-    <Provider store={store}>
-       <BrowserRouter>
-           <ThemingProvider>
-               <App/>
-           </ThemingProvider>
-       </BrowserRouter>
-    </Provider>,
-    root
+  <Provider store={store}>
+    <BrowserRouter>
+      <ThemingProvider>
+        <App/>
+      </ThemingProvider>
+    </BrowserRouter>
+  </Provider>,
+  root
 );
