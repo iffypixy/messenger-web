@@ -848,5 +848,5 @@ const SVG = styled.svg<SVGProps>`
     width: ${width};
     height: ${height};
     fill: ${secondary ? theme.palette.text.secondary : theme.palette.text.primary};
-  `}
+  `};
 `;

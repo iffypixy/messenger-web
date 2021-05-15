@@ -1,6 +1,7 @@
 import {createReducer} from "@reduxjs/toolkit";
 
 import {Credentials} from "./lib/typings";
+import * as actions from "./actions";
 
 interface AuthState {
     credentials: Credentials | null;
@@ -13,6 +14,8 @@ export const reducer = createReducer<AuthState>(
         isAuthenticated: false
     },
     {
-
+      [actions.fetchLogin.fulfilled.type]: (state, payload) => {
+        state.isAuthenticated = true;
+      }
     }
 );

@@ -16,9 +16,9 @@ export const H1 = styled.h1<HeadingProps>`
         font-size: ${theme.typography.h1.fontSize};
         letter-spacing: ${theme.typography.h1.letterSpacing};
         line-height: ${theme.typography.h1.lineHeight};
-    `}
+    `};
     
-    ${mixins}
+    ${mixins};
 `;
 
 export const H2 = styled.h2<HeadingProps>`
@@ -42,9 +42,9 @@ export const H3 = styled.h3<HeadingProps>`
         font-size: ${theme.typography.h3.fontSize};
         letter-spacing: ${theme.typography.h3.letterSpacing};
         line-height: ${theme.typography.h3.lineHeight};
-    `}
+    `};
     
-    ${mixins}
+    ${mixins};
 `;
 
 export const H4 = styled.h4<HeadingProps>`
@@ -55,9 +55,9 @@ export const H4 = styled.h4<HeadingProps>`
         font-size: ${theme.typography.h4.fontSize};
         letter-spacing: ${theme.typography.h4.letterSpacing};
         line-height: ${theme.typography.h4.lineHeight};
-    `}
+    `};
     
-    ${mixins}
+    ${mixins};
 `;
 
 export const H5 = styled.h5<HeadingProps>`
@@ -68,9 +68,9 @@ export const H5 = styled.h5<HeadingProps>`
         font-size: ${theme.typography.h5.fontSize};
         letter-spacing: ${theme.typography.h5.letterSpacing};
         line-height: ${theme.typography.h5.lineHeight};
-    `}
+    `};
     
-    ${mixins}
+    ${mixins};
 `;
 
 export const H6 = styled.h6<HeadingProps>`
@@ -81,7 +81,7 @@ export const H6 = styled.h6<HeadingProps>`
         font-size: ${theme.typography.h6.fontSize};
         letter-spacing: ${theme.typography.h6.letterSpacing};
         line-height: ${theme.typography.h6.lineHeight};
-    `}
+    `};
     
-    ${mixins}
+    ${mixins};
 `;

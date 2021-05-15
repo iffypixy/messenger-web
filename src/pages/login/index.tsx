@@ -1,12 +1,13 @@
 import * as React from "react";
 import styled from "styled-components";
-import {useDispatch} from "react-redux";
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import {useDispatch} from "react-redux";
 
 import {AuthTemplate, AuthToggleButton, authActions} from "@features/auth";
 import {Col, Row} from "@lib/layout";
+import {getFingerprint} from "@lib/fingerprint";
 import {Button, Input} from "@ui/atoms";
 
 export const LoginPage: React.FC = () => (
@@ -22,38 +23,50 @@ export const LoginPage: React.FC = () => (
     </AuthTemplate>
 );
 
-interface LoginFields {
+interface LoginFormInputs {
     username: string;
     password: string;
 }
 
 const schema = yup.object().shape({
-    email: yup.string()
-        .required("Email is required"),
+    username: yup.string()
+        .required("Username is required"),
     password: yup.string()
         .required("Password is required")
 });
 
 const LoginForm: React.FC = () => {
-    const dispatch = useDispatch();
-
-    const {register, handleSubmit, formState: {errors, isValid}} = useForm<LoginFields>({
+    const {register, handleSubmit, formState: {errors, isValid}} = useForm<LoginFormInputs>({
         resolver: yupResolver(schema),
-        mode: "onChange"
+        mode: "onChange",
+        defaultValues: {
+            username: "",
+            password: ""
+        }
     });
 
+    const dispatch = useDispatch();
+
+    const onSubmit = async (data: LoginFormInputs) => {
+        const fingerprint = await getFingerprint();
+
+        dispatch(authActions.fetchLogin({
+          ...data, fingerprint
+        }));
+    };
+
     return (
-        <Form onSubmit={handleSubmit((data) => dispatch(authActions.fetchLogin(data)))}>
+        <Form onSubmit={handleSubmit(onSubmit)}>
             <Col width="100%" gap="60px">
                 <Col gap="35px">
-                    <Input ref={{...register("username")} as unknown as React.Ref<HTMLInputElement>}
+                    <Input {...register("username")}
                            type="text"
                            name="username"
                            error={errors.username?.message}
                            label="Username"
                            placeholder="alex23"/>
 
-                    <Input ref={{...register("password")} as unknown as React.Ref<HTMLInputElement>}
+                    <Input {...register("password")}
                            type="password"
                            name="password"
                            error={errors.password?.message}

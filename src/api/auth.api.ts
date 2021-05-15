@@ -2,11 +2,11 @@ import {AxiosPromise} from "axios";
 
 import {Credentials} from "@features/auth";
 import {request} from "@lib/http";
-import {getFingerprint} from "@lib/fingerprint";
 
 export interface LoginData {
     username: string;
     password: string;
+    fingerprint: string;
 }
 
 export interface LoginResponse {
@@ -15,16 +15,13 @@ export interface LoginResponse {
 
 export const login = async (data: LoginData): Promise<AxiosPromise<LoginResponse>> => request({
     url: "/v1/api/auth/login",
-    method: "POST",
-    data: {
-        ...data,
-        fingerprint: await getFingerprint()
-    }
+    method: "POST", data
 });
 
 export interface RegisterData {
     username: string;
     password: string;
+    fingerprint: string;
 }
 
 export interface RegisterResponse {
@@ -33,9 +30,5 @@ export interface RegisterResponse {
 
 export const register = async (data: RegisterData): Promise<AxiosPromise<RegisterResponse>> => request({
     url: "/v1/api/auth/register",
-    method: "POST",
-    data: {
-        ...data,
-        fingerprint: await getFingerprint()
-    }
+    method: "POST", data
 });

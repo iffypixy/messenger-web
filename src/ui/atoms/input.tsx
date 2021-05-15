@@ -33,18 +33,27 @@ interface InputNativeProps {
 }
 
 const InputNative = styled.input<InputNativeProps>`
-    ${({theme, transparent, small, error}) => css`
+    ${({theme}) => css`
       color: ${theme.palette.text.primary};
-      font-size: ${small ? "1.2rem" : theme.typography.fontSize};
       font-family: ${theme.typography.fontFamily};
       font-weight: ${theme.typography.fontWeight.regular};
-      background-color: ${transparent ? "transparent" : theme.palette.primary.main};
-      border: ${error ? `1px solid ${theme.palette.error.main}` : "none"};
-      padding: ${small ? "1rem 1.5rem" : "1.5rem 2rem"};
       
       &::placeholder {
         color: ${theme.palette.text.secondary};
-      };
+      }
+    `};
+    
+    ${({theme, transparent}) => css`
+      background-color: ${transparent ? "transparent" : theme.palette.primary.main};
+    `};
+    
+    ${({theme, small}) => css`
+      font-size: ${small ? "1.2rem" : theme.typography.fontSize};
+      padding: ${small ? "1rem 1.5rem" : "1.5rem 2rem"};
+    `};
+
+    ${({theme, error}) => css`
+      border: ${error ? `1px solid ${theme.palette.error.main}` : "none"};
     `};
     
     border-radius: 5px;
@@ -57,8 +66,9 @@ const Label = styled.label`
       font-size: ${theme.typography.fontSize};
       font-family: ${theme.typography.fontFamily};
       font-weight: ${theme.typography.fontWeight.medium};
-      text-transform: uppercase;
     `};
+    
+    text-transform: uppercase;
 `;
 
 const ErrorLabel = styled.span`
