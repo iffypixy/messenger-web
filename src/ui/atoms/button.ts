@@ -7,17 +7,30 @@ interface ButtonProps {
 }
 
 export const Button = styled.button<ButtonProps>`
-  ${({theme, disabled, pure, danger, small}) => css`
+  ${({theme}) => css`
     color: ${theme.palette.text.primary};
-    font-size: ${small ? "1.2rem" : theme.typography.fontSize};
     font-family: ${theme.typography.fontFamily};
     font-weight: ${theme.typography.fontWeight.regular};
+  `};
+  
+  ${({theme, small}) => css`
+    font-size: ${small ? "1.2rem" : theme.typography.fontSize};
+    padding: ${small ? "1rem 1.5rem" : "1.5rem 2.5rem"};
+  `};
+  
+  ${({theme, danger}) => css`
     background-color: ${danger ? theme.palette.error.main : theme.palette.secondary.main};
-    background: ${pure && "transparent"};
+  `};
+  
+  ${({disabled}) => css`
     opacity: ${disabled ? "0.4" : "1"};
     cursor: ${disabled ? "not-allowed" : "pointer"};
-    padding: ${pure ? "0" : small ? "1rem 1.5rem" : "1.5rem 2.5rem"};
-  `}
+  `};
+  
+  ${({pure}) => css`
+    background: ${pure && "transparent"};
+    padding: ${pure && "0"};
+  `};
   
   border: none;
   outline: none;
