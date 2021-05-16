@@ -45,7 +45,7 @@ const Presentation = styled.div`
     display: flex;
     justify-content: center;
     flex-basis: 50%;
-    background-color: ${({theme}) => theme.palette.secondary.main};
+    background-color: ${({theme}) => theme.palette.secondary.light};
     padding: 3% 0 15%;
     
     @media only screen and (max-width: ${({theme}) => theme.breakpoints.md}) {
@@ -59,7 +59,7 @@ const FormBlock = styled.div`
     width: 100%;
     height: 100%;
     flex-basis: 50%;
-    background-color: ${({theme}) => theme.palette.primary.dark};
+    background-color: ${({theme}) => theme.palette.primary.main};
     padding: 3% 0 15%;
     
     @media only screen and (max-width: ${({theme}) => theme.breakpoints.md}) {

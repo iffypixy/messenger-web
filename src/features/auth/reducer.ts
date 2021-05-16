@@ -11,7 +11,7 @@ interface AuthState {
 export const reducer = createReducer<AuthState>(
     {
         credentials: null,
-        isAuthenticated: false
+        isAuthenticated: true
     },
     {
       [actions.fetchLogin.fulfilled.type]: (state, payload) => {

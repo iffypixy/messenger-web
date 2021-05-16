@@ -2,7 +2,7 @@ import {createGlobalStyle, css} from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
     html {
-      font-size: 62.5%;
+      font-size: ${({theme}) => theme.typography.htmlFontSize};
       box-sizing: border-box;
     }
     
@@ -10,6 +10,15 @@ export const GlobalStyles = createGlobalStyle`
       box-sizing: inherit;
       margin: 0;
       padding: 0;
+    }
+    
+    body {
+      ${({theme}) => css`
+        color: ${theme.palette.text.secondary};
+        font-family: ${theme.typography.fontFamily};
+        font-size: ${theme.typography.fontSize};
+        font-weight: ${theme.typography.fontWeight.regular};
+      `}
     }
     
     main {

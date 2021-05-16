@@ -37,27 +37,31 @@ const InputNative = styled.input<InputNativeProps>`
       color: ${theme.palette.text.primary};
       font-family: ${theme.typography.fontFamily};
       font-weight: ${theme.typography.fontWeight.regular};
+      font-size: ${theme.typography.fontSize};
+      background-color: ${theme.palette.primary.light};
       
       &::placeholder {
         color: ${theme.palette.text.secondary};
       }
     `};
     
-    ${({theme, transparent}) => css`
-      background-color: ${transparent ? "transparent" : theme.palette.primary.main};
+    border: none;
+    border-radius: 5px;
+    outline: none;
+    padding: 1.5rem 2rem;
+    
+    ${({transparent}) => css`
+      background-color: ${transparent && "transparent"};
     `};
     
-    ${({theme, small}) => css`
-      font-size: ${small ? "1.2rem" : theme.typography.fontSize};
-      padding: ${small ? "1rem 1.5rem" : "1.5rem 2rem"};
+    ${({small}) => css`
+      font-size: ${small && "1.2rem"};
+      padding: ${small && "1rem 1.5rem"};
     `};
 
     ${({theme, error}) => css`
-      border: ${error ? `2px solid ${theme.palette.error.main}` : "none"};
+      border: ${error && `2px solid ${theme.palette.error.main}`};
     `};
-    
-    border-radius: 5px;
-    outline: none;
 `;
 
 const Label = styled.label`

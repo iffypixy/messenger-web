@@ -1,5 +1,5 @@
 import * as React from "react";
-import styled from "styled-components";
+import styled, {css} from "styled-components";
 import {useHistory} from "react-router-dom";
 
 import {Button} from "@ui/atoms";
@@ -23,7 +23,9 @@ interface ToggleButtonProps {
 }
 
 const ToggleButton = styled(Button)<ToggleButtonProps>`
-  background-color: ${({active, theme}) => active ? theme.palette.secondary.main : theme.palette.primary.main};
+  ${({theme, active}) => css`
+    background-color: ${active && theme.palette.secondary.light};
+  `}
     
   &:first-child {
      border-bottom-right-radius: 0;

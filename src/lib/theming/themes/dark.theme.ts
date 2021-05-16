@@ -6,14 +6,14 @@ export const darkTheme: DefaultTheme = {
     ...commonTheme,
     palette: {
         primary: {
-            light: "",
-            main: "#2F334D",
+            light: "#25294A",
+            main: "#202442",
             dark: "#292C43"
         },
         secondary: {
-            light: "#476EEF",
-            main: "#10213E",
-            dark: "#1B3A5F"
+            light: "#406AE0",
+            main: "",
+            dark: ""
         },
         error: {
             light: "",
@@ -22,7 +22,7 @@ export const darkTheme: DefaultTheme = {
         },
         warning: {
             light: "",
-            main: "#F84469",
+            main: "#F65164",
             dark: ""
         },
         info: {
@@ -30,13 +30,17 @@ export const darkTheme: DefaultTheme = {
             main: "",
             dark: ""
         },
+        icon: {
+            active: "#F3F6FD",
+            main: "#514A7B"
+        },
         success: {
             light: "",
             main: "",
             dark: ""
         },
         text: {
-            primary: "rgb(250, 250, 250)",
+            primary: "#FAFAFA",
             secondary: "#52566E"
         },
         background: {
@@ -48,6 +52,6 @@ export const darkTheme: DefaultTheme = {
             disabled: "rgba(0, 0, 0, 0.26)",
             focus: "rgba(0, 0, 0, 0.12)"
         },
-        divider: ""
+        divider: "#2B2F4E"
     }
 };

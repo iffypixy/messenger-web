@@ -35,6 +35,10 @@ declare module "styled-components" {
             info: PaletteColor;
             success: PaletteColor;
             divider: string;
+            icon: {
+                main: string;
+                active: string;
+            };
             text: {
                 primary: string;
                 secondary: string;

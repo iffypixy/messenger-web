@@ -12,7 +12,7 @@ export const commonTheme = {
     typography: {
         htmlFontSize: "62.5%",
         fontFamily: fontFamily,
-        fontSize: "1.6rem",
+        fontSize: "1.4rem",
         fontWeight: {
             light: 300,
             regular: 400,
