@@ -8,15 +8,9 @@ import {MainTemplate} from "@ui/templates";
 export const AuthTemplate: React.FC = ({children}) => (
     <MainTemplate>
         <Wrapper>
-            <Row basis="50%">
-                <Representation />
-            </Row>
+            <Representation />
 
-            <Row basis="50%">
-                <FormBlock>
-                    {children}
-                </FormBlock>
-            </Row>
+            <FormBlock>{children}</FormBlock>
         </Wrapper>
     </MainTemplate>
 );
@@ -29,7 +23,7 @@ const Representation: React.FC = () => (
             </Row>
 
             <Row>
-                <H1 align="center">Be part of our awesome team and have fun with us</H1>
+                <H1 align="center">Get in touch with people much easier than ever</H1>
             </Row>
 
             <Row justify="center">
@@ -39,19 +33,24 @@ const Representation: React.FC = () => (
     </Presentation>
 );
 
-const Presentation = styled.div`
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    background-color: ${({theme}) => theme.palette.secondary.main};
-    padding: 3% 0 15%;
-`;
-
 const Wrapper = styled.div`
     display: flex;
     width: 100%;
     height: 100vh;
+`;
+
+const Presentation = styled.div`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    flex-basis: 50%;
+    background-color: ${({theme}) => theme.palette.secondary.main};
+    padding: 3% 0 15%;
+    
+    @media only screen and (max-width: ${({theme}) => theme.breakpoints.md}) {
+      display: none;
+    }
 `;
 
 const FormBlock = styled.div`
@@ -59,6 +58,11 @@ const FormBlock = styled.div`
     justify-content: center;
     width: 100%;
     height: 100%;
+    flex-basis: 50%;
     background-color: ${({theme}) => theme.palette.primary.dark};
     padding: 3% 0 15%;
+    
+    @media only screen and (max-width: ${({theme}) => theme.breakpoints.md}) {
+      flex-basis: 100%;
+    }
 `;

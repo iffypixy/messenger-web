@@ -6,7 +6,8 @@
       "@lib/*": ["./lib", "./lib/*"],
       "@ui/*": ["./ui", "./ui/*"],
       "@pages/*": ["./pages", "./pages/*"],
-      "@api/*": ["./api", "./api/*"]
+      "@api/*": ["./api", "./api/*"],
+      "@typings/*": ["./typings", "./typings/*"]
     }
   }
 }

@@ -3,11 +3,11 @@ import "styled-components";
 declare module "styled-components" {
     export interface DefaultTheme {
         breakpoints: {
-            xs: number;
-            sm: number;
-            md: number;
-            lg: number;
-            xl: number;
+            xs: string;
+            sm: string;
+            md: string;
+            lg: string;
+            xl: string;
         };
         direction: string;
         typography: {

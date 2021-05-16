@@ -1,4 +1,4 @@
-import {createGlobalStyle} from "styled-components";
+import {createGlobalStyle, css} from "styled-components";
 
 export const GlobalStyles = createGlobalStyle`
     html {
@@ -181,4 +181,36 @@ export const GlobalStyles = createGlobalStyle`
     [hidden] {
       display: none;
     }
+    
+    ${({theme}) => css`  
+      @media only screen and (max-width: ${theme.breakpoints.xl}) {
+        html {
+          font-size: 65%;
+        }
+      }
+      
+      @media only screen and (max-width: ${theme.breakpoints.lg}) {
+        html {
+          font-size: 60%;
+        }
+      }  
+
+      @media only screen and (max-width: ${theme.breakpoints.md}) {
+        html {
+          font-size: 55%;
+        }
+      }
+      
+      @media only screen and (max-width: ${theme.breakpoints.sm}) {
+        html {
+          font-size: 50%;
+        }
+      }
+    
+      @media only screen and (max-width: ${theme.breakpoints.xs}) {
+        html {
+          font-size: 45%;
+        }
+      }
+    `}
 `;
