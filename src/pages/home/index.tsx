@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, {useState} from "react";
 import styled from "styled-components";
 
 import {ChatsList} from "@features/chats";
@@ -20,7 +20,9 @@ export const HomePage: React.FC = () => {
             <Col gap="5rem">
               <Row justify="space-between">
                 <H4>Messages</H4>
-                <Text clickable>+ Create new chat</Text>
+                <Text clickable secondary>
+                  + Create new chat
+                </Text>
               </Row>
 
               <SearchBar/>
@@ -38,7 +40,7 @@ export const HomePage: React.FC = () => {
 };
 
 const SearchBar: React.FC = () => {
-  const [text, setText] = React.useState("");
+  const [text, setText] = useState("");
 
   return (
     <Input placeholder="Search chat"
@@ -67,12 +69,12 @@ const Sidebar = styled.div`
   flex-direction: column;
   align-items: center;
   background-color: ${({theme}) => theme.palette.primary.light};
-  border-radius: 3rem;
+  border-radius: 1rem;
   padding: 3rem 0;
 `;
 
 const ListPanelWrapper = styled(Col).attrs(() => ({
-  gap: "5rem"
+  gap: "4rem"
 }))`
   width: 30%;
   height: 100%;

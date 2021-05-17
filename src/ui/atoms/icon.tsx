@@ -1,7 +1,7 @@
-import * as React from "react";
+import React, {SVGAttributes} from "react";
 import styled, {css} from "styled-components";
 
-interface IconProps extends React.SVGAttributes<SVGElement>, SVGProps {
+interface IconProps extends SVGAttributes<SVGElement>, SVGProps {
     name: string;
 }
 

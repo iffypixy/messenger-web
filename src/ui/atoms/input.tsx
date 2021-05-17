@@ -1,16 +1,16 @@
-import * as React from "react";
+import React, {InputHTMLAttributes, forwardRef} from "react";
 import styled, {css} from "styled-components";
 
 import {Col} from "@lib/layout";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: React.ReactNode;
     error?: string;
     transparent?: boolean;
     small?: boolean;
 }
 
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(({error, label, name, width, ...props}, ref) => (
+export const Input = forwardRef<HTMLInputElement, InputProps>(({error, label, name, width, ...props}, ref) => (
     <Wrapper width={width}>
         {label && <Label htmlFor={name}>{label}</Label>}
         <InputNative id={name} name={name} error={!!error} ref={ref} {...props} />
@@ -46,7 +46,7 @@ const InputNative = styled.input<InputNativeProps>`
     `};
     
     border: none;
-    border-radius: 5px;
+    border-radius: 1rem;
     outline: none;
     padding: 1.5rem 2rem;
     

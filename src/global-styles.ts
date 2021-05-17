@@ -194,7 +194,7 @@ export const GlobalStyles = createGlobalStyle`
     ${({theme}) => css`  
       @media only screen and (max-width: ${theme.breakpoints.xl}) {
         html {
-          font-size: 65%;
+          font-size: 62.5%;
         }
       }
       

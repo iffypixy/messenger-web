@@ -1,4 +1,4 @@
-import * as React from "react";
+import React from "react";
 import {Switch} from "react-router-dom";
 
 import {PrivateRoute, PublicOnlyRoute} from "@lib/routing";

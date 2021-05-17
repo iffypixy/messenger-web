@@ -48,6 +48,10 @@ export const lightTheme: DefaultTheme = {
             hover: "rgba(0, 0, 0, 0.04)",
             disabled: "rgba(0, 0, 0, 0.26)",
             focus: "rgba(0, 0, 0, 0.12)",
+        },
+        icon: {
+            active: "",
+            main: ""
         }
     }
 };
