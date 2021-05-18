@@ -41,7 +41,7 @@ export const darkTheme: DefaultTheme = {
         },
         text: {
             primary: "#FAFAFA",
-            secondary: "#52566E"
+            secondary: "#4A4E6B"
         },
         background: {
             paper: "#303030",

@@ -1,12 +1,31 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import styled from "styled-components";
+import {useDispatch, useSelector} from "react-redux";
 
+import {directsActions, directsSelectors} from "@features/directs";
+import {groupsActions, groupsSelectors} from "@features/groups";
 import {ChatsList} from "@features/chats";
 import {Icon, H4, Input, Text} from "@ui/atoms";
 import {MainTemplate} from "@ui/templates";
 import {Col, Row} from "@lib/layout";
 
 export const HomePage: React.FC = () => {
+  const dispatch = useDispatch();
+
+  const directChats = useSelector(directsSelectors.chats);
+  const areDirectChatsFetching = useSelector(directsSelectors.areChatsFetching);
+
+  const groupChats = useSelector(groupsSelectors.chats);
+  const areGroupChatsFetching = useSelector(groupsSelectors.areChatsFetching);
+
+  const toFetchDirectChats = !directChats && !areDirectChatsFetching;
+  const toFetchGroupChats = !groupChats && !areGroupChatsFetching;
+
+  useEffect(() => {
+    if (toFetchDirectChats) dispatch(directsActions.fetchChats());
+    if (toFetchGroupChats) dispatch(groupsActions.fetchChats());
+  }, []);
+
   return (
     <MainTemplate>
       <Wrapper>
@@ -17,18 +36,18 @@ export const HomePage: React.FC = () => {
         </SidebarWrapper>
 
         <ListPanelWrapper>
-            <Col gap="5rem">
-              <Row justify="space-between">
-                <H4>Messages</H4>
-                <Text clickable secondary>
-                  + Create new chat
-                </Text>
-              </Row>
+          <Col gap="3rem">
+            <Row justify="space-between">
+              <H4>Messages</H4>
+              <Text clickable secondary>
+                + Create new chat
+              </Text>
+            </Row>
 
-              <SearchBar/>
-            </Col>
+            <SearchBar/>
+          </Col>
 
-            <ChatsList />
+          <ChatsList/>
         </ListPanelWrapper>
 
         <ChatPanelWrapper>
@@ -74,7 +93,7 @@ const Sidebar = styled.div`
 `;
 
 const ListPanelWrapper = styled(Col).attrs(() => ({
-  gap: "4rem"
+  gap: "3rem"
 }))`
   width: 30%;
   height: 100%;

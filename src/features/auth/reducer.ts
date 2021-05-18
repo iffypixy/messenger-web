@@ -14,7 +14,7 @@ export const reducer = createReducer<AuthState>(
         isAuthenticated: true
     },
     {
-      [actions.fetchLogin.fulfilled.type]: (state, payload) => {
+      [actions.fetchLogin.fulfilled.type]: (state) => {
         state.isAuthenticated = true;
       }
     }

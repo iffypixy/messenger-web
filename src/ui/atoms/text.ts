@@ -5,14 +5,16 @@ interface TextProps {
   secondary?: boolean;
   ellipsis?: boolean;
   small?: boolean;
+  width?: string;
 }
 
 export const Text = styled.span<TextProps>`
-  ${({theme}) => css`
+  ${({theme, width}) => css`
     color: ${theme.palette.text.primary};
     font-family: ${theme.typography.fontFamily};
     font-weight: ${theme.typography.fontWeight.regular};
     font-size: ${theme.typography.fontSize};
+    width: ${width};
   `};
   
   ${({theme, secondary}) => css`

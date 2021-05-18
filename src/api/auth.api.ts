@@ -13,7 +13,7 @@ export interface LoginResponse {
     credentials: Credentials;
 }
 
-export const login = async (data: LoginData): Promise<AxiosPromise<LoginResponse>> => request({
+const login = async (data: LoginData): Promise<AxiosPromise<LoginResponse>> => request({
     url: "/v1/api/auth/login",
     method: "POST", data
 });
@@ -28,7 +28,11 @@ export interface RegisterResponse {
     credentials: Credentials;
 }
 
-export const register = async (data: RegisterData): Promise<AxiosPromise<RegisterResponse>> => request({
+const register = async (data: RegisterData): Promise<AxiosPromise<RegisterResponse>> => request({
     url: "/v1/api/auth/register",
     method: "POST", data
 });
+
+export const authApi = {
+    login, register
+};
