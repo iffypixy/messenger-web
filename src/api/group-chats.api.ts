@@ -1,17 +1,15 @@
-import {AxiosPromise} from "axios";
-
-import {GroupChat, GroupChatMessage, GroupChatsList} from "@features/groups";
-import {request} from "@lib/http";
+import {GroupChat, GroupChatMessage, GroupChatsListItem} from "@features/groups";
 import {ID} from "@lib/typings";
+import {socket} from "@lib/websockets";
 
 export interface GetGroupChatsResponse {
-  chats: GroupChatsList;
+  chats: GroupChatsListItem[];
 }
 
-const getChats = (): AxiosPromise<GetGroupChatsResponse> => request({
-  url: "/v1/api/group-chats",
-  method: "GET"
-});
+const getChats = (): Promise<{data: GetGroupChatsResponse}> =>
+  new Promise((resolve) => {
+    socket.emit("GROUP_CHAT:GET_CHATS", null, (data: GetGroupChatsResponse) => resolve({data}));
+  });
 
 export interface GetGroupChatData {
   id: ID;
@@ -21,10 +19,10 @@ export interface GetGroupChatResponse {
   chat: GroupChat;
 }
 
-const getChat = ({id}: GetGroupChatData): AxiosPromise<GetGroupChatResponse> => request({
-  url: `/v1/api/group-chats/${id}`,
-  method: "GET"
-});
+const getChat = (data: GetGroupChatData): Promise<{data: GetGroupChatResponse}> =>
+  new Promise((resolve) => {
+    socket.emit("GROUP_CHAT:GET_CHAT", data, (data: GetGroupChatResponse) => resolve({data}));
+  });
 
 export interface GetGroupChatMessagesData {
   id: ID;
@@ -35,10 +33,10 @@ export interface GetGroupChatMessagesResponse {
   messages: GroupChatMessage[];
 }
 
-const getMessages = ({id, skip}: GetGroupChatMessagesData): AxiosPromise<GetGroupChatMessagesResponse> => request({
-  url: `/v1/api/group-chats/${id}/messages`,
-  params: {skip}
-});
+const getMessages = (data: GetGroupChatMessagesData): Promise<{data: GetGroupChatMessagesResponse}> =>
+  new Promise((resolve) => {
+    socket.emit("GROUP_CHAT:GET_MESSAGES", data, (data: GetGroupChatMessagesResponse) => resolve({data}));
+  });
 
 export const groupChatsApi = {
   getChats, getChat, getMessages

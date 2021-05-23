@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {directsActions, directsSelectors} from "@features/directs";
 import {groupsActions, groupsSelectors} from "@features/groups";
 import {ChatsList} from "@features/chats";
-import {Icon, H4, Input, Text} from "@ui/atoms";
+import {Icon, H4, Input, Text, H3} from "@ui/atoms";
 import {MainTemplate} from "@ui/templates";
 import {Col, Row} from "@lib/layout";
 
@@ -51,7 +51,7 @@ export const HomePage: React.FC = () => {
         </ListPanelWrapper>
 
         <ChatPanelWrapper>
-
+          <H3>Select chat to start messaging</H3>
         </ChatPanelWrapper>
       </Wrapper>
     </MainTemplate>
@@ -101,8 +101,12 @@ const ListPanelWrapper = styled(Col).attrs(() => ({
 `;
 
 const ChatPanelWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 60%;
   height: 100%;
   border-left: 2px solid ${({theme}) => theme.palette.divider};
 `;
+
 

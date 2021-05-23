@@ -1,8 +1,9 @@
 import axios from "axios";
 
-const url = "http://localhost:5000";
+import {BACKEND_URL} from "@lib/constants";
 
 export const request = axios.create({
-    baseURL: url,
+    baseURL: BACKEND_URL,
     withCredentials: true
 });
+

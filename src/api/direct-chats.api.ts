@@ -1,17 +1,15 @@
-import {AxiosPromise} from "axios";
-
-import {DirectChatsList, DirectChat, DirectChatMessage} from "@features/directs";
-import {request} from "@lib/http";
+import {DirectChatsListItem, DirectChat, DirectChatMessage} from "@features/directs";
 import {ID} from "@lib/typings";
+import {socket} from "@lib/websockets";
 
 export interface GetDirectChatsResponse {
-  chats: DirectChatsList;
+  chats: DirectChatsListItem[];
 }
 
-const getChats = (): AxiosPromise<GetDirectChatsResponse> => request({
-  url: "/v1/api/1o1-chats",
-  method: "GET"
-});
+const getChats = (): Promise<{data: GetDirectChatsResponse}> =>
+  new Promise((resolve) => {
+    socket.emit("DIRECT_CHAT:GET_CHATS", null, (data: GetDirectChatsResponse) => resolve({data}));
+  });
 
 export interface GetDirectChatData {
   partnerId: ID;
@@ -21,10 +19,10 @@ export interface GetDirectChatResponse {
   chat: DirectChat;
 }
 
-const getChat = ({partnerId}: GetDirectChatData): AxiosPromise<GetDirectChatResponse> => request({
-  url: `/v1/api/1o1-chats/${partnerId}`,
-  method: "GET"
-});
+const getChat = (data: GetDirectChatData): Promise<{data: GetDirectChatResponse}> =>
+  new Promise((resolve) => {
+    socket.emit("DIRECT_CHAT:GET_CHAT", data, (data: GetDirectChatResponse) => resolve({data}));
+  });
 
 export interface GetDirectChatMessagesData {
   partnerId: ID;
@@ -35,10 +33,10 @@ export interface GetDirectChatMessagesResponse {
   messages: DirectChatMessage[];
 }
 
-const getMessages = ({partnerId, skip}: GetDirectChatMessagesData): AxiosPromise<GetDirectChatMessagesResponse> => request({
-  url: `/v1/api/1o1-chats/${partnerId}/messages`,
-  params: {skip}
-});
+const getMessages = (data: GetDirectChatMessagesData): Promise<{data: GetDirectChatMessagesResponse}> =>
+  new Promise((resolve) => {
+    socket.emit("DIRECT_CHAT:GET_MESSAGES", data, (data: GetDirectChatMessagesResponse) => resolve({data}));
+  });
 
 export const directChatsApi = {
   getChats, getChat, getMessages

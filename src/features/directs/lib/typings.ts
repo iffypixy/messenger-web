@@ -29,4 +29,7 @@ export interface DirectChatMessage {
   createdAt: Date;
 }
 
-export type DirectChatsList = (DirectChat & {lastMessage: DirectChatMessage})[];
+export interface DirectChatsListItem extends DirectChat {
+  lastMessage: DirectChatMessage;
+  numberOfUnreadMessages: number;
+}

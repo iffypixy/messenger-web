@@ -1,11 +1,11 @@
 import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
 import {GetDirectChatMessagesResponse, GetDirectChatResponse, GetDirectChatsResponse} from "@api/direct-chats.api";
-import {DirectChatMessage, DirectChat, DirectChatsList} from "./lib/typings";
+import {DirectChatMessage, DirectChat, DirectChatsListItem} from "./lib/typings";
 import * as actions from "./actions";
 
 interface DirectsState {
-  chats: DirectChatsList | null;
+  chats: DirectChatsListItem[] | null;
   chat: DirectChat | null;
   messages: DirectChatMessage[] | null;
   isChatFetching: boolean;

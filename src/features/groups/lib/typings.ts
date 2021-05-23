@@ -33,8 +33,9 @@ export interface GroupChatMessage {
   createdAt: Date;
 }
 
-export type GroupChatsList = {
+export interface GroupChatsListItem {
   chat: GroupChatDetails;
   lastMessage: GroupChatMessage | null;
   numberOfMembers: number;
-}[];
+  numberOfUnreadMessages: number;
+}

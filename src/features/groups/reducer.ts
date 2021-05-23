@@ -1,11 +1,11 @@
 import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
 import {GetGroupChatMessagesResponse, GetGroupChatResponse, GetGroupChatsResponse} from "@api/group-chats.api";
-import {GroupChatMessage, GroupChat, GroupChatsList} from "./lib/typings";
+import {GroupChatMessage, GroupChat, GroupChatsListItem} from "./lib/typings";
 import * as actions from "./actions";
 
 interface GroupsState {
-  chats: GroupChatsList | null;
+  chats: GroupChatsListItem[] | null;
   chat: GroupChat | null;
   messages: GroupChatMessage[] | null;
   isChatFetching: boolean;
