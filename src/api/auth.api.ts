@@ -42,6 +42,16 @@ const getCredentials = (): AxiosPromise<GetCredentialsResponse> => request({
     method: "GET"
 });
 
+interface RefreshTokensData {
+    fingerprint: string;
+}
+
+const refreshTokens = (data: RefreshTokensData): AxiosPromise<void> => request({
+    url: "/v1/api/auth/refresh-tokens",
+    method: "POST", data
+});
+
 export const authApi = {
-    login, register, getCredentials
+    login, register, getCredentials,
+    refreshTokens
 };
