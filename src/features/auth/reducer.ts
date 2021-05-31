@@ -16,7 +16,7 @@ export const reducer = createReducer<AuthState>(
   {
     credentials: null,
     isAuthenticated: false,
-    areCredentialsFetching: false,
+    areCredentialsFetching: true,
     isRegisterFetching: false,
     isLoginFetching: false
   },

@@ -11,9 +11,7 @@ export const CredentialsLoader: React.FC = ({children}) => {
   const isAuthenticated = useSelector(selectors.isAuthenticated);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      dispatch(actions.fetchCredentials());
-    }
+    if (!isAuthenticated) dispatch(actions.fetchCredentials());
   }, []);
 
   if (isFetching) return null;

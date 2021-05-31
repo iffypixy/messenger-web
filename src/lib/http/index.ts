@@ -1,4 +1,4 @@
-import axios, {AxiosError} from "axios";
+import axios, {AxiosError, AxiosPromise} from "axios";
 
 import {BACKEND_URL} from "@lib/constants";
 import {authApi} from "@api/auth.api";
@@ -9,22 +9,25 @@ export const request = axios.create({
   withCredentials: true
 });
 
-applyAuthInterceptor();
+export const CODES = {
+  UNAUTHORIZED: [401, 403],
+  SUCCESSFUL: [204, 201, 200]
+};
 
-function applyAuthInterceptor() {
-  const UNAUTHORIZED_CODES = [401, 403];
+useAuthInterceptor();
 
-  applyInterceptor();
+function useAuthInterceptor() {
+  useInterceptor();
 
-  function applyInterceptor() {
+  function useInterceptor() {
     const interceptor = request.interceptors.response.use(
       (response) => response,
-      async (error: AxiosError) => {
+      async (error: AxiosError): Promise<AxiosPromise | void> => {
         const {config, response} = error;
 
-        if (!response || !UNAUTHORIZED_CODES.includes(response.status)) {
-          return Promise.reject(error);
-        }
+        const isError = !response || !CODES.UNAUTHORIZED.includes(response.status);
+
+        if (isError) return Promise.reject(error);
 
         request.interceptors.response.eject(interceptor);
 
@@ -33,11 +36,13 @@ function applyAuthInterceptor() {
 
           const {status} = await authApi.refreshTokens({fingerprint});
 
-          if (status === 201) return request(config);
+          const isSuccessful = CODES.SUCCESSFUL.includes(status);
+
+          if (isSuccessful) return request(config);
         } catch (error) {
           return Promise.reject(error);
         } finally {
-          return applyInterceptor();
+          useInterceptor();
         }
       }
     );
