@@ -92,7 +92,7 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
               )}
 
               {files && files.map(({id, url, name, size}) => (
-                <a key={id} href={url} target="_blank">
+                <a key={id} href={url} target="_blank" rel="noreferrer">
                   <Row align="center" gap="1.5rem">
                     <Icon name="document"/>
 
