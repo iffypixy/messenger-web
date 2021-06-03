@@ -7,5 +7,6 @@ export const mapGroupToChat = ({chat, lastMessage, numberOfUnreadMessages}: Grou
   name: chat.title,
   message: `${lastMessage && (lastMessage.text || "Attachments")}`,
   date: lastMessage && new Date(lastMessage.createdAt),
-  numberOfUnreadMessages
+  unreadMessages: numberOfUnreadMessages,
+  link: `/group/${chat.id}`
 });

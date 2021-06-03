@@ -1,14 +1,15 @@
 import React from "react";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
+import {Link} from "react-router-dom";
 
 import {directsSelectors, mapDirectToChat} from "@features/directs";
 import {groupsSelectors, mapGroupToChat} from "@features/groups";
 import {authSelectors} from "@features/auth";
-import {Col} from "@lib/layout";
+import {Col, Row} from "@lib/layout";
 import {Text, Circle, H3} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
-import {formatDate} from "../lib/format-date";
+import {formatMessageDate} from "../lib/format-date";
 import {ChatsListItem} from "../lib/typings";
 
 export const ChatsList: React.FC = () => {
@@ -36,7 +37,9 @@ export const ChatsList: React.FC = () => {
     const lastMessage = direct.lastMessage;
     const isOwner = (lastMessage && lastMessage.sender) && (lastMessage.sender.id === credentials.id);
 
-    chat.message = `${isOwner && "You:"} ${chat.message}`;
+    const prefix = isOwner ? "You: " : "";
+
+    chat.message = `${prefix}${chat.message}`;
 
     return chat;
   }));
@@ -47,33 +50,27 @@ export const ChatsList: React.FC = () => {
     const lastMessage = group.lastMessage;
     const isOwner = (lastMessage && lastMessage.sender) && (lastMessage.sender.id === credentials.id);
 
-    chat.message = `${isOwner && "You:"} ${chat.message}`;
+    const prefix = isOwner ? "You: " : "";
+
+    chat.message = `${prefix}${chat.message}`;
 
     return chat;
   }));
 
   return (
     <List>
-      {chats.map(({id, name, avatar, message, date, numberOfUnreadMessages}) => (
-        <ListItem
-          key={id}
-          name={name}
-          avatar={avatar}
-          message={message}
-          numberOfUnreadMessages={numberOfUnreadMessages}
-          date={date}/>
+      {chats.map((props) => (
+        <ListItem key={props.id} {...props}/>
       ))}
     </List>
   );
 };
 
 const List = styled(Col).attrs(() => ({
-  gap: "2rem"
+  gap: "2rem",
+  width: "100%",
+  height: "100%"
 }))`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
   overflow-y: auto;
 `;
 
@@ -82,61 +79,41 @@ interface ListItemProps {
   name: string;
   message: string | null;
   date: Date | null;
-  numberOfUnreadMessages: number;
+  unreadMessages: number;
+  link: string;
 }
 
-const ListItem: React.FC<ListItemProps> = ({avatar, name, message, date, numberOfUnreadMessages}) => (
-  <Wrapper>
-    <Avatar url={avatar}/>
+const ListItem: React.FC<ListItemProps> = ({avatar, name, message, date, unreadMessages, link}) => (
+  <Link to={link}>
+    <Wrapper>
+      <Avatar url={avatar}/>
 
-    <Content>
-      <Header>
-        <Text width="70%" ellipsis>{name}</Text>
-        {date && <DateTime secondary small>{formatDate(date)}</DateTime>}
-      </Header>
+      <Col width="80%" height="100%" justify="space-between" padding="1rem 0">
+        <Row width="100%" justify="space-between" align="center">
+          <Text width="70%" ellipsis>{name}</Text>
+          {date && <DateText secondary small>{formatMessageDate(date)}</DateText>}
+        </Row>
 
-      <Footer>
-        {message && <Message>{message}</Message>}
-        <Warning>{numberOfUnreadMessages}</Warning>
-      </Footer>
-    </Content>
-  </Wrapper>
+        <Row width="100%" justify="space-between" align="center">
+          {message && <Message>{message}</Message>}
+          <UnreadMessages>{unreadMessages}</UnreadMessages>
+        </Row>
+      </Col>
+    </Wrapper>
+  </Link>
 );
 
-const Wrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+const Wrapper = styled(Row).attrs(() => ({
+  align: "center",
+  justify: "space-between",
+  height: "100%",
+  padding: "2rem"
+}))`
   background-color: ${({theme}) => theme.palette.primary.light};
   border-radius: 1rem;
-  padding: 2rem;
 `;
 
-const Content = styled.div`
-  width: 80%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 1rem 0;
-`;
-
-const Header = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const Footer = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const DateTime = styled(Text)`
-  font-weight: 500;
+const DateText = styled(Text)`
   margin-left: 1rem;
 `;
 
@@ -149,6 +126,6 @@ const Message = styled(Text).attrs(() => ({
   font-weight: 500;
 `;
 
-const Warning = styled(Circle)`
+const UnreadMessages = styled(Circle)`
   margin-left: 1rem;
 `;

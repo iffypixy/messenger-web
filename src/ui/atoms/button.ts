@@ -19,7 +19,7 @@ export const Button = styled.button<ButtonProps>`
   cursor: pointer;
   border: none;
   outline: none;
-  border-radius: 5px;
+  border-radius: 0.5rem;
   padding: 1.5rem 2.5rem;
   
   ${({small}) => css`

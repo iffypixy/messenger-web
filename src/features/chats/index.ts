@@ -1,3 +1,3 @@
-export {ChatsList} from "./organisms";
-export {formatDate} from "./lib/format-date";
+export {ChatsList, Message, SystemMessage} from "./organisms";
+export {formatMessageDate} from "./lib/format-date";
 export type {ChatsListItem} from "./lib/typings";

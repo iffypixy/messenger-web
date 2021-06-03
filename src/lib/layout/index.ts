@@ -2,6 +2,7 @@ import styled, {css} from "styled-components";
 
 interface LayoutProps {
     width?: string | number;
+    height?: string | number;
     justify?: "flex-start" | "flex-end" | "center" | "space-around" | "space-between" | "space-evenly" | "safe center" | "unsafe center";
     align?: "flex-start" | "flex-end" | "center" | "baseline" | "stretch";
     basis?: string | number;
@@ -13,15 +14,18 @@ interface LayoutProps {
     reverse?: boolean;
 }
 
+const prop = (prop: any) => prop || "initial";
+
 const mixins = (props: LayoutProps) => css`
-  width: ${props.width};
-  justify-content: ${props.justify};
-  align-items: ${props.align};
-  flex-basis: ${props.basis};
-  flex-grow: ${props.grow};
-  flex-shrink: ${props.shrink};
-  order: ${props.order};
-  padding: ${props.padding};
+  width: ${prop(props.width)};
+  height: ${prop(props.height)};
+  justify-content: ${prop(props.justify)};
+  align-items: ${prop(props.align)};
+  flex-basis: ${prop(props.basis)};
+  flex-grow: ${prop(props.grow)};
+  flex-shrink: ${prop(props.shrink)};
+  order: ${prop(props.order)};
+  padding: ${prop(props.padding)};
 `;
 
 export const Row = styled.div<LayoutProps>`

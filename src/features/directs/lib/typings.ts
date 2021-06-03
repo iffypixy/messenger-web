@@ -12,6 +12,7 @@ export interface DirectChatPartner extends User {
 export interface DirectChat {
   chat: DirectChatDetails;
   partner: DirectChatPartner;
+  isBanned: boolean;
 }
 
 export interface DirectChatMessage {

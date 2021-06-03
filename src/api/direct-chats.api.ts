@@ -12,7 +12,7 @@ const getChats = (): Promise<{data: GetDirectChatsResponse}> =>
   });
 
 export interface GetDirectChatData {
-  partnerId: ID;
+  partner: ID;
 }
 
 export interface GetDirectChatResponse {
@@ -25,7 +25,7 @@ const getChat = (data: GetDirectChatData): Promise<{data: GetDirectChatResponse}
   });
 
 export interface GetDirectChatMessagesData {
-  partnerId: ID;
+  partner: ID;
   skip?: number;
 }
 

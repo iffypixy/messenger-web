@@ -693,7 +693,7 @@ export const Icon: React.FC<IconProps> = ({name, ...props}) => {
                 </SVG>
             );
 
-        case "img-upload":
+        case "uploading-image":
             return (
                 <SVG width="1.5rem" height="1.5rem" viewBox="0 -18 512 512" {...props}>
                     <path
@@ -831,6 +831,15 @@ export const Icon: React.FC<IconProps> = ({name, ...props}) => {
                     </g>
                 </SVG>
             );
+
+      case "options":
+        return (
+          <SVG width="2rem" height="2rem" viewBox="-192 0 512 512" {...props}>
+            <path d="m128 256c0 35.347656-28.652344 64-64 64s-64-28.652344-64-64 28.652344-64 64-64 64 28.652344 64 64zm0 0"/>
+            <path d="m128 64c0 35.347656-28.652344 64-64 64s-64-28.652344-64-64 28.652344-64 64-64 64 28.652344 64 64zm0 0"/>
+            <path d="m128 448c0 35.347656-28.652344 64-64 64s-64-28.652344-64-64 28.652344-64 64-64 64 28.652344 64 64zm0 0"/>
+          </SVG>
+        );
 
         default:
             return null;

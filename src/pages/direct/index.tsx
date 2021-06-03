@@ -3,13 +3,14 @@ import {useDispatch, useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 import styled from "styled-components";
 
-import {ID} from "@lib/typings";
-import {ChatsList, formatDate} from "@features/chats";
+import {authSelectors} from "@features/auth";
+import {ChatsList, formatMessageDate, Message, SystemMessage} from "@features/chats";
 import {directsSelectors, directsActions} from "@features/directs";
 import {groupsSelectors} from "@features/groups";
 import {Col, Row} from "@lib/layout";
+import {ID} from "@lib/typings";
 import {MainTemplate} from "@ui/templates";
-import {H4, Icon, Input, Text} from "@ui/atoms";
+import {H2, H4, Icon, Input, Text} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 
 export const DirectPage = () => {
@@ -36,8 +37,24 @@ export const DirectPage = () => {
 
   const toFetchDirectChat = !directChat && !isDirectChatFetching;
 
+  const directMessages = useSelector(directsSelectors.messages);
+  const areDirectMessagesFetching = useSelector(directsSelectors.areMessagesFetching);
+
+  const toFetchDirectMessages = !directMessages && !areDirectMessagesFetching;
+
   useEffect(() => {
-    if (toFetchDirectChat) dispatch(directsActions.fetchChat({partnerId}));
+    if (toFetchDirectChat) {
+      dispatch(directsActions.fetchChat({
+        partner: partnerId
+      }));
+    }
+
+    if (toFetchDirectMessages) {
+      dispatch(directsActions.fetchMessages({
+        partner: partnerId,
+        skip: "0" as unknown as number
+      }));
+    }
   }, []);
 
   return (
@@ -126,65 +143,80 @@ const ChatPanelWrapper = styled.div`
 const DirectChat: React.FC = () => {
   const chat = useSelector(directsSelectors.chat);
   const isFetching = useSelector(directsSelectors.isChatFetching);
+  const messages = useSelector(directsSelectors.messages);
+  const areMessagesFetching = useSelector(directsSelectors.areMessagesFetching);
+  const credentials = useSelector(authSelectors.credentials)!;
 
   if (isFetching) return <H4>Loading...</H4>;
 
   if (!chat) return null;
 
   return (
-    <DirectWrapper>
+    <Col width="100%" height="100%">
       <DirectHeader>
-        <Row justify="space-between">
-          <Row gap="3rem" align="center">
-            <Avatar url={chat.partner.avatar} />
+        <Row width="100%" height="100%" justify="space-between" align="center">
+          <Row height="100%" gap="3rem" align="center">
+            <Avatar url={chat.partner.avatar}/>
 
-            <Col justify="space-between">
+            <Col height="100%" justify="space-between" padding="1rem 0">
               <H4>{chat.partner.username}</H4>
-              <Text>Last seen at {formatDate(chat.partner.lastSeen)}</Text>
+              <Text small>Last seen at {formatMessageDate(new Date(chat.partner.lastSeen))}</Text>
             </Col>
           </Row>
 
-          <Row>
-            <Icon name="loupe" />
-            <Icon name="loupe" />
+          <Row gap="3rem">
+            <Icon name="loupe" cursor="pointer"/>
+            <Icon name="options" cursor="pointer"/>
           </Row>
         </Row>
-
-
       </DirectHeader>
 
       <DirectMessagesList>
+        {areMessagesFetching && <H2>Loading...</H2>}
 
+        {messages && messages.map(({id, isSystem, text, sender, createdAt, isRead, images, audio, files}) => {
+          if (isSystem) return (
+            <SystemMessage
+              key={id}
+              text={text}
+              date={new Date(createdAt)} />
+          );
+
+          const isOwn = !!(sender && sender.id === credentials.id);
+
+          return (
+            <Message
+              key={id}
+              text={text}
+              images={images}
+              audio={audio}
+              files={files}
+              avatar={sender!.avatar}
+              date={new Date(createdAt)}
+              isOwn={isOwn}
+              isRead={isRead} />
+          );
+        })}
       </DirectMessagesList>
 
-      <DirectFooter>
-
-      </DirectFooter>
-    </DirectWrapper>
+      <Row width="100%">
+      </Row>
+    </Col>
   );
 };
 
-const DirectWrapper = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
+const DirectHeader = styled(Row).attrs(() => ({
+  width: "100%",
+  align: "center",
+  padding: "3rem 4.5rem"
+}))`
+  border-bottom: 2px solid ${({theme}) => theme.palette.divider};
 `;
 
-const DirectHeader = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  padding: 3rem 4.5rem;
-`;
-
-const DirectMessagesList = styled.div`
-  width: 100%;
-  display: flex;
+const DirectMessagesList = styled(Col).attrs(() => ({
+  width: "100%",
+  padding: "1rem 5rem"
+}))`
   flex: 1;
-`;
-
-const DirectFooter = styled.div`
-  width: 100%;
-  display: flex;
+  overflow: auto;
 `;

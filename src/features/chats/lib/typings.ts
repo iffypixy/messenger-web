@@ -6,5 +6,6 @@ export interface ChatsListItem {
   avatar: string;
   message: string | null;
   date: Date | null;
-  numberOfUnreadMessages: number;
+  unreadMessages: number;
+  link: string;
 }

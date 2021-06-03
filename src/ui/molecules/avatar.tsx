@@ -1,19 +1,29 @@
 import React from "react";
-import styled from "styled-components";
+import styled, {css} from "styled-components";
 
 interface AvatarProps {
   url: string;
+  small?: boolean;
 }
 
-export const Avatar: React.FC<AvatarProps> = ({url}) => (
-  <Wrapper>
+export const Avatar: React.FC<AvatarProps> = ({url, small}) => (
+  <Wrapper small={small}>
     <Image src={url} alt="avatar"/>
   </Wrapper>
 );
 
-const Wrapper = styled.div`
+interface AvatarWrapperProps {
+  small?: boolean;
+}
+
+const Wrapper = styled.div<AvatarWrapperProps>`
   width: 7rem;
   height: 7rem;
+  
+  ${({small}) => small && css`
+    width: 4rem;
+    height: 4rem;
+  `}
 `;
 
 const Image = styled.img`
