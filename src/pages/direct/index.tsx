@@ -10,7 +10,7 @@ import {groupsSelectors} from "@features/groups";
 import {Col, Row} from "@lib/layout";
 import {ID} from "@lib/typings";
 import {MainTemplate} from "@ui/templates";
-import {H2, H4, Icon, Input, Text} from "@ui/atoms";
+import {H2, H4, Icon, Input, Text, Button} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 
 export const DirectPage = () => {
@@ -165,8 +165,8 @@ const DirectChat: React.FC = () => {
           </Row>
 
           <Row gap="3rem">
-            <Icon name="loupe" cursor="pointer"/>
-            <Icon name="options" cursor="pointer"/>
+            <Icon name="loupe" pointer/>
+            <Icon name="options" pointer/>
           </Row>
         </Row>
       </DirectHeader>
@@ -179,7 +179,7 @@ const DirectChat: React.FC = () => {
             <SystemMessage
               key={id}
               text={text}
-              date={new Date(createdAt)} />
+              date={new Date(createdAt)}/>
           );
 
           const isOwn = !!(sender && sender.id === credentials.id);
@@ -194,12 +194,35 @@ const DirectChat: React.FC = () => {
               avatar={sender!.avatar}
               date={new Date(createdAt)}
               isOwn={isOwn}
-              isRead={isRead} />
+              isRead={isRead}/>
           );
         })}
       </DirectMessagesList>
 
-      <Row width="100%">
+      <Row width="100%" padding="2rem 5rem">
+        <DirectFormWrapper>
+          <Icon
+            name="attachment"
+            secondary pointer/>
+
+          <Icon
+            name="smile"
+            secondary pointer/>
+
+          <Input
+            width="100%"
+            placeholder="Write a message..."
+            transparent/>
+
+          <Icon
+            name="microphone"
+            secondary pointer/>
+
+          <Button pure>
+            <Icon name="telegram"/>
+          </Button>
+
+        </DirectFormWrapper>
       </Row>
     </Col>
   );
@@ -219,4 +242,14 @@ const DirectMessagesList = styled(Col).attrs(() => ({
 }))`
   flex: 1;
   overflow: auto;
+`;
+
+const DirectFormWrapper = styled(Row).attrs(() => ({
+  width: "100%",
+  align: "center",
+  gap: "2rem",
+  padding: "1rem 3rem"
+}))`
+  background-color: ${({theme}) => theme.palette.primary.light};
+  border-radius: 1rem;
 `;

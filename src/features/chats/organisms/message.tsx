@@ -1,6 +1,7 @@
 import React, {useRef, useState} from "react";
 import styled, {css} from "styled-components";
 import format from "date-fns/format";
+import prettyBytes from "pretty-bytes";
 
 import {File} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
@@ -24,7 +25,7 @@ interface AudioData {
   isPaused: boolean;
 }
 
-export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, date, images, audio: audioSrc}) => {
+export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, date, images, files, audio: audioSrc}) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [audio, setAudio] = useState<AudioData>({
@@ -61,33 +62,48 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
       <Block reverse={isOwn} isOwn={isOwn}>
         <Avatar url={avatar} small/>
 
-        {(text || images || audio) && (
+        {(text || images || audio || files) && (
           <Bubble isOwn={isOwn}>
-            {images && (
-              images.map((src, idx) => <Image key={idx} src={src}/>)
-            )}
+            <Col gap="2.5rem">
+              {images && (
+                images.map((src, idx) => <Image key={idx} src={src}/>)
+              )}
 
-            {text && (
-              <Text>{text}</Text>
-            )}
+              {text && (
+                <Text>{text}</Text>
+              )}
 
-            {audioSrc && (
-              <>
-                <Row align="center" gap="2rem">
-                  <Icon
-                    name={audio.isPaused ? "play" : "pause"}
-                    onClick={audio.isPaused ? playAudio : pauseAudio}/>
+              {audioSrc && (
+                <>
+                  <Row align="center" gap="2rem">
+                    <Icon
+                      name={audio.isPaused ? "play" : "pause"}
+                      onClick={audio.isPaused ? playAudio : pauseAudio}/>
 
-                  <Icon name="wave"/>
+                    <Icon name="wave"/>
 
-                  <Text small>{formatAudioDuration(Math.ceil(audio.duration))}</Text>
-                </Row>
+                    <Text small>{formatAudioDuration(Math.ceil(audio.duration))}</Text>
+                  </Row>
 
-                <audio ref={audioRef} onDurationChange={handleAudioDurationChange}>
-                  <source src={audioSrc}/>
-                </audio>
-              </>
-            )}
+                  <audio ref={audioRef} onDurationChange={handleAudioDurationChange}>
+                    <source src={audioSrc}/>
+                  </audio>
+                </>
+              )}
+
+              {files && files.map(({id, url, name, size}) => (
+                <a key={id} href={url} target="_blank">
+                  <Row align="center" gap="1.5rem">
+                    <Icon name="document"/>
+
+                    <Col justify="space-between" width="20rem">
+                      <Text small ellipsis>{name}</Text>
+                      <Text small ellipsis>{prettyBytes(size)}</Text>
+                    </Col>
+                  </Row>
+                </a>
+              ))}
+            </Col>
 
             <Row width="100%" gap="1rem" align="center" justify="flex-end">
               {isOwn && <Icon name={isRead ? "double-check" : "check"}/>}
@@ -122,7 +138,7 @@ const Block = styled(Row).attrs(() => ({
 `;
 
 const Bubble = styled(Col).attrs(() => ({
-  gap: "1rem",
+  gap: "1.5rem",
   padding: "2rem"
 }))<MessageStylingProps>`
   ${({isOwn}) => css`
