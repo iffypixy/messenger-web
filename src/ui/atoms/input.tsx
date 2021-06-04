@@ -8,6 +8,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     error?: string;
     transparent?: boolean;
     small?: boolean;
+    invisible?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(({error, label, name, width, ...props}, ref) => (
@@ -30,6 +31,7 @@ interface InputNativeProps {
     error?: boolean;
     transparent?: boolean;
     small?: boolean;
+    invisible?: boolean;
 }
 
 const InputNative = styled.input<InputNativeProps>`
@@ -62,6 +64,10 @@ const InputNative = styled.input<InputNativeProps>`
     ${({theme, error}) => css`
       border: ${error && `2px solid ${theme.palette.error.main}`};
     `};
+    
+    ${({invisible}) => invisible && css`
+      display: none;
+    `}
 `;
 
 const Label = styled.label`
@@ -72,6 +78,7 @@ const Label = styled.label`
       font-weight: ${theme.typography.fontWeight.medium};
     `};
     
+    display: flex;
     text-transform: uppercase;
 `;
 
