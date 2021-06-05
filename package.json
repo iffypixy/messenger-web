@@ -28,6 +28,7 @@
     "yup": "^0.32.9"
   },
   "devDependencies": {
+    "@types/dom-mediacapture-record": "^1.0.7",
     "@types/fingerprintjs2": "^2.0.0",
     "@types/node": "^15.0.2",
     "@types/react": "^17.0.5",

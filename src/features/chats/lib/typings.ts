@@ -9,3 +9,13 @@ export interface ChatsListItem {
   unreadMessages: number;
   link: string;
 }
+
+export interface UploadingFile {
+  id?: ID;
+  key: string;
+  url?: string;
+  name?: string;
+  size?: number;
+  isUploading: boolean;
+  progress: number;
+}

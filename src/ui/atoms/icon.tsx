@@ -357,7 +357,7 @@ export const Icon: React.FC<IconProps> = ({name, ...props}) => {
 
         case "smile":
             return (
-                <SVG width="2.5rem" height="2.5rem" viewBox="0 0 512 512" xmlSpace="preserve"{...props}>
+                <SVG width="2.35rem" height="2.35rem" viewBox="0 0 512 512" xmlSpace="preserve"{...props}>
                     <g>
                         <g>
                             <path
@@ -408,7 +408,7 @@ export const Icon: React.FC<IconProps> = ({name, ...props}) => {
 
         case "microphone":
             return (
-                <SVG width="2.65rem" height="2.65rem" viewBox="0 0 250.189 250.189" xmlSpace="preserve"{...props}>
+                <SVG width="2.35rem" height="2.35rem" viewBox="0 0 250.189 250.189" xmlSpace="preserve"{...props}>
                     <g>
                         <path
                             d="M214.408,119.658c0-4.143-3.358-7.5-7.5-7.5s-7.5,3.357-7.5,7.5c0,40.976-33.337,74.313-74.313,74.313
@@ -858,6 +858,8 @@ const SVG = styled.svg<SVGProps>`
   ${({theme, secondary, width, height}) => css`
     width: ${width};
     height: ${height};
+    min-width: ${width};
+    min-height: ${height};
     fill: ${secondary ? theme.palette.text.secondary : theme.palette.text.primary};
   `};
   

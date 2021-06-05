@@ -8,12 +8,12 @@ export const formatMessageDate = (date: Date): string => {
   return format(date, scheme);
 };
 
-export const formatAudioDuration = (sec: number): string => {
+export const formatAudioDuration = (duration: number): string => {
   const normalize = (time: string): string =>
     time.length === 1 ? `0${time}` : time;
 
   const {hours, minutes, seconds} = intervalToDuration({
-    start: 0, end: sec * 1000
+    start: 0, end: duration
   });
 
   const hoursOutput = hours ? `${normalize(String(hours))}:` : "";

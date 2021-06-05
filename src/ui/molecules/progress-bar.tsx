@@ -1,14 +1,15 @@
 import React from "react";
 import styled from "styled-components";
+
 import {Row} from "@lib/layout";
 
-interface AttachmentLoaderProps {
+interface ProgressBarProps {
   progress: number;
 }
 
-export const AttachmentLoader: React.FC<AttachmentLoaderProps> = ({progress}) => (
+export const ProgressBar: React.FC<ProgressBarProps> = ({progress}) => (
   <Wrapper>
-    <Loader progress={progress} />
+    <Bar progress={progress} />
   </Wrapper>
 );
 
@@ -22,14 +23,14 @@ const Wrapper = styled(Row).attrs(() => ({
   border-radius: 10rem;
 `;
 
-interface LoaderProps {
+interface BarProps {
   progress: number;
 }
 
-const Loader = styled.div<LoaderProps>`
+const Bar = styled.div<BarProps>`
   width: ${({progress}) => `${progress * 100}%`};
   height: 1rem;
-  box-shadow: 0 1rem 4rem -1rem #fff;
+  box-shadow: 0 1rem 4rem -1rem #FFFFFF;
   border-radius: 10rem;
-  background: #fff;
+  background: #FFFFFF;
 `;

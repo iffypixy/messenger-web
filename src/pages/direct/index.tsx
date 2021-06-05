@@ -3,9 +3,10 @@ import {useDispatch, useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 import styled from "styled-components";
 import {nanoid} from "nanoid";
+import prettyBytes from "pretty-bytes";
 
 import {authSelectors} from "@features/auth";
-import {ChatsList, formatMessageDate, Message, SystemMessage} from "@features/chats";
+import {ChatsList, formatMessageDate, Message, SystemMessage, UploadingFile} from "@features/chats";
 import {directsSelectors, directsActions} from "@features/directs";
 import {groupsSelectors} from "@features/groups";
 import {uploadApi} from "@api/upload.api";
@@ -13,9 +14,8 @@ import {Col, Row} from "@lib/layout";
 import {ID} from "@lib/typings";
 import {MainTemplate} from "@ui/templates";
 import {H2, H4, Icon, Input, Text, Button} from "@ui/atoms";
-import {Avatar} from "@ui/molecules";
-import {AttachmentLoader} from "@features/chats/molecules";
-import prettyBytes from "pretty-bytes";
+import {Avatar, ProgressBar} from "@ui/molecules";
+import {formatAudioDuration} from "@features/chats/lib/format-date";
 
 export const DirectPage = () => {
   const dispatch = useDispatch();
@@ -224,36 +224,34 @@ const MessagesList = styled(Col).attrs(() => ({
   overflow: auto;
 `;
 
-interface DirectFormImage {
-  id?: ID;
-  key: string;
-  url?: string;
-  isUploading: boolean;
-  progress: number;
-}
-
-interface DirectFormFile {
-  id?: ID;
-  key: string;
-  url?: string;
-  name?: string;
-  size?: number;
-  isUploading: boolean;
-  progress: number;
-}
-
-interface DirectFormInputs {
-  images: DirectFormImage[];
-  files: DirectFormFile[];
+interface DirectChatFormInputs {
+  images: UploadingFile[];
+  files: UploadingFile[];
   audio: string;
   text: string;
 }
 
+interface DirectChatRecording {
+  isRecording: boolean;
+  isUploading: boolean;
+  mediaRecorder: MediaRecorder | null;
+  duration: number;
+}
+
 const DirectForm: React.FC = () => {
-  const [form, setForm] = useState<DirectFormInputs>({
+  const [form, setForm] = useState<DirectChatFormInputs>({
     audio: "", files: [],
     images: [], text: ""
   });
+
+  const [audio, setAudio] = useState<DirectChatRecording>({
+    isRecording: false,
+    isUploading: false,
+    mediaRecorder: null,
+    duration: 0
+  });
+
+  const {text, images, files} = form;
 
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setForm({
@@ -269,8 +267,9 @@ const DirectForm: React.FC = () => {
     const key = nanoid();
 
     setForm({
-      ...form, files: [...form.files, {
-        key, isUploading: true, progress: 0
+      ...form, files: [...files, {
+        key, isUploading: true, progress: 0,
+        name: file.name
       }]
     });
 
@@ -286,7 +285,6 @@ const DirectForm: React.FC = () => {
         ...form, files: form.files.map((file) => file.key === key ? ({
           ...file,
           id: data.file.id,
-          name: data.file.name,
           size: data.file.size,
           url: data.file.url,
           isUploading: false,
@@ -309,9 +307,9 @@ const DirectForm: React.FC = () => {
 
     setForm({
       ...form,
-      images: [...form.images, {
-        key, progress: 0,
-        isUploading: true
+      images: [...images, {
+        key, progress: 0, isUploading: true,
+        name: file.name
       }]
     });
 
@@ -328,6 +326,7 @@ const DirectForm: React.FC = () => {
           ...image,
           id: file.id,
           url: file.url,
+          size: file.size,
           isUploading: false,
           progress: 1
         }) : image)
@@ -339,78 +338,217 @@ const DirectForm: React.FC = () => {
     });
   };
 
-  const areFilesAttached = !!form.files.length || !!form.images.length;
+  const removeFile = (key: UploadingFile["key"]) => {
+    setForm({
+      ...form, files: files.filter((file) => file.key !== key)
+    });
+  };
+
+  const removeImage = (key: UploadingFile["key"]) => {
+    setForm({
+      ...form, images: images.filter((image) => image.key !== key)
+    });
+  };
+
+  const attachments: (UploadingFile & {type: string})[] = [
+    ...files.map((file) => ({...file, type: "files"})),
+    ...images.map(((image) => ({...image, type: "images"})))
+  ];
+
+  const startRecording = () => {
+    navigator.mediaDevices.getUserMedia({audio: true})
+      .then((stream) => {
+        const mediaRecorder = new MediaRecorder(stream);
+
+        setAudio((audio) => ({
+          ...audio, mediaRecorder
+        }));
+
+        let durationInterval: NodeJS.Timeout | null = null;
+
+        mediaRecorder.onstart = () => {
+          setAudio((audio) => ({
+            ...audio,
+            isRecording: true
+          }));
+
+          durationInterval = setInterval(() => {
+            setAudio((audio) => ({
+              ...audio,
+              duration: audio.duration + 100
+            }));
+          }, 100);
+        };
+
+        mediaRecorder.onstop = () => {
+          durationInterval && clearInterval(durationInterval);
+
+          setAudio((audio) => ({
+            ...audio,
+            isRecording: false
+          }));
+        };
+
+        mediaRecorder.ondataavailable = (event) => {
+          setAudio((audio) => ({
+            ...audio,
+            isUploading: true
+          }));
+
+          uploadApi.upload({
+            file: event.data as File
+          }).then(({data}) => {
+            setForm((form) => ({
+              ...form, audio: data.file.url
+            }));
+          }).finally(() => {
+            setAudio((audio) => ({
+              ...audio, isUploading: false
+            }));
+          });
+        };
+
+        mediaRecorder.start();
+      });
+  };
+
+  const stopRecording = () => {
+    audio.mediaRecorder && audio.mediaRecorder.stop();
+
+    setAudio({
+      ...audio,
+      isRecording: false
+    });
+  };
+
+  const areFilesAttached = !!attachments.length;
 
   return (
     <Row width="100%" padding="2rem 5rem">
       <Form>
         <Col width="100%" gap="2rem">
-          <FormPanel>
-            <Input
-              type="file"
-              name="file"
-              onChange={handleFilesChange}
-              invisible label={(
+          {audio.isRecording ? (
+            <Row width="100%" justify="space-between" align="center">
               <Icon
-                name="attachment"
-                secondary pointer/>
-            )}/>
+                name="cross"
+                type="button"
+                onClick={stopRecording}
+                pointer secondary/>
 
-            <Input
-              type="file"
-              name="image"
-              onChange={handleImageChange}
-              accept="image/*"
-              invisible label={(
+              <Text>{formatAudioDuration(audio.duration)}</Text>
+
+              <Button type="submit" pure>
+                <Icon name="telegram"/>
+              </Button>
+            </Row>
+          ) : (
+            <FormPanel>
+
+              <Input
+                type="file"
+                name="file"
+                onChange={handleFilesChange}
+                invisible label={(
+                <Icon
+                  name="attachment"
+                  secondary pointer/>
+              )}/>
+
+              <Input
+                type="file"
+                name="image"
+                onChange={handleImageChange}
+                accept="image/*"
+                invisible label={(
+                <Icon
+                  name="uploading-image"
+                  secondary pointer/>
+              )}/>
+
               <Icon
-                name="uploading-image"
+                name="smile"
                 secondary pointer/>
-            )}/>
 
-            <Icon
-              name="smile"
-              secondary pointer/>
+              <Input
+                width="100%"
+                placeholder="Write a message..."
+                name="message"
+                type="text"
+                value={text}
+                onChange={handleTextChange}
+                transparent/>
 
-            <Input
-              width="100%"
-              placeholder="Write a message..."
-              name="message"
-              type="text"
-              onChange={handleTextChange}
-              transparent/>
+              <Icon
+                onClick={startRecording}
+                name="microphone"
+                type="button"
+                secondary pointer/>
 
-            <Icon
-              name="microphone"
-              type="button"
-              secondary pointer/>
-
-            <Button pure>
-              <Icon name="telegram"/>
-            </Button>
-          </FormPanel>
+              <Button type="submit" pure>
+                <Icon name="telegram"/>
+              </Button>
+            </FormPanel>
+          )}
 
           {areFilesAttached && (
             <Row width="100%" padding="0 1rem">
-              {!!form.files.length && form.files.map(({name, size, progress, isUploading}) =>
-                isUploading ? (
-                  <AttachmentLoader progress={progress}/>
-                ) : (
-                  <Row width="100%" justify="space-between" align="center">
-                    <Row gap="2rem" align="center">
-                      <Icon name="document" width="3rem" height="3rem" secondary/>
+              <Col width="100%" gap="1rem">
+                {attachments.map(({key, name, size, url, progress, isUploading, type}) => {
+                  const remove = () => type === "images" ? removeImage(key) :
+                    type === "files" ? removeFile(key) : null;
 
-                      <Col justify="space-between">
-                        <Text secondary>{name}</Text>
-                        <Text secondary>{prettyBytes(size!)}</Text>
-                      </Col>
+                  return (
+                    <Row key={key} width="100%" justify="space-between" align="center">
+                      {isUploading ? (
+                        <>
+                          <Row width="70%" gap="1rem" align="center">
+                            <Row width="60%">
+                              <ProgressBar progress={progress}/>
+                            </Row>
+
+                            <Text width="40%" ellipsis>{name}</Text>
+                          </Row>
+
+                          <Icon
+                            onClick={remove}
+                            name="cross"
+                            type="button"
+                            pointer secondary/>
+                        </>
+                      ) : type === "files" ? (
+                        <>
+                          <Row width="70%" gap="1rem" align="center">
+                            <Icon name="document" width="3rem" height="3rem" secondary/>
+
+                            <Col justify="space-between">
+                              <Text secondary ellipsis>{name}</Text>
+                              <Text secondary ellipsis>{prettyBytes(size!)}</Text>
+                            </Col>
+                          </Row>
+
+                          <Icon
+                            onClick={remove}
+                            name="cross"
+                            type="button"
+                            pointer secondary/>
+                        </>
+                      ) : type === "images" ? (
+                        <>
+                          <Row width="70%">
+                            <AttachedImage src={url} alt="attached-image"/>
+                          </Row>
+
+                          <Icon
+                            onClick={remove}
+                            name="cross"
+                            type="button"
+                            pointer secondary/>
+                        </>
+                      ) : null}
                     </Row>
-
-                    <Icon
-                      name="cross"
-                      type="button"
-                      pointer secondary />
-                  </Row>
-                ))}
+                  );
+                })}
+              </Col>
             </Row>
           )}
         </Col>
@@ -431,4 +569,9 @@ const FormPanel = styled(Row).attrs(() => ({
 }))`
   background-color: ${({theme}) => theme.palette.primary.light};
   border-radius: 1rem;
+`;
+
+const AttachedImage = styled.img`
+  max-width: 7.5rem;
+  max-height: 7.5rem;
 `;

@@ -82,7 +82,7 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
 
                     <Icon name="wave"/>
 
-                    <Text>{formatAudioDuration(Math.ceil(audio.duration))}</Text>
+                    <Text>{formatAudioDuration(Math.ceil(audio.duration) * 1000)}</Text>
                   </Row>
 
                   <audio ref={audioRef} onDurationChange={handleAudioDurationChange}>
