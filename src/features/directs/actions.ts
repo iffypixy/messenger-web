@@ -5,7 +5,7 @@ import {
   GetDirectChatData, GetDirectChatMessagesData,
   GetDirectChatMessagesResponse,
   GetDirectChatResponse,
-  GetDirectChatsResponse
+  GetDirectChatsResponse, SendDirectMessageData, SendDirectMessageResponse
 } from "@api/direct-chats.api";
 
 const type = "directs";
@@ -24,6 +24,12 @@ export const fetchChat = createAsyncThunk<GetDirectChatResponse, GetDirectChatDa
 
 export const fetchMessages = createAsyncThunk<GetDirectChatMessagesResponse, GetDirectChatMessagesData>(`${type}/fetchMessages`, async (args) => {
   const {data} = await directChatsApi.getMessages(args);
+
+  return data;
+});
+
+export const fetchSendingMessage = createAsyncThunk<SendDirectMessageResponse, SendDirectMessageData>(`${type}/fetchSendingMessage`, async (args) => {
+  const {data} = await directChatsApi.sendMessage(args);
 
   return data;
 });

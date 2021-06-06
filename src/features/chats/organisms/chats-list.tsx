@@ -9,7 +9,7 @@ import {authSelectors} from "@features/auth";
 import {Col, Row} from "@lib/layout";
 import {Text, Circle, H3} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
-import {formatMessageDate} from "../lib/format-date";
+import {formatMessageDate} from "../lib/formatting";
 import {ChatsListItem} from "../lib/typings";
 
 export const ChatsList: React.FC = () => {

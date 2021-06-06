@@ -5,9 +5,9 @@ import prettyBytes from "pretty-bytes";
 
 import {File} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
+import {formatDuration} from "@lib/formatting";
 import {Icon, Text} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
-import {formatAudioDuration} from "../lib/format-date";
 
 interface MessageProps {
   isOwn: boolean;
@@ -33,9 +33,13 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
     isPaused: true
   });
 
-  const handleAudioDurationChange = () => audioRef.current && setAudio({
-    ...audio, duration: audioRef.current.duration
-  });
+  const handleMetadataLoad = (event: React.SyntheticEvent<HTMLAudioElement>) => {
+    if (audioRef.current) setAudio({
+      ...audio, duration: event.currentTarget.duration
+    });
+  };
+
+  console.log(audio.duration);
 
   const playAudio = () => {
     if (!audioRef.current) return;
@@ -52,6 +56,12 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
 
     audioRef.current.pause();
 
+    setAudio({
+      ...audio, isPaused: true
+    });
+  };
+
+  const handleAudioEnd = () => {
     setAudio({
       ...audio, isPaused: true
     });
@@ -82,10 +92,10 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
 
                     <Icon name="wave"/>
 
-                    <Text>{formatAudioDuration(Math.ceil(audio.duration) * 1000)}</Text>
+                    <Text>{formatDuration(Math.ceil(audio.duration) * 1000)}</Text>
                   </Row>
 
-                  <audio ref={audioRef} onDurationChange={handleAudioDurationChange}>
+                  <audio ref={audioRef} onEnded={handleAudioEnd} onLoadedMetadata={handleMetadataLoad}>
                     <source src={audioSrc}/>
                   </audio>
                 </>

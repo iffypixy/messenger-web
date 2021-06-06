@@ -6,16 +6,17 @@ import {nanoid} from "nanoid";
 import prettyBytes from "pretty-bytes";
 
 import {authSelectors} from "@features/auth";
-import {ChatsList, formatMessageDate, Message, SystemMessage, UploadingFile} from "@features/chats";
+import {ChatsList, Message, SystemMessage, UploadingFile, formatMessageDate} from "@features/chats";
 import {directsSelectors, directsActions} from "@features/directs";
 import {groupsSelectors} from "@features/groups";
 import {uploadApi} from "@api/upload.api";
 import {Col, Row} from "@lib/layout";
+import {formatDuration} from "@lib/formatting";
 import {ID} from "@lib/typings";
+import {stopMediaStream} from "@lib/media-recorder";
 import {MainTemplate} from "@ui/templates";
-import {H2, H4, Icon, Input, Text, Button} from "@ui/atoms";
+import {H2, H4, Icon, Input, Text, Button, Loader} from "@ui/atoms";
 import {Avatar, ProgressBar} from "@ui/molecules";
-import {formatAudioDuration} from "@features/chats/lib/format-date";
 
 export const DirectPage = () => {
   const dispatch = useDispatch();
@@ -227,7 +228,7 @@ const MessagesList = styled(Col).attrs(() => ({
 interface DirectChatFormInputs {
   images: UploadingFile[];
   files: UploadingFile[];
-  audio: string;
+  audio: ID;
   text: string;
 }
 
@@ -239,6 +240,8 @@ interface DirectChatRecording {
 }
 
 const DirectForm: React.FC = () => {
+  const dispatch = useDispatch();
+
   const [form, setForm] = useState<DirectChatFormInputs>({
     audio: "", files: [],
     images: [], text: ""
@@ -250,6 +253,10 @@ const DirectForm: React.FC = () => {
     mediaRecorder: null,
     duration: 0
   });
+
+  const chat = useSelector(directsSelectors.chat);
+
+  if (!chat) return null;
 
   const {text, images, files} = form;
 
@@ -356,6 +363,13 @@ const DirectForm: React.FC = () => {
   ];
 
   const startRecording = () => {
+    setAudio({
+      duration: 0,
+      mediaRecorder: null,
+      isRecording: false,
+      isUploading: false
+    });
+
     navigator.mediaDevices.getUserMedia({audio: true})
       .then((stream) => {
         const mediaRecorder = new MediaRecorder(stream);
@@ -365,45 +379,55 @@ const DirectForm: React.FC = () => {
         }));
 
         let durationInterval: NodeJS.Timeout | null = null;
+        let isCancelled: boolean = false;
 
         mediaRecorder.onstart = () => {
           setAudio((audio) => ({
-            ...audio,
-            isRecording: true
+            ...audio, isRecording: true
           }));
 
           durationInterval = setInterval(() => {
             setAudio((audio) => ({
-              ...audio,
-              duration: audio.duration + 100
+              ...audio, duration: audio.duration + 1000
             }));
-          }, 100);
+          }, 1000);
         };
 
         mediaRecorder.onstop = () => {
-          durationInterval && clearInterval(durationInterval);
+          if (durationInterval) clearInterval(durationInterval);
 
-          setAudio((audio) => ({
-            ...audio,
-            isRecording: false
-          }));
+          stopMediaStream(mediaRecorder.stream);
+        };
+
+        mediaRecorder.onpause = () => {
+          isCancelled = true;
+
+          stopMediaStream(mediaRecorder.stream);
+
+          setAudio({
+            ...audio, isRecording: false
+          });
         };
 
         mediaRecorder.ondataavailable = (event) => {
+          if (isCancelled) return;
+
           setAudio((audio) => ({
-            ...audio,
-            isUploading: true
+            ...audio, isUploading: true
           }));
 
           uploadApi.upload({
             file: event.data as File
           }).then(({data}) => {
-            setForm((form) => ({
-              ...form, audio: data.file.url
+            dispatch(directsActions.fetchSendingMessage({
+              audio: data.file.id,
+              partner: chat.partner.id
             }));
           }).finally(() => {
             setAudio((audio) => ({
-              ...audio, isUploading: false
+              ...audio,
+              isUploading: false,
+              isRecording: false
             }));
           });
         };
@@ -412,34 +436,50 @@ const DirectForm: React.FC = () => {
       });
   };
 
-  const stopRecording = () => {
-    audio.mediaRecorder && audio.mediaRecorder.stop();
-
-    setAudio({
-      ...audio,
-      isRecording: false
-    });
+  const cancelRecording = () => {
+    audio.mediaRecorder!.pause();
   };
+
+  const handleAudioFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    audio.mediaRecorder!.stop();
+  };
+
+  const handleMessageFormSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    dispatch(directsActions.fetchSendingMessage({
+      partner: chat.partner.id,
+      audio: form.audio, text,
+      files: files.map(({id}) => id!).filter(Boolean),
+      images: images.map(({id}) => id!).filter(Boolean)
+    }));
+  };
+
+  const handleFormSubmit = audio.isRecording ? handleAudioFormSubmit : handleMessageFormSubmit;
 
   const areFilesAttached = !!attachments.length;
 
   return (
     <Row width="100%" padding="2rem 5rem">
-      <Form>
+      <Form onSubmit={handleFormSubmit}>
         <Col width="100%" gap="2rem">
           {audio.isRecording ? (
             <Row width="100%" justify="space-between" align="center">
               <Icon
                 name="cross"
                 type="button"
-                onClick={stopRecording}
+                onClick={cancelRecording}
                 pointer secondary/>
 
-              <Text>{formatAudioDuration(audio.duration)}</Text>
+              <Text>{formatDuration(Math.ceil(audio.duration))}</Text>
 
-              <Button type="submit" pure>
-                <Icon name="telegram"/>
-              </Button>
+              {audio.isUploading ? <Loader /> : (
+                <Button type="submit" pure>
+                  <Icon name="telegram"/>
+                </Button>
+              )}
             </Row>
           ) : (
             <FormPanel>

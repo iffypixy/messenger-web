@@ -4,3 +4,4 @@ export {Button} from "./button";
 export {Input} from "./input";
 export {Text} from "./text";
 export {Circle} from "./circle";
+export {Loader} from "./loader";
