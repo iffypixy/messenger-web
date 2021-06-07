@@ -39,11 +39,11 @@ const getMessages = (data: GetDirectChatMessagesData): Promise<{data: GetDirectC
   });
 
 export interface SendDirectMessageData {
-  text?: string;
-  audio?: ID;
-  images?: ID[];
-  files?: ID[];
-  parent?: ID;
+  text?: string | null;
+  audio?: ID | null;
+  images?: ID[] | null;
+  files?: ID[] | null;
+  parent?: ID | null;
   partner: ID;
 }
 
@@ -51,8 +51,9 @@ export interface SendDirectMessageResponse {
   message: DirectChatMessage;
 }
 
-const sendMessage = (data: SendDirectMessageData): Promise<{data: SendDirectMessageResponse}> => new Promise((resolve) =>
-  socket.emit("DIRECT_CHAT:CREATE_MESSAGE", data, (data: SendDirectMessageResponse) => resolve({data})));
+const sendMessage = (data: SendDirectMessageData): Promise<{data: SendDirectMessageResponse}> => new Promise((resolve) => {
+  socket.emit("DIRECT_CHAT:CREATE_MESSAGE", data, (data: SendDirectMessageResponse) => resolve({data}))
+});
 
 export const directChatsApi = {
   getChats, getChat, getMessages,

@@ -13,7 +13,7 @@ interface MessageProps {
   isOwn: boolean;
   isRead: boolean;
   avatar: string;
-  text: string;
+  text: string | null;
   images: string[] | null;
   audio: string | null;
   files: File[] | null;
@@ -180,7 +180,7 @@ const Bubble = styled(Col).attrs(() => ({
 }))<MessageStylingProps>`
   ${({isOwn}) => css`
     background-color: ${({theme}) => isOwn ? theme.palette.secondary.light : theme.palette.primary.light};
-  `}
+  `};
   
   border-radius: 1rem;
 `;
@@ -191,11 +191,10 @@ const Image = styled.img`
 `;
 
 interface SystemMessageProps {
-  text: string;
-  date: Date;
+  text: string | null;
 }
 
-export const SystemMessage: React.FC<SystemMessageProps> = ({text, date}) => (
+export const SystemMessage: React.FC<SystemMessageProps> = ({text}) => (
   <Wrapper justify="center">
     <Text>{text}</Text>
   </Wrapper>

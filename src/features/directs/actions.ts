@@ -1,4 +1,4 @@
-import {createAsyncThunk} from "@reduxjs/toolkit";
+import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 
 import {
   directChatsApi,
@@ -7,6 +7,8 @@ import {
   GetDirectChatResponse,
   GetDirectChatsResponse, SendDirectMessageData, SendDirectMessageResponse
 } from "@api/direct-chats.api";
+import {DirectChatMessage} from "./lib/typings";
+import {ID} from "@lib/typings";
 
 const type = "directs";
 
@@ -33,3 +35,17 @@ export const fetchSendingMessage = createAsyncThunk<SendDirectMessageResponse, S
 
   return data;
 });
+
+export interface AddDirectMessageData {
+  message: DirectChatMessage;
+  chatId: ID;
+}
+
+export const addMessage = createAction<AddDirectMessageData>(`${type}/addMessage`);
+
+export interface UpdateDirectMessageData {
+  id: ID;
+  message: Partial<DirectChatMessage>;
+}
+
+export const updateMessage = createAction<UpdateDirectMessageData>(`${type}/updateMessage`);

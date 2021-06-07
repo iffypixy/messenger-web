@@ -1,9 +1,8 @@
 import {ChatsListItem} from "@features/chats"
 import {DirectChatsListItem} from "./typings";
 
-export const mapDirectToChat = ({lastMessage, partner, chat, numberOfUnreadMessages}: DirectChatsListItem): ChatsListItem => ({
-  id: chat.id,
-  name: partner.username,
+export const mapDirectToChat = ({id, lastMessage, partner, numberOfUnreadMessages}: DirectChatsListItem): ChatsListItem => ({
+  id, name: partner.username,
   avatar: partner.avatar,
   message: `${lastMessage && (lastMessage.text || "Attachments")}`,
   date: lastMessage && new Date(lastMessage.createdAt),

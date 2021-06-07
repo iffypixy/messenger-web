@@ -12,15 +12,14 @@ export interface GroupChatMember extends User {
   isMember: boolean;
 }
 
-export interface GroupChat {
-  chat: GroupChatDetails;
+export interface GroupChat extends GroupChatDetails {
   member: GroupChatMember;
   numberOfMembers: number;
 }
 
 export interface GroupChatMessage {
   id: ID;
-  text: string;
+  text: string | null;
   sender: GroupChatMember | null;
   chat: GroupChatDetails;
   audio: string | null;
@@ -30,11 +29,10 @@ export interface GroupChatMessage {
   isEdited: boolean;
   isRead: boolean;
   isSystem: boolean;
-  createdAt: Date;
+  createdAt: string;
 }
 
-export interface GroupChatsListItem {
-  chat: GroupChatDetails;
+export interface GroupChatsListItem extends GroupChatDetails {
   lastMessage: GroupChatMessage | null;
   numberOfMembers: number;
   numberOfUnreadMessages: number;

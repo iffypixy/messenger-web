@@ -1,25 +1,23 @@
 import React, {useState} from "react";
 import {nanoid} from "nanoid";
-import {useSelector} from "react-redux";
 import prettyBytes from "pretty-bytes";
 import styled from "styled-components";
 
 import {uploadApi} from "@api/upload.api";
 import {UploadingFile} from "@features/chats";
-import {directsSelectors} from "@features/directs";
 import {stopMediaStream} from "@lib/media-recorder";
 import {Col, Row} from "@lib/layout";
 import {formatDuration} from "@lib/formatting";
-import {ID} from "@lib/typings";
+import {File, ID} from "@lib/typings";
 import {Button, Icon, Input, Loader, Text} from "@ui/atoms";
 import {ProgressBar} from "@ui/molecules";
 
 interface ChatFormProps {
   handleSubmit: (options: {
-    text?: string;
-    audio?: ID;
-    images?: ID[];
-    files?: ID[]
+    text: string | null;
+    files: File[] | null;
+    audio: {id: ID; url: string} | null;
+    images: {id: ID; url: string}[] | null;
   }) => void;
 }
 
@@ -49,10 +47,6 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
     mediaRecorder: null,
     duration: 0
   });
-
-  const chat = useSelector(directsSelectors.chat);
-
-  if (!chat) return null;
 
   const {text, images, files} = form;
 
@@ -217,10 +211,13 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
           });
 
           uploadApi.upload({
-            file: mp3 as File
-          }).then(({data}) => {
+            file: mp3 as globalThis.File
+          }).then(({data: {file: {id, url}}}) => {
             handleSubmit({
-              audio: data.file.id
+              audio: {id, url},
+              text: null,
+              images: null,
+              files: null
             });
           }).finally(() => {
             setAudio((audio) => ({
@@ -248,9 +245,18 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
   const handleMessageFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
+    const attachedImages = images
+      .filter(({isUploading}) => !isUploading)
+      .map(({id, url}) => ({id: id!, url: url!}));
+
+    const attachedFiles = files
+      .filter(({isUploading}) => !isUploading)
+      .map(({id, url, name, size}) => ({id: id!, url: url!, name: name!, size: size!}))
+
     handleSubmit({
-      text, images: images.filter(({id}) => id).map(({id}) => id!),
-      files: files.filter(({id}) => id).map(({id}) => id!)
+      text: text || null, audio: null,
+      images: !!attachedImages.length ? attachedImages : null,
+      files: !!attachedFiles.length ? attachedFiles : null
     });
   };
 

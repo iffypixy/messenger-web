@@ -1,16 +1,17 @@
 import React, {useEffect, useState} from "react";
 import styled from "styled-components";
-import {useDispatch, useSelector} from "react-redux";
+import {useSelector} from "react-redux";
 
 import {directsActions, directsSelectors} from "@features/directs";
 import {groupsActions, groupsSelectors} from "@features/groups";
 import {ChatsList} from "@features/chats";
+import {Col, Row} from "@lib/layout";
+import {useRootDispatch} from "@lib/store";
 import {Icon, H4, Input, Text, H3} from "@ui/atoms";
 import {MainTemplate} from "@ui/templates";
-import {Col, Row} from "@lib/layout";
 
 export const HomePage: React.FC = () => {
-  const dispatch = useDispatch();
+  const dispatch = useRootDispatch();
 
   const directChats = useSelector(directsSelectors.chats);
   const areDirectChatsFetching = useSelector(directsSelectors.areChatsFetching);

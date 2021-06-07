@@ -2,6 +2,7 @@ import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
 import {GetDirectChatMessagesResponse, GetDirectChatResponse, GetDirectChatsResponse} from "@api/direct-chats.api";
 import {DirectChatMessage, DirectChat, DirectChatsListItem} from "./lib/typings";
+import {AddDirectMessageData, UpdateDirectMessageData} from "./actions";
 import * as actions from "./actions";
 
 interface DirectsState {
@@ -11,6 +12,7 @@ interface DirectsState {
   isChatFetching: boolean;
   areChatsFetching: boolean;
   areMessagesFetching: boolean;
+  saved: DirectChat[];
 }
 
 export const reducer = createReducer<DirectsState>({
@@ -19,7 +21,8 @@ export const reducer = createReducer<DirectsState>({
   messages: null,
   isChatFetching: false,
   areChatsFetching: false,
-  areMessagesFetching: false
+  areMessagesFetching: false,
+  saved: []
 }, {
   [actions.fetchChats.pending.type]: (state) => {
     state.areChatsFetching = true;
@@ -41,6 +44,10 @@ export const reducer = createReducer<DirectsState>({
   [actions.fetchChat.fulfilled.type]: (state, {payload}: PayloadAction<GetDirectChatResponse>) => {
     state.chat = payload.chat;
     state.isChatFetching = false;
+
+    state.saved = [...state.saved, payload.chat].filter((saved, idx, array) =>
+      idx === array.findIndex((chat) => chat.id === saved.id)
+    );
   },
 
   [actions.fetchChat.rejected.type]: (state) => {
@@ -58,5 +65,14 @@ export const reducer = createReducer<DirectsState>({
 
   [actions.fetchMessages.rejected.type]: (state) => {
     state.areMessagesFetching = false;
+  },
+
+  [actions.addMessage.type]: (state, {payload}: PayloadAction<AddDirectMessageData>) => {
+    if (state.messages) state.messages.push(payload.message);
+  },
+
+  [actions.updateMessage.type]: (state, {payload}: PayloadAction<UpdateDirectMessageData>) => {
+    if (state.messages) state.messages = state.messages
+      .map((msg) => msg.id === payload.id ? ({...msg, ...payload.message}) : msg);
   }
 });

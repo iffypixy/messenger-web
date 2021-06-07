@@ -12,7 +12,7 @@ const getChats = (): Promise<{data: GetGroupChatsResponse}> =>
   });
 
 export interface GetGroupChatData {
-  id: ID;
+  chat: ID;
 }
 
 export interface GetGroupChatResponse {
@@ -25,7 +25,7 @@ const getChat = (data: GetGroupChatData): Promise<{data: GetGroupChatResponse}> 
   });
 
 export interface GetGroupChatMessagesData {
-  id: ID;
+  chat: ID;
   skip?: number;
 }
 
@@ -38,7 +38,25 @@ const getMessages = (data: GetGroupChatMessagesData): Promise<{data: GetGroupCha
     socket.emit("GROUP_CHAT:GET_MESSAGES", data, (data: GetGroupChatMessagesResponse) => resolve({data}));
   });
 
+export interface SendGroupMessageData {
+  text?: string | null;
+  audio?: ID | null;
+  images?: ID[] | null;
+  files?: ID[] | null;
+  parent?: ID | null;
+  chat: ID;
+}
+
+export interface SendGroupMessageResponse {
+  message: GroupChatMessage;
+}
+
+const sendMessage = (data: SendGroupMessageData): Promise<{data: SendGroupMessageResponse}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:CREATE_MESSAGE", data, (data: SendGroupMessageResponse) => resolve({data}))
+});
+
 export const groupChatsApi = {
-  getChats, getChat, getMessages
+  getChats, getChat, getMessages,
+  sendMessage
 };
 

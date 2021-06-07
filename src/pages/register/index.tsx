@@ -3,11 +3,11 @@ import styled from "styled-components";
 import {useForm} from "react-hook-form";
 import {yupResolver} from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import {useDispatch} from "react-redux";
 
 import {AuthTemplate, AuthToggleButton, authActions} from "@features/auth";
 import {Col, Row} from "@lib/layout";
 import {regex} from "@lib/regex";
+import {useRootDispatch} from "@lib/store";
 import {getFingerprint} from "@lib/fingerprint";
 import {Button, Input} from "@ui/atoms";
 
@@ -49,7 +49,7 @@ const RegisterForm: React.FC = () => {
     }
   });
 
-  const dispatch = useDispatch();
+  const dispatch = useRootDispatch();
 
   const onSubmit = async (data: RegisterFormInputs) => {
     const fingerprint = await getFingerprint();

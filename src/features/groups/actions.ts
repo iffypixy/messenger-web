@@ -1,6 +1,16 @@
-import {createAsyncThunk} from "@reduxjs/toolkit";
+import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 
-import {groupChatsApi, GetGroupChatsResponse, GetGroupChatResponse, GetGroupChatData, GetGroupChatMessagesData, GetGroupChatMessagesResponse} from "@api/group-chats.api";
+import {ID} from "@lib/typings";
+import {
+  groupChatsApi,
+  GetGroupChatsResponse,
+  GetGroupChatResponse,
+  GetGroupChatData,
+  GetGroupChatMessagesData,
+  GetGroupChatMessagesResponse,
+  SendGroupMessageResponse, SendGroupMessageData
+} from "@api/group-chats.api";
+import {GroupChatMessage} from "./lib/typings";
 
 const type = "groups";
 
@@ -21,3 +31,23 @@ export const fetchMessages = createAsyncThunk<GetGroupChatMessagesResponse, GetG
 
   return data;
 });
+
+export const fetchSendingMessage = createAsyncThunk<SendGroupMessageResponse, SendGroupMessageData>(`${type}/fetchSendingMessage`, async (args) => {
+  const {data} = await groupChatsApi.sendMessage(args);
+
+  return data;
+});
+
+export interface AddGroupMessageData {
+  message: GroupChatMessage;
+  chatId: ID;
+}
+
+export const addMessage = createAction<AddGroupMessageData>(`${type}/addMessage`);
+
+export interface UpdateGroupMessageData {
+  id: ID;
+  message: Partial<GroupChatMessage>;
+}
+
+export const updateMessage = createAction<UpdateGroupMessageData>(`${type}/updateMessage`);

@@ -9,8 +9,7 @@ export interface DirectChatPartner extends User {
   isBanned: boolean;
 }
 
-export interface DirectChat {
-  chat: DirectChatDetails;
+export interface DirectChat extends DirectChatDetails {
   partner: DirectChatPartner;
   isBanned: boolean;
 }
@@ -18,7 +17,7 @@ export interface DirectChat {
 export interface DirectChatMessage {
   id: ID;
   sender: DirectChatPartner | null;
-  text: string;
+  text: string | null;
   images: string[] | null;
   files: File[] | null;
   audio: string | null;
@@ -27,7 +26,7 @@ export interface DirectChatMessage {
   isEdited: boolean;
   isRead: boolean;
   isSystem: boolean;
-  createdAt: Date;
+  createdAt: string;
 }
 
 export interface DirectChatsListItem extends DirectChat {
