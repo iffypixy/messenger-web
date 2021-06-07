@@ -20,26 +20,37 @@ interface MessageProps {
   date: Date;
 }
 
-interface AudioData {
+interface AudioState {
   duration: number;
   isPaused: boolean;
+  isStarted: boolean;
+  time: number;
 }
 
 export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, date, images, files, audio: audioSrc}) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const [audio, setAudio] = useState<AudioData>({
+  const [audio, setAudio] = useState<AudioState>({
     duration: 0,
-    isPaused: true
+    isPaused: true,
+    isStarted: false,
+    time: 0
   });
 
-  const handleMetadataLoad = (event: React.SyntheticEvent<HTMLAudioElement>) => {
-    if (audioRef.current) setAudio({
-      ...audio, duration: event.currentTarget.duration
+  const handleAudioDurationChange = ({currentTarget}: React.ChangeEvent<HTMLAudioElement>) => {
+    if (currentTarget.duration === Infinity) {
+      currentTarget.currentTime = 100000000;
+    }
+
+    const {duration} = currentTarget;
+
+    if (duration === Infinity) return;
+
+    setAudio({
+      ...audio,
+      duration: Math.ceil(duration) * 1000
     });
   };
-
-  console.log(audio.duration);
 
   const playAudio = () => {
     if (!audioRef.current) return;
@@ -47,7 +58,9 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
     audioRef.current.play();
 
     setAudio({
-      ...audio, isPaused: false
+      ...audio,
+      isPaused: false,
+      isStarted: true
     });
   };
 
@@ -63,7 +76,17 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
 
   const handleAudioEnd = () => {
     setAudio({
-      ...audio, isPaused: true
+      ...audio,
+      isPaused: true,
+      isStarted: false,
+      time: 0
+    });
+  };
+
+  const handleAudioTimeUpdate = () => {
+    setAudio({
+      ...audio,
+      time: Math.ceil(audioRef.current!.currentTime) * 1000
     });
   };
 
@@ -92,10 +115,14 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
 
                     <Icon name="wave"/>
 
-                    <Text>{formatDuration(Math.ceil(audio.duration) * 1000)}</Text>
+                    <Text>{formatDuration(audio.isStarted ? audio.time : audio.duration)}</Text>
                   </Row>
 
-                  <audio ref={audioRef} onEnded={handleAudioEnd} onLoadedMetadata={handleMetadataLoad}>
+                  <audio
+                    ref={audioRef}
+                    onEnded={handleAudioEnd}
+                    onDurationChange={handleAudioDurationChange}
+                    onTimeUpdate={handleAudioTimeUpdate}>
                     <source src={audioSrc}/>
                   </audio>
                 </>

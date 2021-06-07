@@ -225,14 +225,14 @@ const MessagesList = styled(Col).attrs(() => ({
   overflow: auto;
 `;
 
-interface DirectChatFormInputs {
+interface DirectChatForm {
   images: UploadingFile[];
   files: UploadingFile[];
   audio: ID;
   text: string;
 }
 
-interface DirectChatRecording {
+interface DirectChatRecordingState {
   isRecording: boolean;
   isUploading: boolean;
   mediaRecorder: MediaRecorder | null;
@@ -242,12 +242,12 @@ interface DirectChatRecording {
 const DirectForm: React.FC = () => {
   const dispatch = useDispatch();
 
-  const [form, setForm] = useState<DirectChatFormInputs>({
+  const [form, setForm] = useState<DirectChatForm>({
     audio: "", files: [],
     images: [], text: ""
   });
 
-  const [audio, setAudio] = useState<DirectChatRecording>({
+  const [audio, setAudio] = useState<DirectChatRecordingState>({
     isRecording: false,
     isUploading: false,
     mediaRecorder: null,
@@ -402,8 +402,6 @@ const DirectForm: React.FC = () => {
         mediaRecorder.onpause = () => {
           isCancelled = true;
 
-          stopMediaStream(mediaRecorder.stream);
-
           setAudio({
             ...audio, isRecording: false
           });
@@ -416,8 +414,12 @@ const DirectForm: React.FC = () => {
             ...audio, isUploading: true
           }));
 
+          const mp3 = new Blob([event.data], {
+            type: "audio/ogg"
+          });
+
           uploadApi.upload({
-            file: event.data as File
+            file: mp3 as File
           }).then(({data}) => {
             dispatch(directsActions.fetchSendingMessage({
               audio: data.file.id,
