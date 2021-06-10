@@ -1,35 +1,34 @@
 import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
-import {GetGroupChatMessagesResponse, GetGroupChatResponse, GetGroupChatsResponse} from "@api/group-chats.api";
+import {GetGroupChatsResponse} from "@api/group-chats.api";
 import {GroupChatMessage, GroupChat, GroupChatsListItem} from "./lib/typings";
-import {AddGroupMessageData, UpdateGroupMessageData} from "./actions";
+import {AddMessagePayload, FetchChatData, FetchChatPayload, FetchMessagesData, FetchMessagesPayload} from "./actions";
 import * as actions from "./actions";
 
 interface GroupsState {
-  chats: GroupChatsListItem[] | null;
-  chat: GroupChat | null;
-  messages: GroupChatMessage[] | null;
-  isChatFetching: boolean;
+  list: GroupChatsListItem[] | null;
   areChatsFetching: boolean;
-  areMessagesFetching: boolean;
-  saved: GroupChat[];
+  chats: {
+    [key: string]: {
+      messages: GroupChatMessage[];
+      data: GroupChat | null;
+      isFetching: boolean;
+      areMessagesFetching: boolean;
+    };
+  };
 }
 
 export const reducer = createReducer<GroupsState>({
-  chat: null,
-  chats: null,
-  messages: null,
-  isChatFetching: false,
+  chats: {},
   areChatsFetching: false,
-  areMessagesFetching: false,
-  saved: []
+  list: null
 }, {
   [actions.fetchChats.pending.type]: (state) => {
     state.areChatsFetching = true;
   },
 
   [actions.fetchChats.fulfilled.type]: (state, {payload}: PayloadAction<GetGroupChatsResponse>) => {
-    state.chats = payload.chats;
+    state.list = payload.chats;
     state.areChatsFetching = false;
   },
 
@@ -37,41 +36,68 @@ export const reducer = createReducer<GroupsState>({
     state.areChatsFetching = false;
   },
 
-  [actions.fetchChat.pending.type]: (state) => {
-    state.isChatFetching = true;
+  [actions.fetchChat.pending.type]: (state, {meta: {arg}}: PayloadAction<void, string, {arg: FetchChatData}>) => {
+    const chat = state.chats[arg.groupId] || {};
+
+    state.chats[arg.groupId] = {
+      ...chat, isFetching: true
+    };
   },
 
-  [actions.fetchChat.fulfilled.type]: (state, {payload}: PayloadAction<GetGroupChatResponse>) => {
-    state.chat = payload.chat;
-    state.isChatFetching = false;
+  [actions.fetchChat.fulfilled.type]: (state, {payload, meta: {arg}}: PayloadAction<FetchChatPayload, string, {arg: FetchChatData}>) => {
+    const chat = state.chats[arg.groupId] || {};
 
-    state.saved = [...state.saved, payload.chat].filter((saved, idx, array) =>
-      idx === array.findIndex((chat) => chat.id === saved.id));
+    state.chats[arg.groupId] = {
+      ...chat,
+      data: payload.chat,
+      isFetching: false
+    };
   },
 
-  [actions.fetchChat.rejected.type]: (state) => {
-    state.isChatFetching = false;
+  [actions.fetchChat.rejected.type]: (state, {meta: {arg}}: PayloadAction<void, string, {arg: FetchChatData}>) => {
+    const chat = state.chats[arg.groupId] || {};
+
+    state.chats[arg.groupId] = {
+      ...chat, isFetching: false
+    };
   },
 
-  [actions.fetchMessages.pending.type]: (state) => {
-    state.areMessagesFetching = true;
+  [actions.fetchMessages.pending.type]: (state, {meta: {arg}}: PayloadAction<void, string, {arg: FetchMessagesData}>) => {
+    const chat = state.chats[arg.groupId] || {};
+
+    state.chats[arg.groupId] = {
+      ...chat, areMessagesFetching: true
+    };
   },
 
-  [actions.fetchMessages.fulfilled.type]: (state, {payload}: PayloadAction<GetGroupChatMessagesResponse>) => {
-    state.messages = payload.messages;
-    state.areMessagesFetching = false;
+  [actions.fetchMessages.fulfilled.type]: (state, {payload, meta: {arg}}: PayloadAction<FetchMessagesPayload, string, {arg: FetchMessagesData}>) => {
+    const chat = state.chats[arg.groupId] || {};
+
+    state.chats[arg.groupId] = {
+      ...chat,
+      messages: chat.messages ?
+        [...payload.messages, ...chat.messages] : payload.messages,
+      areMessagesFetching: false
+    };
   },
 
-  [actions.fetchMessages.rejected.type]: (state) => {
-    state.areMessagesFetching = false;
+  [actions.fetchMessages.rejected.type]: (state, {meta: {arg}}: PayloadAction<void, string, {arg: FetchMessagesData}>) => {
+    const chat = state.chats[arg.groupId] || {};
+
+    state.chats[arg.groupId] = {
+      ...chat, areMessagesFetching: false
+    };
   },
 
-  [actions.addMessage.type]: (state, {payload}: PayloadAction<AddGroupMessageData>) => {
-    if (state.messages) state.messages.push(payload.message);
-  },
+  [actions.addMessage.type]: (state, {payload}: PayloadAction<AddMessagePayload>) => {
+    const chat = state.chats[payload.groupId] || {};
 
-  [actions.updateMessage.type]: (state, {payload}: PayloadAction<UpdateGroupMessageData>) => {
-    if (state.messages) state.messages = state.messages
-      .map((msg) => msg.id === payload.id ? ({...msg, ...payload.message}) : msg);
+    state.chats[payload.groupId] = {
+      ...chat, messages: chat.messages ?
+        [...chat.messages, payload.message] : [payload.message]
+    };
+
+    state.list = state.list && state.list.map((chat) => chat.id === payload.groupId ?
+      ({...chat, lastMessage: payload.message}) : chat);
   }
 });

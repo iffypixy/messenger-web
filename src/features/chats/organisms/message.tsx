@@ -8,6 +8,7 @@ import {Col, Row} from "@lib/layout";
 import {formatDuration} from "@lib/formatting";
 import {Icon, Text} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
+import {scrollDown} from "@lib/dom";
 
 interface MessageProps {
   isOwn: boolean;
@@ -29,6 +30,7 @@ interface AudioState {
 
 export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, date, images, files, audio: audioSrc}) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const messageRef = useRef<HTMLDivElement | null>(null);
 
   const [audio, setAudio] = useState<AudioState>({
     duration: 0,
@@ -36,6 +38,10 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
     isStarted: false,
     time: 0
   });
+
+  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
+    scrollDown(messageRef.current!.parentElement!, event.currentTarget.height);
+  };
 
   const handleAudioDurationChange = ({currentTarget}: React.ChangeEvent<HTMLAudioElement>) => {
     if (currentTarget.duration === Infinity) {
@@ -91,7 +97,7 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
   };
 
   return (
-    <Wrapper reverse={isOwn}>
+    <Wrapper reverse={isOwn} ref={messageRef}>
       <Block reverse={isOwn} isOwn={isOwn}>
         <Avatar url={avatar} small/>
 
@@ -99,7 +105,14 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
           <Bubble isOwn={isOwn}>
             <Col gap="2.5rem">
               {images && (
-                images.map((src, idx) => <Image key={idx} src={src}/>)
+                images.map((src, idx) => (
+                  <Image
+                    key={idx}
+                    src={src}
+                    onLoad={handleImageLoad}
+
+                  />
+                ))
               )}
 
               {text && (

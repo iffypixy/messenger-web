@@ -12,7 +12,7 @@ const getChats = (): Promise<{data: GetGroupChatsResponse}> =>
   });
 
 export interface GetGroupChatData {
-  chat: ID;
+  group: ID;
 }
 
 export interface GetGroupChatResponse {
@@ -25,7 +25,7 @@ const getChat = (data: GetGroupChatData): Promise<{data: GetGroupChatResponse}> 
   });
 
 export interface GetGroupChatMessagesData {
-  chat: ID;
+  group: ID;
   skip?: number;
 }
 
@@ -44,7 +44,7 @@ export interface SendGroupMessageData {
   images?: ID[] | null;
   files?: ID[] | null;
   parent?: ID | null;
-  chat: ID;
+  group: ID;
 }
 
 export interface SendGroupMessageResponse {

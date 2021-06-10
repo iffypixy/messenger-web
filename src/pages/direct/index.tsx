@@ -1,19 +1,19 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 import styled from "styled-components";
 import {nanoid} from "nanoid";
 
 import {authSelectors} from "@features/auth";
-import {ChatsList, Message, SystemMessage, formatMessageDate, ChatForm, useFetchingChats} from "@features/chats";
+import {ChatsList, formatMessageDate, ChatForm, useFetchingChats, MessagesList} from "@features/chats";
 import {directsSelectors, directsActions} from "@features/directs";
 import {Col, Row} from "@lib/layout";
+import {scrollToBottom} from "@lib/dom";
 import {ID} from "@lib/typings";
 import {useRootDispatch} from "@lib/store";
-import {H2, H4, Icon, Input, Text} from "@ui/atoms";
+import {H4, Icon, Input, Text} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 import {MainTemplate} from "@ui/templates";
-import {unwrapResult} from "@reduxjs/toolkit";
 
 export const DirectPage = () => {
   const dispatch = useRootDispatch();
@@ -23,10 +23,9 @@ export const DirectPage = () => {
   const {partnerId} = useParams<{partnerId: ID}>();
 
   const chat = useSelector(directsSelectors.chat(partnerId));
-  const isChatFetching = useSelector(directsSelectors.isChatFetching);
-
-  const messages = useSelector(directsSelectors.messages);
-  const areMessagesFetching = useSelector(directsSelectors.areMessagesFetching);
+  const isChatFetching = useSelector(directsSelectors.isChatFetching(partnerId));
+  const messages = useSelector(directsSelectors.messages(partnerId));
+  const areMessagesFetching = useSelector(directsSelectors.areMessagesFetching(partnerId));
 
   const toFetchChat = !chat && !isChatFetching;
   const toFetchMessages = !messages && !areMessagesFetching;
@@ -34,19 +33,19 @@ export const DirectPage = () => {
   useEffect(() => {
     if (toFetchChat) {
       dispatch(directsActions.fetchChat({
+        partnerId,
         partner: partnerId
       }));
     }
 
     if (toFetchMessages) {
       dispatch(directsActions.fetchMessages({
+        partnerId,
         partner: partnerId,
         skip: 0
       }));
     }
   }, []);
-
-  if (!chat) return null;
 
   return (
     <MainTemplate>
@@ -134,13 +133,23 @@ const DirectChat: React.FC = () => {
 
   const {partnerId} = useParams<{partnerId: ID}>();
 
-  const chat = useSelector(directsSelectors.chat(partnerId))!;
-  const isFetching = useSelector(directsSelectors.isChatFetching);
-  const messages = useSelector(directsSelectors.messages);
-  const areMessagesFetching = useSelector(directsSelectors.areMessagesFetching);
+  const listRef = useRef<HTMLDivElement | null>(null);
+
   const credentials = useSelector(authSelectors.credentials)!;
+  const chat = useSelector(directsSelectors.chat(partnerId))!;
+  const messages = useSelector(directsSelectors.messages(partnerId));
+  const areMessagesFetching = useSelector(directsSelectors.areMessagesFetching(partnerId));
+  const isFetching = useSelector(directsSelectors.isChatFetching(partnerId));
+
+  useEffect(() => {
+    if (areMessagesFetching || !listRef.current) return;
+
+    scrollToBottom(listRef.current);
+  }, [listRef.current, areMessagesFetching]);
 
   if (isFetching) return <H4>Loading...</H4>;
+
+  if (!chat) return null;
 
   return (
     <Col width="100%" height="100%">
@@ -162,39 +171,16 @@ const DirectChat: React.FC = () => {
         </Row>
       </Header>
 
-      <MessagesList>
-        {areMessagesFetching && <H2>Loading...</H2>}
-
-        {messages && messages.map(({id, isSystem, text, sender, createdAt, isRead, images, audio, files}) => {
-          if (isSystem) return (
-            <SystemMessage
-              key={id}
-              text={text}/>
-          );
-
-          const isOwn = !!(sender && sender.id === credentials.id);
-
-          return (
-            <Message
-              key={id}
-              text={text}
-              images={images}
-              audio={audio}
-              files={files}
-              avatar={sender!.avatar}
-              date={new Date(createdAt)}
-              isOwn={isOwn}
-              isRead={isRead}/>
-          );
-        })}
-      </MessagesList>
+      <MessagesList
+        messages={messages}
+        areFetching={areMessagesFetching}/>
 
       <ChatForm handleSubmit={
         ({images, files, text, audio}) => {
           const id = nanoid();
 
           dispatch(directsActions.addMessage({
-            chatId: chat.id,
+            partnerId: chat.partner.id,
             message: {
               id, chat, files, text,
               audio: audio && audio.url,
@@ -208,16 +194,14 @@ const DirectChat: React.FC = () => {
           }));
 
           dispatch(directsActions.fetchSendingMessage({
+            text, partnerId,
+            messageId: id,
+            parent: null,
             images: images && images.map(({id}) => id),
             files: files && files.map(({id}) => id),
-            audio: audio && audio.id, text,
+            audio: audio && audio.id,
             partner: chat.partner.id
-          }))
-            .then(unwrapResult)
-            .then(({message}) => {
-              dispatch(directsActions.updateMessage({id, message}));
-            })
-            .catch(() => null);
+          }));
         }}/>
     </Col>
   );
@@ -231,10 +215,3 @@ const Header = styled(Row).attrs(() => ({
   border-bottom: 2px solid ${({theme}) => theme.palette.divider};
 `;
 
-const MessagesList = styled(Col).attrs(() => ({
-  width: "100%",
-  padding: "1rem 5rem"
-}))`
-  flex: 1;
-  overflow: auto;
-`;

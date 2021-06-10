@@ -236,10 +236,19 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
     audio.mediaRecorder!.pause();
   };
 
+  const clearInputs = () => {
+    setForm({
+      text: "", audio: "",
+      files: [], images: []
+    });
+  };
+
   const handleAudioFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
     audio.mediaRecorder!.stop();
+
+    clearInputs();
   };
 
   const handleMessageFormSubmit = (event: React.FormEvent) => {
@@ -258,6 +267,8 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
       images: !!attachedImages.length ? attachedImages : null,
       files: !!attachedFiles.length ? attachedFiles : null
     });
+
+    clearInputs();
   };
 
   const handleFormSubmit = audio.isRecording ? handleAudioFormSubmit : handleMessageFormSubmit;

@@ -4,16 +4,14 @@ import {useParams} from "react-router-dom";
 import styled from "styled-components";
 import {nanoid} from "nanoid";
 
-import {authSelectors} from "@features/auth";
-import {ChatForm, ChatsList, Message, SystemMessage, useFetchingChats} from "@features/chats";
+import {ChatForm, ChatsList, MessagesList, useFetchingChats} from "@features/chats";
 import {groupsActions, groupsSelectors} from "@features/groups";
 import {ID} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
 import {useRootDispatch} from "@lib/store";
-import {H2, H4, Icon, Input, Text} from "@ui/atoms";
+import {H4, Icon, Input, Text} from "@ui/atoms";
 import {MainTemplate} from "@ui/templates";
 import {Avatar} from "@ui/molecules";
-import {unwrapResult} from "@reduxjs/toolkit";
 
 export const GroupPage = () => {
   const dispatch = useRootDispatch();
@@ -23,10 +21,9 @@ export const GroupPage = () => {
   const {groupId} = useParams<{groupId: ID}>();
 
   const chat = useSelector(groupsSelectors.chat(groupId));
-  const isChatFetching = useSelector(groupsSelectors.isChatFetching);
-
-  const messages = useSelector(groupsSelectors.messages);
-  const areMessagesFetching = useSelector(groupsSelectors.areMessagesFetching);
+  const messages = useSelector(groupsSelectors.messages(groupId));
+  const isChatFetching = useSelector(groupsSelectors.isChatFetching(groupId));
+  const areMessagesFetching = useSelector(groupsSelectors.areMessagesFetching(groupId));
 
   const toFetchMessages = !messages && !areMessagesFetching;
   const toFetchChat = !chat && !isChatFetching;
@@ -34,19 +31,18 @@ export const GroupPage = () => {
   useEffect(() => {
     if (toFetchChat) {
       dispatch(groupsActions.fetchChat({
-        chat: groupId
+        groupId, group: groupId
       }));
     }
 
     if (toFetchMessages) {
       dispatch(groupsActions.fetchMessages({
-        chat: groupId,
+        groupId,
+        group: groupId,
         skip: 0
       }));
     }
   }, []);
-
-  if (!chat) return null;
 
   return (
     <MainTemplate>
@@ -134,13 +130,14 @@ const GroupChat: React.FC = () => {
 
   const {groupId} = useParams<{groupId: ID}>();
 
-  const chat = useSelector(groupsSelectors.chat(groupId))!;
-  const isFetching = useSelector(groupsSelectors.isChatFetching);
-  const messages = useSelector(groupsSelectors.messages);
-  const areMessagesFetching = useSelector(groupsSelectors.areMessagesFetching);
-  const credentials = useSelector(authSelectors.credentials)!;
+  const chat = useSelector(groupsSelectors.chat(groupId));
+  const messages = useSelector(groupsSelectors.messages((groupId)));
+  const isFetching = useSelector(groupsSelectors.isChatFetching(groupId));
+  const areMessagesFetching = useSelector(groupsSelectors.areMessagesFetching((groupId)));
 
   if (isFetching) return <H4>Loading...</H4>;
+
+  if (!chat) return null;
 
   return (
     <Col width="100%" height="100%">
@@ -162,38 +159,15 @@ const GroupChat: React.FC = () => {
         </Row>
       </Header>
 
-      <MessagesList>
-        {areMessagesFetching && <H2>Loading...</H2>}
-
-        {messages && messages.map(({id, isSystem, text, sender, createdAt, isRead, images, audio, files}) => {
-          if (isSystem) return (
-            <SystemMessage
-              key={id}
-              text={text}/>
-          );
-
-          const isOwn = !!(sender && sender.id === credentials.id);
-
-          return (
-            <Message
-              key={id}
-              text={text}
-              images={images}
-              audio={audio}
-              files={files}
-              avatar={sender!.avatar}
-              date={new Date(createdAt)}
-              isOwn={isOwn}
-              isRead={isRead}/>
-          );
-        })}
-      </MessagesList>
+      <MessagesList
+        messages={messages}
+        areFetching={areMessagesFetching} />
 
       <ChatForm handleSubmit={({images, files, text, audio}) => {
         const id = nanoid();
 
         dispatch(groupsActions.addMessage({
-          chatId: chat.id,
+          groupId,
           message: {
             id, chat,
             files, audio: audio && audio.url,
@@ -208,16 +182,15 @@ const GroupChat: React.FC = () => {
         }));
 
         dispatch(groupsActions.fetchSendingMessage({
-          images: images && images.map(({id}) => id),
-          files: files && files.map(({id}) => id),
-          audio: audio && audio.id, text,
-          chat: chat.id
-        }))
-          .then(unwrapResult)
-          .then(({message}) => {
-            groupsActions.updateMessage({id, message});
-          })
-          .catch(() => null);
+          groupId,
+          messageId: id,
+          message: {
+            images: images && images.map(({id}) => id),
+            files: files && files.map(({id}) => id),
+            audio: audio && audio.id, text,
+            parent: null, group: chat.id
+          }
+        }));
       }}/>
     </Col>
   );
@@ -229,12 +202,4 @@ const Header = styled(Row).attrs(() => ({
   padding: "3rem 4.5rem"
 }))`
   border-bottom: 2px solid ${({theme}) => theme.palette.divider};
-`;
-
-const MessagesList = styled(Col).attrs(() => ({
-  width: "100%",
-  padding: "1rem 5rem"
-}))`
-  flex: 1;
-  overflow: auto;
 `;

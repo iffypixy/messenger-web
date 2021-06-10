@@ -20,34 +20,50 @@ export const fetchChats = createAsyncThunk<GetGroupChatsResponse, void>(`${type}
   return data;
 });
 
-export const fetchChat = createAsyncThunk<GetGroupChatResponse, GetGroupChatData>(`${type}/fetchChat`, async (args) => {
+export interface FetchChatPayload extends GetGroupChatResponse {
+}
+
+export interface FetchChatData extends GetGroupChatData {
+  groupId: ID;
+}
+
+export const fetchChat = createAsyncThunk<FetchChatPayload, FetchChatData>(`${type}/fetchChat`, async (args) => {
   const {data} = await groupChatsApi.getChat(args);
 
   return data;
 });
 
-export const fetchMessages = createAsyncThunk<GetGroupChatMessagesResponse, GetGroupChatMessagesData>(`${type}/fetchMessages`, async (args) => {
+export interface FetchMessagesPayload extends GetGroupChatMessagesResponse {
+}
+
+export interface FetchMessagesData extends GetGroupChatMessagesData {
+  groupId: ID;
+}
+
+export const fetchMessages = createAsyncThunk<FetchMessagesPayload, FetchMessagesData>(`${type}/fetchMessages`, async (args) => {
   const {data} = await groupChatsApi.getMessages(args);
 
   return data;
 });
 
-export const fetchSendingMessage = createAsyncThunk<SendGroupMessageResponse, SendGroupMessageData>(`${type}/fetchSendingMessage`, async (args) => {
-  const {data} = await groupChatsApi.sendMessage(args);
+export interface FetchSendingMessagePayload extends SendGroupMessageResponse {
+}
+
+export interface FetchSendingMessageData {
+  message: SendGroupMessageData;
+  groupId: ID;
+  messageId: ID;
+}
+
+export const fetchSendingMessage = createAsyncThunk<FetchSendingMessagePayload, FetchSendingMessageData>(`${type}/fetchSendingMessage`, async ({message}) => {
+  const {data} = await groupChatsApi.sendMessage(message);
 
   return data;
 });
 
-export interface AddGroupMessageData {
+export interface AddMessagePayload {
   message: GroupChatMessage;
-  chatId: ID;
+  groupId: ID;
 }
 
-export const addMessage = createAction<AddGroupMessageData>(`${type}/addMessage`);
-
-export interface UpdateGroupMessageData {
-  id: ID;
-  message: Partial<GroupChatMessage>;
-}
-
-export const updateMessage = createAction<UpdateGroupMessageData>(`${type}/updateMessage`);
+export const addMessage = createAction<AddMessagePayload>(`${type}/addMessage`);
