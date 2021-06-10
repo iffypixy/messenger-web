@@ -61,6 +61,13 @@ export const fetchSendingMessage = createAsyncThunk<FetchSendingMessagePayload, 
   return data;
 });
 
+export interface SetScrollPayload {
+  groupId: ID;
+  scroll: number;
+}
+
+export const setScroll = createAction<SetScrollPayload>(`${type}/setScroll`);
+
 export interface AddMessagePayload {
   message: GroupChatMessage;
   groupId: ID;

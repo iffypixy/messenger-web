@@ -64,6 +64,13 @@ export const fetchSendingMessage = createAsyncThunk<FetchSendingMessagePayload, 
     return data;
   });
 
+export interface SetScrollPayload {
+  partnerId: ID;
+  scroll: number;
+}
+
+export const setScroll = createAction<SetScrollPayload>(`${type}/setScroll`);
+
 export interface AddMessagePayload {
   partnerId: ID;
   message: DirectChatMessage;

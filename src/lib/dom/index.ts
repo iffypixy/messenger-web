@@ -1,1 +1,1 @@
-export {scrollDown, scrollToBottom} from "./scroll";
+export {scrollDown, scrollToBottom, getScrollDifference} from "./scroll";

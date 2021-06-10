@@ -1,14 +1,13 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 import styled from "styled-components";
 import {nanoid} from "nanoid";
 
 import {authSelectors} from "@features/auth";
-import {ChatsList, formatMessageDate, ChatForm, useFetchingChats, MessagesList} from "@features/chats";
-import {directsSelectors, directsActions} from "@features/directs";
+import {ChatsList, formatMessageDate, ChatForm, useFetchingChats} from "@features/chats";
+import {directsSelectors, directsActions, DirectMessagesList} from "@features/directs";
 import {Col, Row} from "@lib/layout";
-import {scrollToBottom} from "@lib/dom";
 import {ID} from "@lib/typings";
 import {useRootDispatch} from "@lib/store";
 import {H4, Icon, Input, Text} from "@ui/atoms";
@@ -133,19 +132,11 @@ const DirectChat: React.FC = () => {
 
   const {partnerId} = useParams<{partnerId: ID}>();
 
-  const listRef = useRef<HTMLDivElement | null>(null);
-
   const credentials = useSelector(authSelectors.credentials)!;
   const chat = useSelector(directsSelectors.chat(partnerId))!;
   const messages = useSelector(directsSelectors.messages(partnerId));
   const areMessagesFetching = useSelector(directsSelectors.areMessagesFetching(partnerId));
   const isFetching = useSelector(directsSelectors.isChatFetching(partnerId));
-
-  useEffect(() => {
-    if (areMessagesFetching || !listRef.current) return;
-
-    scrollToBottom(listRef.current);
-  }, [listRef.current, areMessagesFetching]);
 
   if (isFetching) return <H4>Loading...</H4>;
 
@@ -171,7 +162,7 @@ const DirectChat: React.FC = () => {
         </Row>
       </Header>
 
-      <MessagesList
+      <DirectMessagesList
         messages={messages}
         areFetching={areMessagesFetching}/>
 

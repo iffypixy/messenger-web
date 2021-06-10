@@ -5,7 +5,7 @@ import {DirectChatMessage, DirectChat, DirectChatsListItem} from "./lib/typings"
 import {
   AddMessagePayload, FetchChatData, FetchChatPayload,
   FetchMessagesData, FetchMessagesPayload, FetchSendingMessageData,
-  FetchSendingMessagePayload
+  FetchSendingMessagePayload, SetScrollPayload
 } from "./actions";
 import * as actions from "./actions";
 
@@ -18,6 +18,7 @@ interface DirectsState {
       data: DirectChat | null;
       isFetching: boolean;
       areMessagesFetching: boolean;
+      scroll: number;
     };
   };
 }
@@ -112,5 +113,13 @@ export const reducer = createReducer<DirectsState>({
 
     state.list = state.list && state.list.map((chat) => chat.partner.id === payload.partnerId ?
       ({...chat, lastMessage: payload.message}) : chat);
+  },
+
+  [actions.setScroll.type]: (state, {payload}: PayloadAction<SetScrollPayload>) => {
+    const chat = state.chats[payload.partnerId] || {};
+
+    state.chats[payload.partnerId] = {
+      ...chat, scroll: payload.scroll
+    };
   }
 });

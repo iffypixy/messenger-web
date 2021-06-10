@@ -28,3 +28,9 @@ export const messages = (partnerId: ID) => (state: RootState) => {
 
   return chat && chat.messages;
 };
+
+export const scroll = (partnerId: ID) => (state: RootState) => {
+  const chat = directsState(state).chats[partnerId] || null;
+
+  return chat && chat.scroll;
+};

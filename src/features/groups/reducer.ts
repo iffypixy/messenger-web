@@ -2,7 +2,14 @@ import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
 import {GetGroupChatsResponse} from "@api/group-chats.api";
 import {GroupChatMessage, GroupChat, GroupChatsListItem} from "./lib/typings";
-import {AddMessagePayload, FetchChatData, FetchChatPayload, FetchMessagesData, FetchMessagesPayload} from "./actions";
+import {
+  AddMessagePayload,
+  FetchChatData,
+  FetchChatPayload,
+  FetchMessagesData,
+  FetchMessagesPayload,
+  SetScrollPayload
+} from "./actions";
 import * as actions from "./actions";
 
 interface GroupsState {
@@ -14,6 +21,7 @@ interface GroupsState {
       data: GroupChat | null;
       isFetching: boolean;
       areMessagesFetching: boolean;
+      scroll: number;
     };
   };
 }
@@ -99,5 +107,13 @@ export const reducer = createReducer<GroupsState>({
 
     state.list = state.list && state.list.map((chat) => chat.id === payload.groupId ?
       ({...chat, lastMessage: payload.message}) : chat);
+  },
+
+  [actions.setScroll.type]: (state, {payload}: PayloadAction<SetScrollPayload>) => {
+    const chat = state.chats[payload.groupId] || {};
+
+    state.chats[payload.groupId] = {
+      ...chat, scroll: payload.scroll
+    };
   }
 });

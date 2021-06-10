@@ -4,8 +4,8 @@ import {useParams} from "react-router-dom";
 import styled from "styled-components";
 import {nanoid} from "nanoid";
 
-import {ChatForm, ChatsList, MessagesList, useFetchingChats} from "@features/chats";
-import {groupsActions, groupsSelectors} from "@features/groups";
+import {ChatForm, ChatsList, useFetchingChats} from "@features/chats";
+import {GroupMessagesList, groupsActions, groupsSelectors} from "@features/groups";
 import {ID} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
 import {useRootDispatch} from "@lib/store";
@@ -159,7 +159,7 @@ const GroupChat: React.FC = () => {
         </Row>
       </Header>
 
-      <MessagesList
+      <GroupMessagesList
         messages={messages}
         areFetching={areMessagesFetching} />
 
