@@ -3,6 +3,7 @@ import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 import styled from "styled-components";
 import {nanoid} from "nanoid";
+import {unwrapResult} from "@reduxjs/toolkit";
 
 import {authSelectors} from "@features/auth";
 import {ChatsList, formatMessageDate, ChatForm, useFetchingChats} from "@features/chats";
@@ -25,9 +26,10 @@ export const DirectPage = () => {
   const isChatFetching = useSelector(directsSelectors.isChatFetching(partnerId));
   const messages = useSelector(directsSelectors.messages(partnerId));
   const areMessagesFetching = useSelector(directsSelectors.areMessagesFetching(partnerId));
+  const areMessagesFetched = useSelector(directsSelectors.areMessagesFetched(partnerId));
 
+  const toFetchMessages = !areMessagesFetched || (!messages && !areMessagesFetching);
   const toFetchChat = !chat && !isChatFetching;
-  const toFetchMessages = !messages && !areMessagesFetching;
 
   useEffect(() => {
     if (toFetchChat) {
@@ -41,7 +43,7 @@ export const DirectPage = () => {
       dispatch(directsActions.fetchMessages({
         partnerId,
         partner: partnerId,
-        skip: 0
+        skip: messages ? messages.length : 0
       }));
     }
   }, []);
@@ -171,7 +173,8 @@ const DirectChat: React.FC = () => {
           const id = nanoid();
 
           dispatch(directsActions.addMessage({
-            partnerId: chat.partner.id,
+            partnerId,
+            isOwn: true,
             message: {
               id, chat, files, text,
               audio: audio && audio.url,
@@ -185,14 +188,19 @@ const DirectChat: React.FC = () => {
           }));
 
           dispatch(directsActions.fetchSendingMessage({
-            text, partnerId,
-            messageId: id,
-            parent: null,
+            text, parent: null,
             images: images && images.map(({id}) => id),
             files: files && files.map(({id}) => id),
             audio: audio && audio.id,
             partner: chat.partner.id
-          }));
+          })).then(unwrapResult)
+            .then(({message}) => {
+              dispatch(directsActions.updateMessage({
+                partnerId,
+                messageId: id,
+                partial: message
+              }));
+            });
         }}/>
     </Col>
   );

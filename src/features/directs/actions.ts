@@ -2,13 +2,18 @@ import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 
 import {
   directChatsApi,
-  GetDirectChatData, GetDirectChatMessagesData,
+  GetDirectChatData,
+  GetDirectChatMessagesData,
   GetDirectChatMessagesResponse,
   GetDirectChatResponse,
-  GetDirectChatsResponse, SendDirectMessageData, SendDirectMessageResponse
+  GetDirectChatsResponse,
+  ReadDirectMessageData,
+  ReadDirectMessageResponse,
+  SendDirectMessageData,
+  SendDirectMessageResponse
 } from "@api/direct-chats.api";
-import {DirectChatMessage} from "./lib/typings";
 import {ID} from "@lib/typings";
+import {DirectChatMessage} from "./lib/typings";
 
 const type = "directs";
 
@@ -53,13 +58,24 @@ export interface FetchSendingMessagePayload extends SendDirectMessageResponse {
 }
 
 export interface FetchSendingMessageData extends SendDirectMessageData {
-  messageId: ID;
-  partnerId: ID;
 }
 
 export const fetchSendingMessage = createAsyncThunk<FetchSendingMessagePayload, FetchSendingMessageData>(`${type}/fetchSendingMessage`,
-  async ({parent, images, partner, files, audio, text}) => {
-    const {data} = await directChatsApi.sendMessage({parent, images, files, audio, partner, text});
+  async (args) => {
+    const {data} = await directChatsApi.sendMessage(args);
+
+    return data;
+  });
+
+export interface FetchReadingMessageData extends ReadDirectMessageData {
+}
+
+export interface FetchReadingMessagePayload extends ReadDirectMessageResponse {
+}
+
+export const fetchReadingMessage = createAsyncThunk<FetchReadingMessagePayload, FetchReadingMessageData>(`${type}/fetchReadingMessage`,
+  async (args) => {
+    const {data} = await directChatsApi.readMessage(args);
 
     return data;
   });
@@ -74,6 +90,29 @@ export const setScroll = createAction<SetScrollPayload>(`${type}/setScroll`);
 export interface AddMessagePayload {
   partnerId: ID;
   message: DirectChatMessage;
+  isOwn: boolean;
 }
 
 export const addMessage = createAction<AddMessagePayload>(`${type}/addMessage`);
+
+export interface UpdateMessagePayload {
+  partnerId: ID;
+  messageId: ID;
+  partial: Partial<DirectChatMessage>;
+}
+
+export const updateMessage = createAction<UpdateMessagePayload>(`${type}/updateMessage`);
+
+export interface ReadMessagePayload {
+  partnerId: ID;
+  messageId: ID;
+}
+
+export const readMessage = createAction<ReadMessagePayload>(`${type}/readMessage`);
+
+export interface SetNumberOfUnreadMessagesPayload {
+  partnerId: ID;
+  number: number;
+}
+
+export const setNumberOfUnreadMessages = createAction<SetNumberOfUnreadMessagesPayload>(`${type}/setNumberOfUnreadMessages`);

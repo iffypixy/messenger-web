@@ -8,7 +8,7 @@ import {
   GetGroupChatData,
   GetGroupChatMessagesData,
   GetGroupChatMessagesResponse,
-  SendGroupMessageResponse, SendGroupMessageData
+  SendGroupMessageResponse, SendGroupMessageData, ReadGroupMessageData, ReadGroupMessageResponse
 } from "@api/group-chats.api";
 import {GroupChatMessage} from "./lib/typings";
 
@@ -49,17 +49,27 @@ export const fetchMessages = createAsyncThunk<FetchMessagesPayload, FetchMessage
 export interface FetchSendingMessagePayload extends SendGroupMessageResponse {
 }
 
-export interface FetchSendingMessageData {
-  message: SendGroupMessageData;
-  groupId: ID;
-  messageId: ID;
+export interface FetchSendingMessageData extends SendGroupMessageData {
 }
 
-export const fetchSendingMessage = createAsyncThunk<FetchSendingMessagePayload, FetchSendingMessageData>(`${type}/fetchSendingMessage`, async ({message}) => {
-  const {data} = await groupChatsApi.sendMessage(message);
+export const fetchSendingMessage = createAsyncThunk<FetchSendingMessagePayload, FetchSendingMessageData>(`${type}/fetchSendingMessage`, async (args) => {
+  const {data} = await groupChatsApi.sendMessage(args);
 
   return data;
 });
+
+export interface FetchReadingMessageData extends ReadGroupMessageData {
+}
+
+export interface FetchReadingMessagePayload extends ReadGroupMessageResponse {
+}
+
+export const fetchReadingMessage = createAsyncThunk<FetchReadingMessagePayload, FetchReadingMessageData>(`${type}/fetchReadingMessage`,
+  async (args) => {
+    const {data} = await groupChatsApi.readMessage(args);
+
+    return data;
+  });
 
 export interface SetScrollPayload {
   groupId: ID;
@@ -71,6 +81,29 @@ export const setScroll = createAction<SetScrollPayload>(`${type}/setScroll`);
 export interface AddMessagePayload {
   message: GroupChatMessage;
   groupId: ID;
+  isOwn: boolean;
 }
 
 export const addMessage = createAction<AddMessagePayload>(`${type}/addMessage`);
+
+export interface UpdateMessagePayload {
+  groupId: ID;
+  messageId: ID;
+  partial: Partial<GroupChatMessage>;
+}
+
+export const updateMessage = createAction<UpdateMessagePayload>(`${type}/updateMessage`);
+
+export interface ReadMessagePayload {
+  groupId: ID;
+  messageId: ID;
+}
+
+export const readMessage = createAction<ReadMessagePayload>(`${type}/readMessage`);
+
+export interface SetNumberOfUnreadMessagesPayload {
+  groupId: ID;
+  number: number;
+}
+
+export const setNumberOfUnreadMessages = createAction<SetNumberOfUnreadMessagesPayload>(`${type}/setNumberOfUnreadMessages`);

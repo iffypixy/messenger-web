@@ -1,9 +1,11 @@
 import {useEffect} from "react";
 import {useSelector} from "react-redux";
+import {unwrapResult} from "@reduxjs/toolkit";
 
 import {directsActions, directsSelectors} from "@features/directs";
 import {groupsActions, groupsSelectors} from "@features/groups";
 import {useRootDispatch} from "@lib/store";
+import {socket} from "@lib/websockets";
 
 export const useFetchingChats = () => {
   const dispatch = useRootDispatch();
@@ -14,11 +16,22 @@ export const useFetchingChats = () => {
   const groups = useSelector(groupsSelectors.chats);
   const areGroupsFetching = useSelector(groupsSelectors.areChatsFetching);
 
-  const toFetchDirect = !directs && !areDirectsFetching;
-  const toFetchGroup = !groups && !areGroupsFetching;
+  const toFetchDirects = !directs && !areDirectsFetching;
+  const toFetchGroups = !groups && !areGroupsFetching;
 
   useEffect(() => {
-    if (toFetchDirect) dispatch(directsActions.fetchChats());
-    if (toFetchGroup) dispatch(groupsActions.fetchChats());
+    if (toFetchDirects) {
+      dispatch(directsActions.fetchChats());
+    }
+
+    if (toFetchGroups) {
+      dispatch(groupsActions.fetchChats())
+        .then(unwrapResult)
+        .then(({chats}) => {
+          socket.emit("GROUP_CHAT:SUBSCRIBE", {
+            groups: chats.map((chat) => chat.id)
+          });
+        });
+    }
   }, []);
 };

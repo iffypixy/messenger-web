@@ -1,1 +1,2 @@
-export {scrollDown, scrollToBottom, getScrollDifference} from "./scroll";
+export {scrollToBottom, getBottomOffset, getTopOffset} from "./scroll";
+export {isElementVisible} from "./visibility";

@@ -3,14 +3,14 @@ import styled, {css} from "styled-components";
 import format from "date-fns/format";
 import prettyBytes from "pretty-bytes";
 
-import {File} from "@lib/typings";
+import {File, ID} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
 import {formatDuration} from "@lib/formatting";
 import {Icon, Text} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
-import {scrollDown} from "@lib/dom";
 
 interface MessageProps {
+  id: ID;
   isOwn: boolean;
   isRead: boolean;
   avatar: string;
@@ -28,7 +28,7 @@ interface AudioState {
   time: number;
 }
 
-export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, date, images, files, audio: audioSrc}) => {
+export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text, date, images, files, audio: audioSrc}) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messageRef = useRef<HTMLDivElement | null>(null);
 
@@ -39,8 +39,8 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
     time: 0
   });
 
-  const handleImageLoad = (event: React.SyntheticEvent<HTMLImageElement>) => {
-    scrollDown(messageRef.current!.parentElement!, event.currentTarget.height);
+  const handleImageLoad = ({currentTarget}: React.SyntheticEvent<HTMLImageElement>) => {
+    messageRef.current!.parentElement!.scroll(0, currentTarget.height);
   };
 
   const handleAudioDurationChange = ({currentTarget}: React.ChangeEvent<HTMLAudioElement>) => {
@@ -97,7 +97,12 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
   };
 
   return (
-    <Wrapper reverse={isOwn} ref={messageRef}>
+    <Wrapper
+      reverse={isOwn}
+      ref={messageRef}
+      data-id={id}
+      data-is-read={isRead}
+      data-is-own={isOwn}>
       <Block reverse={isOwn} isOwn={isOwn}>
         <Avatar url={avatar} small/>
 
@@ -156,7 +161,10 @@ export const Message: React.FC<MessageProps> = ({isOwn, isRead, avatar, text, da
             </Col>
 
             <Row width="100%" gap="1rem" align="center" justify="flex-end">
-              {isOwn && <Icon name={isRead ? "double-check" : "check"}/>}
+              {isOwn && <Icon
+                width="1.5rem"
+                height="1.5rem"
+                name={isRead ? "double-check" : "check"}/>}
               <Text small>{format(date, "HH:mm")}</Text>
             </Row>
           </Bubble>
@@ -208,7 +216,7 @@ interface SystemMessageProps {
 }
 
 export const SystemMessage: React.FC<SystemMessageProps> = ({text}) => (
-  <Wrapper justify="center">
+  <Wrapper justify="center" data-is-system={true}>
     <Text>{text}</Text>
   </Wrapper>
 );

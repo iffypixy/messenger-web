@@ -1,11 +1,11 @@
 import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
-import {GetDirectChatsResponse,} from "@api/direct-chats.api";
+import {GetDirectChatsResponse} from "@api/direct-chats.api";
 import {DirectChatMessage, DirectChat, DirectChatsListItem} from "./lib/typings";
 import {
   AddMessagePayload, FetchChatData, FetchChatPayload,
-  FetchMessagesData, FetchMessagesPayload, FetchSendingMessageData,
-  FetchSendingMessagePayload, SetScrollPayload
+  FetchMessagesData, FetchMessagesPayload, ReadMessagePayload, SetNumberOfUnreadMessagesPayload,
+  SetScrollPayload, UpdateMessagePayload
 } from "./actions";
 import * as actions from "./actions";
 
@@ -18,6 +18,8 @@ interface DirectsState {
       data: DirectChat | null;
       isFetching: boolean;
       areMessagesFetching: boolean;
+      areMessagesFetched: boolean;
+      areMessagesLeftToFetch: boolean;
       scroll: number;
     };
   };
@@ -81,8 +83,10 @@ export const reducer = createReducer<DirectsState>({
     state.chats[arg.partnerId] = {
       ...chat,
       areMessagesFetching: false,
-      messages: chat.messages ?
-        [...payload.messages, ...chat.messages] : payload.messages
+      areMessagesFetched: true,
+      areMessagesLeftToFetch: !!payload.messages.length,
+      messages: chat.messages ? [...payload.messages, ...chat.messages]
+        : payload.messages
     };
   },
 
@@ -94,25 +98,30 @@ export const reducer = createReducer<DirectsState>({
     };
   },
 
-  [actions.fetchSendingMessage.fulfilled.type]: (state, {payload, meta: {arg}}: PayloadAction<FetchSendingMessagePayload, string, {arg: FetchSendingMessageData}>) => {
-    const chat = state.chats[arg.partnerId] || {};
-
-    state.chats[arg.partnerId] = {
-      ...chat, messages: chat.messages &&
-        chat.messages.map((msg) => msg.id === arg.messageId ? payload.message : msg)
-    };
-  },
-
   [actions.addMessage.type]: (state, {payload}: PayloadAction<AddMessagePayload>) => {
     const chat = state.chats[payload.partnerId] || {};
 
     state.chats[payload.partnerId] = {
-      ...chat, messages: chat.messages ?
-        [...chat.messages, payload.message] : [payload.message]
+      ...chat, messages: chat.messages ? [...chat.messages, payload.message]
+        : [payload.message]
     };
 
-    state.list = state.list && state.list.map((chat) => chat.partner.id === payload.partnerId ?
-      ({...chat, lastMessage: payload.message}) : chat);
+    state.list = state.list && state.list.map((chat) => {
+      const isCurrent = chat.partner.id === payload.partnerId;
+
+      if (isCurrent) {
+        const numberOfUnreadMessages = payload.isOwn ? chat.numberOfUnreadMessages :
+          (chat.numberOfUnreadMessages ? chat.numberOfUnreadMessages + 1 : 1);
+
+        return {
+          ...chat,
+          lastMessage: payload.message,
+          numberOfUnreadMessages
+        };
+      }
+
+      return chat;
+    });
   },
 
   [actions.setScroll.type]: (state, {payload}: PayloadAction<SetScrollPayload>) => {
@@ -121,5 +130,62 @@ export const reducer = createReducer<DirectsState>({
     state.chats[payload.partnerId] = {
       ...chat, scroll: payload.scroll
     };
+  },
+
+  [actions.updateMessage.type]: (state, {payload}: PayloadAction<UpdateMessagePayload>) => {
+    const chat = state.chats[payload.partnerId] || {};
+
+    state.chats[payload.partnerId] = {
+      ...chat, messages: chat.messages &&
+        chat.messages.map((message) => message.id === payload.messageId ?
+          ({...message, ...payload.partial}) : message)
+    };
+
+    state.list = state.list && state.list.map((chat) => {
+      const isCurrent = chat.partner.id === payload.partnerId &&
+        (chat.lastMessage && chat.lastMessage.id) === payload.messageId;
+
+      if (isCurrent) return {
+        ...chat,
+        lastMessage: {
+          ...chat.lastMessage!,
+          ...payload.partial
+        }
+      };
+
+      return chat;
+    });
+  },
+
+  [actions.readMessage.type]: (state, {payload}: PayloadAction<ReadMessagePayload>) => {
+    const chat = state.chats[payload.partnerId] || {};
+
+    const idx = chat.messages && chat.messages
+      .findIndex((message) => message.id === payload.messageId);
+
+    state.chats[payload.partnerId] = {
+      ...chat,
+      messages: chat.messages && chat.messages
+        .map((message, index) => idx >= index ? ({...message, isRead: true}) : message)
+    };
+
+    state.list = state.list && state.list.map((chat) => {
+      const isCurrent = chat.partner.id === payload.partnerId &&
+        (chat.lastMessage && chat.lastMessage.id) === payload.messageId;
+
+      if (isCurrent) return ({
+        ...chat, lastMessage: {
+          ...chat.lastMessage!, isRead: true
+        }
+      });
+
+      return chat;
+    });
+  },
+
+  [actions.setNumberOfUnreadMessages.type]: (state, {payload}: PayloadAction<SetNumberOfUnreadMessagesPayload>) => {
+    state.list = state.list && state.list
+      .map((chat) => chat.partner.id === payload.partnerId ?
+        ({...chat, numberOfUnreadMessages: payload.number}) : chat);
   }
 });

@@ -34,3 +34,15 @@ export const scroll = (partnerId: ID) => (state: RootState) => {
 
   return chat && chat.scroll;
 };
+
+export const areMessagesFetched = (partnerId: ID) => (state: RootState) => {
+  const chat = directsState(state).chats[partnerId];
+
+  return !!chat && !!chat.areMessagesFetched;
+};
+
+export const areMessagesLeftToFetch = (partnerId: ID) => (state: RootState) => {
+  const chat = directsState(state).chats[partnerId];
+
+  return !!chat && !!chat.areMessagesLeftToFetch;
+};

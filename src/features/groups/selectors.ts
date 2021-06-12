@@ -34,3 +34,15 @@ export const scroll = (groupId: ID) => (state: RootState) => {
 
   return chat && chat.scroll;
 };
+
+export const areMessagesFetched = (groupId: ID) => (state: RootState) => {
+  const chat = groupsSelector(state).chats[groupId];
+
+  return !!chat && !!chat.areMessagesFetched;
+};
+
+export const areMessagesLeftToFetch = (groupId: ID) => (state: RootState) => {
+  const chat = groupsSelector(state).chats[groupId];
+
+  return !!chat && !!chat.areMessagesLeftToFetch;
+};

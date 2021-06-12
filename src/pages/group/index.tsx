@@ -3,6 +3,7 @@ import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 import styled from "styled-components";
 import {nanoid} from "nanoid";
+import {unwrapResult} from "@reduxjs/toolkit";
 
 import {ChatForm, ChatsList, useFetchingChats} from "@features/chats";
 import {GroupMessagesList, groupsActions, groupsSelectors} from "@features/groups";
@@ -24,8 +25,9 @@ export const GroupPage = () => {
   const messages = useSelector(groupsSelectors.messages(groupId));
   const isChatFetching = useSelector(groupsSelectors.isChatFetching(groupId));
   const areMessagesFetching = useSelector(groupsSelectors.areMessagesFetching(groupId));
+  const areMessagesFetched = useSelector(groupsSelectors.areMessagesFetched(groupId));
 
-  const toFetchMessages = !messages && !areMessagesFetching;
+  const toFetchMessages = !areMessagesFetched || (!messages && !areMessagesFetching);
   const toFetchChat = !chat && !isChatFetching;
 
   useEffect(() => {
@@ -39,7 +41,7 @@ export const GroupPage = () => {
       dispatch(groupsActions.fetchMessages({
         groupId,
         group: groupId,
-        skip: 0
+        skip: messages ? messages.length : 0
       }));
     }
   }, []);
@@ -168,6 +170,7 @@ const GroupChat: React.FC = () => {
 
         dispatch(groupsActions.addMessage({
           groupId,
+          isOwn: true,
           message: {
             id, chat,
             files, audio: audio && audio.url,
@@ -182,15 +185,19 @@ const GroupChat: React.FC = () => {
         }));
 
         dispatch(groupsActions.fetchSendingMessage({
-          groupId,
-          messageId: id,
-          message: {
             images: images && images.map(({id}) => id),
             files: files && files.map(({id}) => id),
             audio: audio && audio.id, text,
             parent: null, group: chat.id
-          }
-        }));
+          }))
+          .then(unwrapResult)
+          .then(({message}) => {
+            dispatch(groupsActions.updateMessage({
+              groupId,
+              messageId: id,
+              partial: message
+            }));
+          });
       }}/>
     </Col>
   );

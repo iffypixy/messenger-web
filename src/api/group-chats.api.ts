@@ -1,4 +1,4 @@
-import {GroupChat, GroupChatMessage, GroupChatsListItem} from "@features/groups";
+import {GroupChat, GroupChatMessage, GroupChatsListItem, GroupChatDetails} from "@features/groups";
 import {ID} from "@lib/typings";
 import {socket} from "@lib/websockets";
 
@@ -52,11 +52,25 @@ export interface SendGroupMessageResponse {
 }
 
 const sendMessage = (data: SendGroupMessageData): Promise<{data: SendGroupMessageResponse}> => new Promise((resolve) => {
-  socket.emit("GROUP_CHAT:CREATE_MESSAGE", data, (data: SendGroupMessageResponse) => resolve({data}))
+  socket.emit("GROUP_CHAT:CREATE_MESSAGE", data, (data: SendGroupMessageResponse) => resolve({data}));
+});
+
+export interface ReadGroupMessageData {
+  group: ID;
+  message: ID;
+}
+
+export interface ReadGroupMessageResponse {
+  message: GroupChatMessage;
+  chat: GroupChatDetails;
+}
+
+const readMessage = (data: ReadGroupMessageData): Promise<{data: ReadGroupMessageResponse}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:READ_MESSAGE", data, (data: ReadGroupMessageResponse) => resolve({data}));
 });
 
 export const groupChatsApi = {
   getChats, getChat, getMessages,
-  sendMessage
+  sendMessage, readMessage
 };
 

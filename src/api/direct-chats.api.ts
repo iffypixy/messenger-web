@@ -1,4 +1,4 @@
-import {DirectChatsListItem, DirectChat, DirectChatMessage} from "@features/directs";
+import {DirectChatsListItem, DirectChat, DirectChatMessage, DirectChatDetails} from "@features/directs";
 import {ID} from "@lib/typings";
 import {socket} from "@lib/websockets";
 
@@ -55,7 +55,21 @@ const sendMessage = (data: SendDirectMessageData): Promise<{data: SendDirectMess
   socket.emit("DIRECT_CHAT:CREATE_MESSAGE", data, (data: SendDirectMessageResponse) => resolve({data}))
 });
 
+export interface ReadDirectMessageData {
+  partner: ID;
+  message: ID;
+}
+
+export interface ReadDirectMessageResponse {
+  message: DirectChatMessage;
+  chat: DirectChatDetails;
+}
+
+const readMessage = (data: ReadDirectMessageData): Promise<{data: ReadDirectMessageResponse}> => new Promise((resolve) => {
+  socket.emit("DIRECT_CHAT:READ_MESSAGE", data, (data: ReadDirectMessageResponse) => resolve({data}));
+});
+
 export const directChatsApi = {
   getChats, getChat, getMessages,
-  sendMessage
+  sendMessage, readMessage
 };

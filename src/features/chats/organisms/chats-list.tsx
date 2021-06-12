@@ -35,11 +35,11 @@ export const ChatsList: React.FC = () => {
     const chat = mapDirectToChat(direct);
 
     const lastMessage = direct.lastMessage;
-    const isOwner = (lastMessage && lastMessage.sender) && (lastMessage.sender.id === credentials.id);
+    const isOwn = (lastMessage && lastMessage.sender) && (lastMessage.sender.id === credentials.id);
 
-    const prefix = isOwner ? "You: " : "";
+    const prefix = isOwn ? "You: " : "";
 
-    chat.message = `${prefix}${chat.message}`;
+    chat.message = lastMessage && `${prefix}${chat.message}`;
 
     return chat;
   }));
@@ -48,11 +48,11 @@ export const ChatsList: React.FC = () => {
     const chat = mapGroupToChat(group);
 
     const lastMessage = group.lastMessage;
-    const isOwner = (lastMessage && lastMessage.sender) && (lastMessage.sender.id === credentials.id);
+    const isOwn = (lastMessage && lastMessage.sender) && (lastMessage.sender.id === credentials.id);
 
-    const prefix = isOwner ? "You: " : "";
+    const prefix = isOwn ? "You: " : "";
 
-    chat.message = `${prefix}${chat.message}`;
+    chat.message = lastMessage && `${prefix}${chat.message}`;
 
     return chat;
   }));
@@ -96,7 +96,7 @@ const ListItem: React.FC<ListItemProps> = ({avatar, name, message, date, unreadM
 
         <Row width="100%" justify="space-between" align="center">
           {message && <Message>{message}</Message>}
-          <UnreadMessages>{unreadMessages}</UnreadMessages>
+          {!!unreadMessages ? <UnreadMessages>{unreadMessages}</UnreadMessages> : null}
         </Row>
       </Col>
     </Wrapper>
@@ -127,5 +127,6 @@ const Message = styled(Text).attrs(() => ({
 `;
 
 const UnreadMessages = styled(Circle)`
+  font-size: 1rem;
   margin-left: 1rem;
 `;
