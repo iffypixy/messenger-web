@@ -40,7 +40,9 @@ export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text
   });
 
   const handleImageLoad = ({currentTarget}: React.SyntheticEvent<HTMLImageElement>) => {
-    messageRef.current!.parentElement!.scroll(0, currentTarget.height);
+    const parent = messageRef.current!.parentElement!;
+
+    parent.scroll(0, parent.scrollTop + currentTarget.clientHeight);
   };
 
   const handleAudioDurationChange = ({currentTarget}: React.ChangeEvent<HTMLAudioElement>) => {
