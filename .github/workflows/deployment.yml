@@ -13,7 +13,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x, 14.x, 16.x]
+        node-version: [12.x]
         
     steps:
     - uses: actions/checkout@v2
@@ -22,13 +22,11 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
         
     - run: set -eu
     - run: mkdir "$HOME/.ssh"
     - run: echo "${{ secrets.key }}" > "$HOME/.ssh/key"
     - run: chmod 600 "$HOME/.ssh/key"
-        
-    - run: npm ci
+    - run: npm install
     - run: npm run build 
     - run: cd build && rsync -e "ssh -i $HOME/.ssh/key -o StrictHostKeyChecking=no" --archive --compress --delete . ansatjr@157.230.97.249:/var/www/ansatjr.xyz/html/
