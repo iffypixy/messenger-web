@@ -1,44 +1,42 @@
 import {GroupChat, GroupChatMessage, GroupChatsListItem, GroupChatDetails} from "@features/groups";
 import {ID} from "@lib/typings";
 import {socket} from "@lib/websockets";
+import {AttachedFile, AttachedAudio, AttachedImage} from "@features/chats";
 
-export interface GetGroupChatsResponse {
+export interface GetChatsResponse {
   chats: GroupChatsListItem[];
 }
 
-const getChats = (): Promise<{data: GetGroupChatsResponse}> =>
-  new Promise((resolve) => {
-    socket.emit("GROUP_CHAT:GET_CHATS", null, (data: GetGroupChatsResponse) => resolve({data}));
-  });
+const getChats = (): Promise<{data: GetChatsResponse}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:GET_CHATS", null, (data: GetChatsResponse) => resolve({data}));
+});
 
-export interface GetGroupChatData {
+export interface GetChatData {
   group: ID;
 }
 
-export interface GetGroupChatResponse {
+export interface GetChatResponse {
   chat: GroupChat;
 }
 
-const getChat = (data: GetGroupChatData): Promise<{data: GetGroupChatResponse}> =>
-  new Promise((resolve) => {
-    socket.emit("GROUP_CHAT:GET_CHAT", data, (data: GetGroupChatResponse) => resolve({data}));
-  });
+const getChat = (data: GetChatData): Promise<{data: GetChatResponse}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:GET_CHAT", data, (data: GetChatResponse) => resolve({data}));
+});
 
-export interface GetGroupChatMessagesData {
+export interface GetChatMessagesData {
   group: ID;
   skip?: number;
 }
 
-export interface GetGroupChatMessagesResponse {
+export interface GetChatMessagesResponse {
   messages: GroupChatMessage[];
 }
 
-const getMessages = (data: GetGroupChatMessagesData): Promise<{data: GetGroupChatMessagesResponse}> =>
-  new Promise((resolve) => {
-    socket.emit("GROUP_CHAT:GET_MESSAGES", data, (data: GetGroupChatMessagesResponse) => resolve({data}));
-  });
+const getMessages = (data: GetChatMessagesData): Promise<{data: GetChatMessagesResponse}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:GET_MESSAGES", data, (data: GetChatMessagesResponse) => resolve({data}));
+});
 
-export interface SendGroupMessageData {
+export interface SendMessageData {
   text?: string | null;
   audio?: ID | null;
   images?: ID[] | null;
@@ -47,30 +45,70 @@ export interface SendGroupMessageData {
   group: ID;
 }
 
-export interface SendGroupMessageResponse {
+export interface SendMessageResponse {
   message: GroupChatMessage;
 }
 
-const sendMessage = (data: SendGroupMessageData): Promise<{data: SendGroupMessageResponse}> => new Promise((resolve) => {
-  socket.emit("GROUP_CHAT:CREATE_MESSAGE", data, (data: SendGroupMessageResponse) => resolve({data}));
+const sendMessage = (data: SendMessageData): Promise<{data: SendMessageResponse}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:CREATE_MESSAGE", data, (data: SendMessageResponse) => resolve({data}));
 });
 
-export interface ReadGroupMessageData {
+export interface ReadMessageData {
   group: ID;
   message: ID;
 }
 
-export interface ReadGroupMessageResponse {
+export interface ReadMessageResponse {
   message: GroupChatMessage;
   chat: GroupChatDetails;
 }
 
-const readMessage = (data: ReadGroupMessageData): Promise<{data: ReadGroupMessageResponse}> => new Promise((resolve) => {
-  socket.emit("GROUP_CHAT:READ_MESSAGE", data, (data: ReadGroupMessageResponse) => resolve({data}));
+const readMessage = (data: ReadMessageData): Promise<{data: ReadMessageResponse}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:READ_MESSAGE", data, (data: ReadMessageResponse) => resolve({data}));
+});
+
+export interface GetAudiosData {
+  group: ID;
+  skip?: number;
+}
+
+export interface GetAudiosResponse {
+  audios: AttachedAudio[];
+}
+
+const getAudios = (data: GetAudiosData): Promise<{data: GetAudiosResponse}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:GET_AUDIOS", data, (data: GetAudiosResponse) => resolve({data}));
+});
+
+export interface GetImagesData {
+  group: ID;
+  skip?: number;
+}
+
+export interface GetImagesResponse {
+  images: AttachedImage[];
+}
+
+const getImages = (data: GetImagesData): Promise<{data: GetImagesResponse}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:GET_IMAGES", data, (data: GetImagesResponse) => resolve({data}));
+});
+
+export interface GetFilesData {
+  group: ID;
+  skip?: number;
+}
+
+export interface GetFilesResponse {
+  files: AttachedFile[];
+}
+
+const getFiles = (data: GetFilesData): Promise<{data: GetFilesResponse}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:GET_FILES", data, (data: GetFilesResponse) => resolve({data}));
 });
 
 export const groupChatsApi = {
   getChats, getChat, getMessages,
-  sendMessage, readMessage
+  sendMessage, readMessage, getAudios,
+  getImages, getFiles
 };
 

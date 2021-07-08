@@ -14,7 +14,7 @@ export interface LoginResponse {
 }
 
 const login = (data: LoginData): AxiosPromise<LoginResponse> => request({
-    url: "/v1/api/auth/login",
+    url: "/auth/login",
     method: "POST", data
 });
 
@@ -29,7 +29,7 @@ export interface RegisterResponse {
 }
 
 const register = (data: RegisterData): AxiosPromise<RegisterResponse> => request({
-    url: "/v1/api/auth/register",
+    url: "/auth/register",
     method: "POST", data
 });
 
@@ -38,7 +38,7 @@ export interface GetCredentialsResponse {
 }
 
 const getCredentials = (): AxiosPromise<GetCredentialsResponse> => request({
-    url: "/v1/api/auth/credentials",
+    url: "/auth/credentials",
     method: "GET"
 });
 
@@ -47,7 +47,7 @@ interface RefreshTokensData {
 }
 
 const refreshTokens = (data: RefreshTokensData): AxiosPromise<void> => request({
-    url: "/v1/api/auth/refresh-tokens",
+    url: "/auth/refresh-tokens",
     method: "POST", data
 });
 

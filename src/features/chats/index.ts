@@ -1,5 +1,7 @@
-export {ChatsList, Message, SystemMessage, ChatForm, ChatEventsListeners} from "./organisms";
+export {ChatsList, Message, SystemMessage, ChatForm, ChatWebsockets, ChatCreationModal} from "./organisms";
 export {formatMessageDate} from "./lib/formatting";
-export type {ChatsListItem, UploadingFile} from "./lib/typings";
+export type {ChatsListItem, UploadingFile, AttachedAudio, AttachedFile, AttachedImage, AttachmentType} from "./lib/typings";
 export {useFetchingChats} from "./lib/fetching";
-export {CHAT_OFFSET, BOTTOM_OFFSET} from "./lib/scrolling";
+export {reducer as chatsReducer} from "./reducer";
+export * as chatsActions from "./actions";
+export * as chatsSelectors from "./selectors";

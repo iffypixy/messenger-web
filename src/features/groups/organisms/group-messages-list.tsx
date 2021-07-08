@@ -4,12 +4,12 @@ import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 
 import {authSelectors} from "@features/auth";
-import {Message, SystemMessage, CHAT_OFFSET, BOTTOM_OFFSET} from "@features/chats";
+import {Message, SystemMessage} from "@features/chats";
 import {Col} from "@lib/layout";
 import {ID} from "@lib/typings";
 import {useRootDispatch} from "@lib/store";
 import {isEmpty} from "@lib/utils";
-import {getTopOffset, getBottomOffset, isElementVisible, scrollToBottom} from "@lib/dom";
+import {isElementVisible, scrollToBottom, isAtBottom, isAtTop, INFINITE_SCROLL} from "@lib/dom";
 import {H2} from "@ui/atoms";
 import {GroupChatMessage} from "../lib/typings";
 import * as actions from "../actions";
@@ -53,10 +53,7 @@ export const GroupMessagesList: React.FC<GroupMessagesListProps> = ({messages, a
 
     const isOwn = ((!!last.sender && last.sender.id) === credentials.id);
 
-    const isAtTheBottom = getBottomOffset(list) <= CHAT_OFFSET +
-      list.children[list.children.length - 1].clientHeight;
-
-    if (isOwn || isAtTheBottom) scrollToBottom(list);
+    if (isOwn || isAtBottom(list)) scrollToBottom(list);
   }, [last]);
 
   useEffect(() => {
@@ -64,16 +61,11 @@ export const GroupMessagesList: React.FC<GroupMessagesListProps> = ({messages, a
   }, [areMessagesFetched]);
 
   const handleListScroll = ({currentTarget}: React.UIEvent<HTMLDivElement>) => {
-    const isAtTheBottom = getBottomOffset(currentTarget as Element) <= CHAT_OFFSET;
-
     dispatch(actions.setScroll({
-      groupId, scroll: isAtTheBottom ?
-        BOTTOM_OFFSET : currentTarget.scrollTop
+      groupId, scroll: isAtBottom(currentTarget) ? INFINITE_SCROLL : currentTarget.scrollTop
     }));
-    
-    const isAtTheTop = getTopOffset(currentTarget as Element) <= CHAT_OFFSET;
 
-    const toFetchMessages = isAtTheTop && !areMessagesFetching && areMessagesLeftToFetch;
+    const toFetchMessages = isAtTop(currentTarget) && !areMessagesFetching && areMessagesLeftToFetch;
 
     if (toFetchMessages) {
       dispatch(actions.fetchMessages({

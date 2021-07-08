@@ -12,6 +12,7 @@ interface LayoutProps {
     padding?: string | number;
     gap?: string | number;
     reverse?: boolean;
+    wrap?: string;
 }
 
 const prop = (prop: any) => prop || "initial";
@@ -23,6 +24,7 @@ const mixins = (props: LayoutProps) => css`
   align-items: ${prop(props.align)};
   flex-basis: ${prop(props.basis)};
   flex-grow: ${prop(props.grow)};
+  flex-wrap: ${prop(props.wrap)};
   flex-shrink: ${prop(props.shrink)};
   order: ${prop(props.order)};
   padding: ${prop(props.padding)};

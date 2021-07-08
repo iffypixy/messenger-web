@@ -3,27 +3,31 @@ import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 import {ID} from "@lib/typings";
 import {
   groupChatsApi,
-  GetGroupChatsResponse,
-  GetGroupChatResponse,
-  GetGroupChatData,
-  GetGroupChatMessagesData,
-  GetGroupChatMessagesResponse,
-  SendGroupMessageResponse, SendGroupMessageData, ReadGroupMessageData, ReadGroupMessageResponse
+  GetChatsResponse,
+  GetChatResponse,
+  GetChatData,
+  GetChatMessagesData,
+  GetChatMessagesResponse,
+  SendMessageResponse, SendMessageData, ReadMessageData, ReadMessageResponse
 } from "@api/group-chats.api";
 import {GroupChatMessage} from "./lib/typings";
 
 const type = "groups";
 
-export const fetchChats = createAsyncThunk<GetGroupChatsResponse, void>(`${type}/fetchChats`, async () => {
+export interface FetchChatsPayload extends GetChatsResponse {
+
+}
+
+export const fetchChats = createAsyncThunk<GetChatsResponse, void>(`${type}/fetchChats`, async () => {
   const {data} = await groupChatsApi.getChats();
 
   return data;
 });
 
-export interface FetchChatPayload extends GetGroupChatResponse {
+export interface FetchChatPayload extends GetChatResponse {
 }
 
-export interface FetchChatData extends GetGroupChatData {
+export interface FetchChatData extends GetChatData {
   groupId: ID;
 }
 
@@ -33,10 +37,10 @@ export const fetchChat = createAsyncThunk<FetchChatPayload, FetchChatData>(`${ty
   return data;
 });
 
-export interface FetchMessagesPayload extends GetGroupChatMessagesResponse {
+export interface FetchMessagesPayload extends GetChatMessagesResponse {
 }
 
-export interface FetchMessagesData extends GetGroupChatMessagesData {
+export interface FetchMessagesData extends GetChatMessagesData {
   groupId: ID;
 }
 
@@ -46,10 +50,10 @@ export const fetchMessages = createAsyncThunk<FetchMessagesPayload, FetchMessage
   return data;
 });
 
-export interface FetchSendingMessagePayload extends SendGroupMessageResponse {
+export interface FetchSendingMessagePayload extends SendMessageResponse {
 }
 
-export interface FetchSendingMessageData extends SendGroupMessageData {
+export interface FetchSendingMessageData extends SendMessageData {
 }
 
 export const fetchSendingMessage = createAsyncThunk<FetchSendingMessagePayload, FetchSendingMessageData>(`${type}/fetchSendingMessage`, async (args) => {
@@ -58,10 +62,10 @@ export const fetchSendingMessage = createAsyncThunk<FetchSendingMessagePayload, 
   return data;
 });
 
-export interface FetchReadingMessageData extends ReadGroupMessageData {
+export interface FetchReadingMessageData extends ReadMessageData {
 }
 
-export interface FetchReadingMessagePayload extends ReadGroupMessageResponse {
+export interface FetchReadingMessagePayload extends ReadMessageResponse {
 }
 
 export const fetchReadingMessage = createAsyncThunk<FetchReadingMessagePayload, FetchReadingMessageData>(`${type}/fetchReadingMessage`,

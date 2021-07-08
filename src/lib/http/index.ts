@@ -1,12 +1,12 @@
 import axios, {AxiosError, AxiosPromise} from "axios";
 
-import {BACKEND_URL} from "@lib/constants";
 import {authApi} from "@api/auth.api";
 import {getFingerprint} from "@lib/fingerprint";
+import {BACKEND_URL} from "@lib/constants";
 
 export const request = axios.create({
-  baseURL: BACKEND_URL,
-  withCredentials: true
+  withCredentials: true,
+  baseURL: `${BACKEND_URL}/v1`
 });
 
 export const CODES = {

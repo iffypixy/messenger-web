@@ -1,11 +1,22 @@
 import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
-import {GetDirectChatsResponse} from "@api/direct-chats.api";
+import {AttachedAudio, AttachedImage, AttachedFile} from "@features/chats";
 import {DirectChatMessage, DirectChat, DirectChatsListItem} from "./lib/typings";
 import {
-  AddMessagePayload, FetchChatData, FetchChatPayload,
-  FetchMessagesData, FetchMessagesPayload, ReadMessagePayload, SetNumberOfUnreadMessagesPayload,
-  SetScrollPayload, UpdateMessagePayload
+  AddChatPayload,
+  AddMessagePayload,
+  FetchAudiosData,
+  FetchAudiosPayload,
+  FetchChatData,
+  FetchChatPayload,
+  FetchChatsPayload, FetchFilesData, FetchFilesPayload, FetchImagesData,
+  FetchImagesPayload,
+  FetchMessagesData,
+  FetchMessagesPayload,
+  ReadMessagePayload,
+  SetNumberOfUnreadMessagesPayload,
+  SetScrollPayload,
+  UpdateMessagePayload
 } from "./actions";
 import * as actions from "./actions";
 
@@ -14,12 +25,18 @@ interface DirectsState {
   areChatsFetching: boolean;
   chats: {
     [key: string]: {
+      chat: DirectChat | null;
       messages: DirectChatMessage[];
-      data: DirectChat | null;
       isFetching: boolean;
       areMessagesFetching: boolean;
       areMessagesFetched: boolean;
       areMessagesLeftToFetch: boolean;
+      images: AttachedImage[];
+      areImagesFetching: boolean;
+      files: AttachedFile[];
+      areFilesFetching: boolean;
+      audios: AttachedAudio[];
+      areAudiosFetching: boolean;
       scroll: number;
     };
   };
@@ -34,7 +51,7 @@ export const reducer = createReducer<DirectsState>({
     state.areChatsFetching = true;
   },
 
-  [actions.fetchChats.fulfilled.type]: (state, {payload}: PayloadAction<GetDirectChatsResponse>) => {
+  [actions.fetchChats.fulfilled.type]: (state, {payload}: PayloadAction<FetchChatsPayload>) => {
     state.list = payload.chats;
     state.areChatsFetching = false;
   },
@@ -56,7 +73,7 @@ export const reducer = createReducer<DirectsState>({
 
     state.chats[arg.partnerId] = {
       ...chat,
-      data: payload.chat,
+      chat: payload.chat,
       isFetching: false
     };
   },
@@ -98,12 +115,90 @@ export const reducer = createReducer<DirectsState>({
     };
   },
 
+  [actions.fetchAudios.pending.type]: (state, {meta: {arg}}: PayloadAction<void, string, {arg: FetchAudiosData}>) => {
+    const chat = state.chats[arg.partnerId] || {};
+
+    state.chats[arg.partnerId] = {
+      ...chat, areAudiosFetching: true
+    };
+  },
+
+  [actions.fetchAudios.fulfilled.type]: (state, {payload, meta: {arg}}: PayloadAction<FetchAudiosPayload, string, {arg: FetchAudiosData}>) => {
+    const chat = state.chats[arg.partnerId] || {};
+
+    state.chats[arg.partnerId] = {
+      ...chat,
+      audios: payload.audios,
+      areAudiosFetching: false
+    };
+  },
+
+  [actions.fetchAudios.rejected.type]: (state, {meta: {arg}}: PayloadAction<void, string, {arg: FetchAudiosData}>) => {
+    const chat = state.chats[arg.partnerId] || {};
+
+    state.chats[arg.partnerId] = {
+      ...chat, areAudiosFetching: false
+    };
+  },
+
+  [actions.fetchImages.pending.type]: (state, {meta: {arg}}: PayloadAction<void, string, {arg: FetchImagesData}>) => {
+    const chat = state.chats[arg.partnerId] || {};
+
+    state.chats[arg.partnerId] = {
+      ...chat, areImagesFetching: true
+    };
+  },
+
+  [actions.fetchImages.fulfilled.type]: (state, {payload, meta: {arg}}: PayloadAction<FetchImagesPayload, string, {arg: FetchImagesData}>) => {
+    const chat = state.chats[arg.partnerId] || {};
+
+    state.chats[arg.partnerId] = {
+      ...chat,
+      images: payload.images,
+      areImagesFetching: false
+    };
+  },
+
+  [actions.fetchImages.rejected.type]: (state, {meta: {arg}}: PayloadAction<void, string, {arg: FetchImagesData}>) => {
+    const chat = state.chats[arg.partnerId] || {};
+
+    state.chats[arg.partnerId] = {
+      ...chat, areImagesFetching: false
+    };
+  },
+
+  [actions.fetchFiles.pending.type]: (state, {meta: {arg}}: PayloadAction<void, string, {arg: FetchFilesData}>) => {
+    const chat = state.chats[arg.partnerId] || {};
+
+    state.chats[arg.partnerId] = {
+      ...chat, areFilesFetching: true
+    };
+  },
+
+  [actions.fetchFiles.fulfilled.type]: (state, {payload, meta: {arg}}: PayloadAction<FetchFilesPayload, string, {arg: FetchFilesData}>) => {
+    const chat = state.chats[arg.partnerId] || {};
+
+    state.chats[arg.partnerId] = {
+      ...chat,
+      files: payload.files,
+      areFilesFetching: false
+    };
+  },
+
+  [actions.fetchFiles.rejected.type]: (state, {meta: {arg}}: PayloadAction<void, string, {arg: FetchFilesData}>) => {
+    const chat = state.chats[arg.partnerId] || {};
+
+    state.chats[arg.partnerId] = {
+      ...chat, areFilesFetching: false
+    };
+  },
+
   [actions.addMessage.type]: (state, {payload}: PayloadAction<AddMessagePayload>) => {
     const chat = state.chats[payload.partnerId] || {};
 
     state.chats[payload.partnerId] = {
-      ...chat, messages: chat.messages ? [...chat.messages, payload.message]
-        : [payload.message]
+      ...chat,
+      messages: chat.messages ? [...chat.messages, payload.message] : [payload.message]
     };
 
     state.list = state.list && state.list.map((chat) => {
@@ -187,5 +282,13 @@ export const reducer = createReducer<DirectsState>({
     state.list = state.list && state.list
       .map((chat) => chat.partner.id === payload.partnerId ?
         ({...chat, numberOfUnreadMessages: payload.number}) : chat);
+  },
+
+  [actions.addChat.type]: (state, {payload}: PayloadAction<AddChatPayload>) => {
+    const chat = state.chats[payload.partnerId] || {};
+
+    state.chats[payload.partnerId] = {
+      ...chat, ...payload.chat
+    };
   }
 });

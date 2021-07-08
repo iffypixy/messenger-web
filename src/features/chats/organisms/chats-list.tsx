@@ -3,23 +3,25 @@ import styled from "styled-components";
 import {useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 
+import {chatsSelectors} from "@features/chats";
 import {directsSelectors, mapDirectToChat} from "@features/directs";
 import {groupsSelectors, mapGroupToChat} from "@features/groups";
 import {authSelectors} from "@features/auth";
+import {usersSelectors} from "@features/users";
 import {Col, Row} from "@lib/layout";
-import {Text, Circle, H3} from "@ui/atoms";
+import {Text, Circle, H3, H5} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 import {formatMessageDate} from "../lib/formatting";
 import {ChatsListItem} from "../lib/typings";
 
 export const ChatsList: React.FC = () => {
   const credentials = useSelector(authSelectors.credentials)!;
-
   const directs = useSelector(directsSelectors.chats);
   const groups = useSelector(groupsSelectors.chats);
-
   const areDirectsFetching = useSelector(directsSelectors.areChatsFetching);
   const areGroupsFetching = useSelector(groupsSelectors.areChatsFetching);
+  const searching = useSelector(chatsSelectors.search);
+  const searched = useSelector(usersSelectors.searched);
 
   const isFetching = areDirectsFetching || areGroupsFetching;
 
@@ -57,21 +59,58 @@ export const ChatsList: React.FC = () => {
     return chat;
   }));
 
+  const filteredSearched = (directs && searched) && searched.filter(({id}) =>
+    directs.findIndex(({partner}) => partner.id === id) === -1);
+
   return (
     <List>
-      {chats.map((props) => (
-        <ListItem key={props.id} {...props}/>
-      ))}
+      <Col width="100%" gap="2rem">
+        {[...chats]
+          .filter(({name}) => name.toLowerCase().startsWith(searching.toLowerCase()))
+          .map((props) => (
+            <ListItem key={props.id} {...props}/>
+          ))}
+      </Col>
+
+      {filteredSearched && (
+        <SearchList gap="2rem">
+          {filteredSearched.length === 0 ? (
+            <Row
+              width="100%"
+              justify="center"
+              align="center">
+              <H5>No users found</H5>
+            </Row>
+          ) : filteredSearched.map(({id, username, avatar}) => (
+            <ListItem
+              key={id}
+              name={username}
+              avatar={avatar}
+              message={null}
+              date={null}
+              unreadMessages={0}
+              link={`/direct/${id}`}
+            />
+          ))}
+        </SearchList>
+      )}
     </List>
   );
 };
 
 const List = styled(Col).attrs(() => ({
-  gap: "2rem",
+  gap: "1rem",
   width: "100%",
   height: "100%"
 }))`
   overflow-y: auto;
+`;
+
+const SearchList = styled(Col).attrs(() => ({
+  width: "100%"
+}))`
+  border-top: 2px solid ${({theme}) => theme.palette.divider};
+  padding-top: 1rem;
 `;
 
 interface ListItemProps {

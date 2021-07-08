@@ -1,11 +1,12 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 import styled from "styled-components";
 import {nanoid} from "nanoid";
 import {unwrapResult} from "@reduxjs/toolkit";
 
-import {ChatForm, ChatsList, useFetchingChats} from "@features/chats";
+import {usersActions} from "@features/users";
+import {ChatForm, chatsActions, ChatsList, chatsSelectors, useFetchingChats} from "@features/chats";
 import {GroupMessagesList, groupsActions, groupsSelectors} from "@features/groups";
 import {ID} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
@@ -77,12 +78,27 @@ export const GroupPage = () => {
 };
 
 const SearchBar: React.FC = () => {
-  const [text, setText] = useState("");
+  const dispatch = useRootDispatch();
+
+  const search = useSelector(chatsSelectors.search);
+
+  const handleChange = ({currentTarget}: React.ChangeEvent<HTMLInputElement>) => {
+    const value = currentTarget.value;
+
+    dispatch(chatsActions.setSearching({
+      search: value
+    }));
+
+    dispatch(usersActions.fetchSearchingUsers({
+      query: value
+    }));
+  };
 
   return (
-    <Input placeholder="Search chat"
-           onChange={({currentTarget}) => setText(currentTarget.value)}
-           value={text}/>
+    <Input
+      placeholder="Search chat"
+      onChange={handleChange}
+      value={search}/>
   );
 };
 

@@ -8,7 +8,7 @@ export const areChatsFetching = (state: RootState) => groupsSelector(state).areC
 export const chat = (groupId: ID) => (state: RootState) => {
   const chat = groupsSelector(state).chats[groupId] || null;
 
-  return chat && chat.data;
+  return chat && chat.chat;
 };
 
 export const messages = (groupId: ID) => (state: RootState) => {

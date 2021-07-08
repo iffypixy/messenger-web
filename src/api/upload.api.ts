@@ -17,7 +17,7 @@ const upload = ({file}: UploadData, options: Partial<AxiosRequestConfig> = {}): 
   formData.append("file", file);
 
   return request({
-    url: "/v1/api/upload",
+    url: "/upload",
     method: "POST",
     data: formData,
     ...options

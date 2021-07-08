@@ -1,6 +1,5 @@
 import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
-import {GetGroupChatsResponse} from "@api/group-chats.api";
 import {GroupChatMessage, GroupChat, GroupChatsListItem} from "./lib/typings";
 import {
   AddMessagePayload,
@@ -8,9 +7,17 @@ import {
   FetchChatPayload,
   FetchMessagesData,
   FetchMessagesPayload, ReadMessagePayload, SetNumberOfUnreadMessagesPayload,
-  SetScrollPayload, UpdateMessagePayload
+  SetScrollPayload, UpdateMessagePayload, FetchChatsPayload
 } from "./actions";
 import * as actions from "./actions";
+import {AttachedAudio, AttachedFile, AttachedImage} from "@features/chats";
+import {
+  FetchAudiosData,
+  FetchAudiosPayload,
+  FetchFilesData, FetchFilesPayload,
+  FetchImagesData,
+  FetchImagesPayload
+} from "@features/directs/actions";
 
 interface GroupsState {
   list: GroupChatsListItem[] | null;
@@ -18,12 +25,18 @@ interface GroupsState {
   chats: {
     [key: string]: {
       messages: GroupChatMessage[];
-      data: GroupChat | null;
+      chat: GroupChat | null;
       isFetching: boolean;
       areMessagesFetching: boolean;
       areMessagesFetched: boolean;
       areMessagesLeftToFetch: boolean;
       scroll: number;
+      images: AttachedImage[];
+      areImagesFetching: boolean;
+      files: AttachedFile[];
+      areFilesFetching: boolean;
+      audios: AttachedAudio[];
+      areAudiosFetching: boolean;
     };
   };
 }
@@ -37,7 +50,7 @@ export const reducer = createReducer<GroupsState>({
     state.areChatsFetching = true;
   },
 
-  [actions.fetchChats.fulfilled.type]: (state, {payload}: PayloadAction<GetGroupChatsResponse>) => {
+  [actions.fetchChats.fulfilled.type]: (state, {payload}: PayloadAction<FetchChatsPayload>) => {
     state.list = payload.chats;
     state.areChatsFetching = false;
   },
@@ -59,7 +72,7 @@ export const reducer = createReducer<GroupsState>({
 
     state.chats[arg.groupId] = {
       ...chat,
-      data: payload.chat,
+      chat: payload.chat,
       isFetching: false
     };
   },

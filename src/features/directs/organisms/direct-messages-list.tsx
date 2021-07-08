@@ -4,12 +4,12 @@ import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 
 import {authSelectors} from "@features/auth";
-import {Message, SystemMessage, CHAT_OFFSET, BOTTOM_OFFSET} from "@features/chats";
+import {Message, SystemMessage} from "@features/chats";
 import {Col} from "@lib/layout";
 import {ID} from "@lib/typings";
-import {useRootDispatch} from "@lib/store";
 import {isEmpty} from "@lib/utils";
-import {scrollToBottom, isElementVisible, getTopOffset, getBottomOffset} from "@lib/dom";
+import {useRootDispatch} from "@lib/store";
+import {scrollToBottom, isElementVisible, isAtBottom, isAtTop, INFINITE_SCROLL} from "@lib/dom";
 import {H2} from "@ui/atoms";
 import {DirectChatMessage} from "../lib/typings";
 import * as actions from "../actions";
@@ -43,7 +43,7 @@ export const DirectMessagesList: React.FC<DirectMessagesListProps> = ({messages,
     const list = listRef.current!;
 
     if (!isScrolled) {
-      if (!isEmpty(scroll)) list.scroll(0, scroll);
+      if (!isEmpty(scroll)) list.scroll(0, scroll!);
       else scrollToBottom(list);
 
       handleReadingMessages(list);
@@ -53,27 +53,19 @@ export const DirectMessagesList: React.FC<DirectMessagesListProps> = ({messages,
 
     const isOwn = ((!!last.sender && last.sender.id) === credentials.id);
 
-    const isAtTheBottom = getBottomOffset(list) <= CHAT_OFFSET +
-      list.children[list.children.length - 1].clientHeight;
-
-    if (isOwn || isAtTheBottom) scrollToBottom(list);
+    if (isOwn || isAtBottom(list)) scrollToBottom(list);
   }, [last]);
 
   useEffect(() => {
-    if (isScrolled) listRef.current!.scroll(0, scroll);
+    if (isScrolled && !!scroll) listRef.current!.scroll(0, scroll);
   }, [areMessagesFetched]);
 
   const handleListScroll = ({currentTarget}: React.UIEvent<HTMLDivElement>) => {
-    const isAtTheBottom = getBottomOffset(currentTarget as Element) <= CHAT_OFFSET;
-
     dispatch(actions.setScroll({
-      partnerId, scroll: isAtTheBottom ?
-        BOTTOM_OFFSET : currentTarget.scrollTop
+      partnerId, scroll: isAtBottom(currentTarget) ? INFINITE_SCROLL : currentTarget.scrollTop
     }));
 
-    const isAtTheTop = getTopOffset(currentTarget as Element) <= CHAT_OFFSET;
-
-    const toFetchMessages = isAtTheTop && !areMessagesFetching && areMessagesLeftToFetch;
+    const toFetchMessages = isAtTop(currentTarget) && !areMessagesFetching && areMessagesLeftToFetch;
 
     if (toFetchMessages) {
       dispatch(actions.fetchMessages({

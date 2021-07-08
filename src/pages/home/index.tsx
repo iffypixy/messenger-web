@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
 
 import {directsActions, directsSelectors} from "@features/directs";
 import {groupsActions, groupsSelectors} from "@features/groups";
-import {ChatsList} from "@features/chats";
+import {chatsActions, ChatsList, chatsSelectors} from "@features/chats";
+import {usersActions} from "@features/users";
 import {Col, Row} from "@lib/layout";
 import {useRootDispatch} from "@lib/store";
 import {Icon, H4, Input, Text, H3} from "@ui/atoms";
@@ -60,12 +61,27 @@ export const HomePage: React.FC = () => {
 };
 
 const SearchBar: React.FC = () => {
-  const [text, setText] = useState("");
+  const dispatch = useRootDispatch();
+
+  const search = useSelector(chatsSelectors.search);
+
+  const handleChange = ({currentTarget}: React.ChangeEvent<HTMLInputElement>) => {
+    const value = currentTarget.value;
+
+    dispatch(chatsActions.setSearching({
+      search: value
+    }));
+
+    dispatch(usersActions.fetchSearchingUsers({
+      query: value
+    }));
+  };
 
   return (
-    <Input placeholder="Search chat"
-           onChange={({currentTarget}) => setText(currentTarget.value)}
-           value={text}/>
+    <Input
+      placeholder="Search chat"
+      onChange={handleChange}
+      value={search}/>
   );
 };
 

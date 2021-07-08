@@ -7,7 +7,7 @@ import {groupsActions, GroupChatMessage, GroupChatDetails} from "@features/group
 import {socket} from "@lib/websockets";
 import {useRootDispatch} from "@lib/store";
 
-export const ChatEventsListeners: React.FC = ({children}) => {
+export const ChatWebsockets: React.FC = ({children}) => {
   const dispatch = useRootDispatch();
 
   const credentials = useSelector(authSelectors.credentials);
