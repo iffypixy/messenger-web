@@ -15,8 +15,7 @@ import {
   GetAudiosData, GetImagesData, GetImagesResponse, GetFilesData, GetFilesResponse
 } from "@api/direct-chats.api";
 import {ID} from "@lib/typings";
-import {DirectChat, DirectChatMessage, DirectChatPartner} from "./lib/typings";
-import {User} from "@features/users";
+import {DirectChat, DirectChatMessage} from "./lib/typings";
 
 const type = "directs";
 

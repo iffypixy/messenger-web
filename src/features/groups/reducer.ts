@@ -11,13 +11,6 @@ import {
 } from "./actions";
 import * as actions from "./actions";
 import {AttachedAudio, AttachedFile, AttachedImage} from "@features/chats";
-import {
-  FetchAudiosData,
-  FetchAudiosPayload,
-  FetchFilesData, FetchFilesPayload,
-  FetchImagesData,
-  FetchImagesPayload
-} from "@features/directs/actions";
 
 interface GroupsState {
   list: GroupChatsListItem[] | null;
