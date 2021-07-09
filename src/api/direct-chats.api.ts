@@ -1,7 +1,7 @@
+import {AttachedImage, AttachedFile, AttachedAudio} from "@features/chats";
 import {DirectChatsListItem, DirectChat, DirectChatMessage, DirectChatDetails} from "@features/directs";
 import {ID} from "@lib/typings";
-import {socket} from "@lib/websockets";
-import {AttachedImage, AttachedFile, AttachedAudio} from "@features/chats";
+import {socket} from "@lib/websocket";
 
 export interface GetChatsResponse {
   chats: DirectChatsListItem[];

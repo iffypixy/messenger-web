@@ -4,10 +4,10 @@ import {useSelector} from "react-redux";
 import {authSelectors} from "@features/auth";
 import {DirectChatMessage, DirectChatPartner, directsActions} from "@features/directs";
 import {groupsActions, GroupChatMessage, GroupChatDetails} from "@features/groups";
-import {socket} from "@lib/websockets";
 import {useRootDispatch} from "@lib/store";
+import {socket} from "./socket";
 
-export const ChatWebsockets: React.FC = ({children}) => {
+export const WebsocketHandler: React.FC = ({children}) => {
   const dispatch = useRootDispatch();
 
   const credentials = useSelector(authSelectors.credentials);

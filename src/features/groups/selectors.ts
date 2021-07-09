@@ -1,4 +1,5 @@
-import {ID, RootState} from "@lib/typings";
+import {RootState} from "@lib/store";
+import {ID} from "@lib/typings";
 
 const groupsSelector = (state: RootState) => state.groups;
 

@@ -1,4 +1,5 @@
-import {ID, RootState} from "@lib/typings";
+import {RootState} from "@lib/store";
+import {ID} from "@lib/typings";
 
 const directsState = (state: RootState) => state.directs;
 

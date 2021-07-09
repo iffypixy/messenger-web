@@ -5,9 +5,9 @@ import styled from "styled-components";
 
 import {uploadApi} from "@api/upload.api";
 import {UploadingFile} from "@features/chats";
-import {stopMediaStream} from "@lib/media-recorder";
+import {stopMediaStream} from "@lib/media-stream";
 import {Col, Row} from "@lib/layout";
-import {formatDuration} from "@lib/formatting";
+import {formatDuration} from "@lib/date";
 import {File, ID} from "@lib/typings";
 import {Button, Icon, Input, Loader, Text} from "@ui/atoms";
 import {ProgressBar} from "@ui/molecules";

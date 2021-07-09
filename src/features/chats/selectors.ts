@@ -1,4 +1,4 @@
-import {RootState} from "@lib/typings";
+import {RootState} from "@lib/store";
 
 const chatsState = (state: RootState) => state.chats;
 

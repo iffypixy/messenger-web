@@ -54,7 +54,7 @@ export const DirectPage = () => {
           partner: partnerId,
           skip: messages ? messages.length : 0
         }));
-      })
+      });
     }
   }, []);
 

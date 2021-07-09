@@ -1,15 +1,15 @@
 import React from "react";
 
+import {CredentialsLoader} from "@features/auth";
+import {WebsocketHandler} from "@lib/websocket";
 import {Routes} from "@pages/routes";
 import {GlobalStyles} from "./global-styles";
-import {CredentialsLoader} from "@features/auth";
-import {ChatWebsockets} from "@features/chats";
 
 export const App = () => (
   <CredentialsLoader>
-    <ChatWebsockets>
+    <WebsocketHandler>
       <Routes/>
       <GlobalStyles/>
-    </ChatWebsockets>
+    </WebsocketHandler>
   </CredentialsLoader>
 );

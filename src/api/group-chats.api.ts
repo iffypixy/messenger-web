@@ -1,7 +1,7 @@
+import {AttachedFile, AttachedAudio, AttachedImage} from "@features/chats";
 import {GroupChat, GroupChatMessage, GroupChatsListItem, GroupChatDetails} from "@features/groups";
 import {ID} from "@lib/typings";
-import {socket} from "@lib/websockets";
-import {AttachedFile, AttachedAudio, AttachedImage} from "@features/chats";
+import {socket} from "@lib/websocket";
 
 export interface GetChatsResponse {
   chats: GroupChatsListItem[];

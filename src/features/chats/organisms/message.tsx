@@ -5,7 +5,7 @@ import prettyBytes from "pretty-bytes";
 
 import {File, ID} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
-import {formatDuration} from "@lib/formatting";
+import {formatDuration} from "@lib/date";
 import {Icon, Text} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 

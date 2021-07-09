@@ -3,10 +3,10 @@ import styled, {keyframes} from "styled-components";
 
 export const Loader: React.FC = () => (
   <Wrapper>
-    <div />
-    <div />
-    <div />
-    <div />
+    <div/>
+    <div/>
+    <div/>
+    <div/>
   </Wrapper>
 );
 
@@ -30,10 +30,9 @@ const Wrapper = styled.div`
     width: 2rem;
     height: 2rem;
     position: absolute;
-    border: 0.25rem solid #fff;
+    border: 0.25rem solid #FFFFFF;
     border-radius: 50%;
     animation: ${spin} 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: #fff transparent transparent transparent;
     
     &:nth-child(1) {
       animation-delay: -0.45s;

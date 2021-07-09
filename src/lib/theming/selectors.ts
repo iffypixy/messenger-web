@@ -1,5 +1,5 @@
-import {RootState} from "@lib/typings";
+import {RootState} from "@lib/store";
 
-const stateSelector = (state: RootState) => state.theming;
+const themingState = (state: RootState) => state.theming;
 
-export const theme = (state: RootState) => stateSelector(state).theme;
+export const theme = (state: RootState) => themingState(state).theme;

@@ -7,6 +7,8 @@ export const store = configureStore({
   reducer: rootReducer
 });
 
+export type RootState = ReturnType<typeof store.getState>;
+
 type RootDispatch = typeof store.dispatch;
 
 export const useRootDispatch = () => useDispatch<RootDispatch>();
