@@ -7,8 +7,11 @@ coverage
 node_modules
 build
 .env.local
+.env.development
 .env.development.local
+
 .env.test.local
+.env.production
 .env.production.local
 
 .idea
