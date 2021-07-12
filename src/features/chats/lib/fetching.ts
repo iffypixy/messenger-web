@@ -5,7 +5,7 @@ import {unwrapResult} from "@reduxjs/toolkit";
 import {directsActions, directsSelectors} from "@features/directs";
 import {groupsActions, groupsSelectors} from "@features/groups";
 import {useRootDispatch} from "@lib/store";
-import {socket} from "@lib/websocket";
+import {socket} from "@lib/socket";
 
 export const useFetchingChats = () => {
   const dispatch = useRootDispatch();
