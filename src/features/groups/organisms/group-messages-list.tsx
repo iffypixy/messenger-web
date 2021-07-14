@@ -8,15 +8,14 @@ import {Message, SystemMessage} from "@features/chats";
 import {Col} from "@lib/layout";
 import {ID} from "@lib/typings";
 import {useRootDispatch} from "@lib/store";
-import {isEmpty} from "@lib/utils";
-import {isElementVisible, scrollToBottom, isAtBottom, isAtTop, INFINITE_SCROLL} from "@lib/dom";
+import {isElementVisible, scrollToBottom, isAtBottom, isAtTop} from "@lib/dom";
 import {H2} from "@ui/atoms";
-import {GroupChatMessage} from "../lib/typings";
+import {GroupMessage} from "../lib/typings";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
 interface GroupMessagesListProps {
-  messages: GroupChatMessage[] | null;
+  messages: GroupMessage[] | null;
   areFetching: boolean;
 }
 
@@ -30,77 +29,66 @@ export const GroupMessagesList: React.FC<GroupMessagesListProps> = ({messages, a
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const credentials = useSelector(authSelectors.credentials)!;
-  const scroll = useSelector(selectors.scroll(groupId));
-  const areMessagesFetched = useSelector(selectors.areMessagesFetched(groupId));
   const areMessagesFetching = useSelector(selectors.areMessagesFetching(groupId));
   const areMessagesLeftToFetch = useSelector(selectors.areMessagesLeftToFetch(groupId));
 
   const last = messages && messages[messages.length - 1];
 
   useEffect(() => {
-    if (!last) return;
+    if (last) {
+      const list = listRef.current!;
 
-    const list = listRef.current!;
+      if (!isScrolled) {
+        scrollToBottom(list);
 
-    if (!isScrolled) {
-      if (!isEmpty(scroll)) list.scroll(0, scroll);
-      else scrollToBottom(list);
+        handleReadingMessages(list);
 
-      handleReadingMessages(list);
+        return setIsScrolled(true);
+      }
 
-      return setIsScrolled(true);
+      const isOwn = ((!!last.sender && last.sender.id) === credentials.id);
+
+      if (isOwn || isAtBottom(list)) {
+        scrollToBottom(list);
+
+        handleReadingMessages(list);
+      }
     }
-
-    const isOwn = ((!!last.sender && last.sender.id) === credentials.id);
-
-    if (isOwn || isAtBottom(list)) scrollToBottom(list);
   }, [last]);
 
-  useEffect(() => {
-    if (isScrolled) listRef.current!.scroll(0, scroll);
-  }, [areMessagesFetched]);
-
   const handleListScroll = ({currentTarget}: React.UIEvent<HTMLDivElement>) => {
-    dispatch(actions.setScroll({
-      groupId, scroll: isAtBottom(currentTarget) ? INFINITE_SCROLL : currentTarget.scrollTop
-    }));
-
     const toFetchMessages = isAtTop(currentTarget) && !areMessagesFetching && areMessagesLeftToFetch;
 
-    if (toFetchMessages) {
-      dispatch(actions.fetchMessages({
-        groupId, group: groupId,
-        skip: messages ? messages.length : 0
-      }))
-    }
-
-    handleReadingMessages(currentTarget);
+    if (toFetchMessages) dispatch(actions.fetchMessages({
+      groupId, skip: messages ? messages.length : 0
+    }));
   };
 
   const handleReadingMessages = (list: Element) => {
     const messages = [...list.children] as HTMLElement[];
-
     const reversed = [...messages].reverse();
-    const unread = reversed.find((message) =>
+
+    const last = reversed.find((message) =>
       message.dataset.isRead === "false" && message.dataset.isOwn === "false") || null;
 
-    if (!!unread) {
-      const isVisible = isElementVisible(unread);
+    if (!!last) {
+      const isVisible = isElementVisible(last);
 
       if (isVisible) {
-        const id = unread.dataset.id as ID;
+        const id = last.dataset.id as ID;
 
         dispatch(actions.readMessage({
-          groupId, messageId: id
+          groupId,
+          messageId: id
         }));
 
-        const numberOfUnreadMessages = reversed.slice(0, reversed.indexOf(unread))
+        const unread = reversed.slice(0, reversed.indexOf(last))
           .filter((message) =>
             message.dataset.isOwn === "false" &&
             message.dataset.isRead === "false").length;
 
-        dispatch(actions.setNumberOfUnreadMessages({
-          groupId, number: numberOfUnreadMessages
+        dispatch(actions.setUnread({
+          groupId, unread
         }));
 
         dispatch(actions.fetchReadingMessage({

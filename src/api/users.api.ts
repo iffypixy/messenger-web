@@ -7,11 +7,11 @@ export interface SearchUsersData {
   query: string;
 }
 
-export interface SearchUsersResponse {
+export interface SearchUsersResult {
   users: User[];
 }
 
-const searchUsers = (data: SearchUsersData): AxiosPromise<SearchUsersResponse> => request({
+const searchUsers = (data: SearchUsersData): AxiosPromise<SearchUsersResult> => request({
   url: "/users/search",
   method: "GET",
   params: data

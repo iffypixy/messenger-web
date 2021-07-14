@@ -41,22 +41,18 @@ export const DirectPage = () => {
   const areMessagesFetched = useSelector(directsSelectors.areMessagesFetched(partnerId));
 
   const toFetchMessages = !areMessagesFetched || (!messages && !areMessagesFetching);
+
   const toFetchChat = !chat && !isChatFetching;
 
   useEffect(() => {
-    if (toFetchChat) {
-      dispatch(directsActions.fetchChat({
-        partnerId,
-        partner: partnerId
-      })).then(() => {
-        if (toFetchMessages) dispatch(directsActions.fetchMessages({
-          partnerId,
-          partner: partnerId,
-          skip: messages ? messages.length : 0
-        }));
-      });
-    }
-  }, []);
+    if (toFetchChat) dispatch(directsActions.fetchChat({
+      partnerId
+    }));
+
+    if (toFetchMessages) dispatch(directsActions.fetchMessages({
+      partnerId, skip: messages ? messages.length : 0
+    }));
+  }, [partnerId]);
 
   return (
     <>
@@ -219,13 +215,15 @@ const DirectChat: React.FC = () => {
             const date = new Date();
 
             dispatch(directsActions.addMessage({
-              partnerId,
+              partnerId, chat,
               isOwn: true,
               message: {
-                id, chat, files, text,
+                id, files, text,
+                chat: chat.details,
+                sender: {...credentials, isBanned: chat.isBanned},
                 audio: audio && audio.url,
                 images: images && images.map(({url}) => url),
-                sender: {...credentials, isBanned: chat.isBanned}, isSystem: false,
+                isSystem: false,
                 isRead: false,
                 isEdited: false,
                 parent: null,

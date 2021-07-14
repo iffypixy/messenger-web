@@ -32,20 +32,12 @@ export const GroupPage = () => {
   const toFetchChat = !chat && !isChatFetching;
 
   useEffect(() => {
-    if (toFetchChat) {
-      dispatch(groupsActions.fetchChat({
-        groupId, group: groupId
-      }));
-    }
+    if (toFetchChat) dispatch(groupsActions.fetchChat({groupId}));
 
-    if (toFetchMessages) {
-      dispatch(groupsActions.fetchMessages({
-        groupId,
-        group: groupId,
-        skip: messages ? messages.length : 0
-      }));
-    }
-  }, []);
+    if (toFetchMessages) dispatch(groupsActions.fetchMessages({
+      groupId, skip: messages ? messages.length : 0
+    }));
+  }, [groupId]);
 
   return (
     <MainTemplate>
@@ -166,7 +158,7 @@ const GroupChat: React.FC = () => {
 
             <Col height="100%" justify="space-between" padding="1rem 0">
               <H4>{chat.title}</H4>
-              <Text small>{chat.numberOfMembers} members</Text>
+              <Text small>{chat.participants} members</Text>
             </Col>
           </Row>
 
@@ -179,7 +171,7 @@ const GroupChat: React.FC = () => {
 
       <GroupMessagesList
         messages={messages}
-        areFetching={areMessagesFetching} />
+        areFetching={areMessagesFetching}/>
 
       <ChatForm handleSubmit={({images, files, text, audio}) => {
         const id = nanoid();
@@ -201,11 +193,11 @@ const GroupChat: React.FC = () => {
         }));
 
         dispatch(groupsActions.fetchSendingMessage({
-            images: images && images.map(({id}) => id),
-            files: files && files.map(({id}) => id),
-            audio: audio && audio.id, text,
-            parent: null, group: chat.id
-          }))
+          images: images && images.map(({id}) => id),
+          files: files && files.map(({id}) => id),
+          audio: audio && audio.id, text,
+          parent: null, group: chat.id
+        }))
           .then(unwrapResult)
           .then(({message}) => {
             dispatch(groupsActions.updateMessage({

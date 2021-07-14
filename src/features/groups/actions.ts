@@ -3,44 +3,43 @@ import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 import {ID} from "@lib/typings";
 import {
   groupChatsApi,
-  GetChatsResponse,
-  GetChatResponse,
-  GetChatData,
-  GetChatMessagesData,
-  GetChatMessagesResponse,
-  SendMessageResponse, SendMessageData, ReadMessageData, ReadMessageResponse
+  GetGroupsResult,
+  GetGroupResult,
+  GetGroupData,
+  GetMessagesData,
+  GetMessagesResult,
+  SendMessageResult, SendMessageData, ReadMessageData, ReadMessageResult
 } from "@api/group-chats.api";
-import {GroupChatMessage} from "./lib/typings";
+import {Group, GroupMember, GroupMessage} from "./lib/typings";
 
 const type = "groups";
 
-export interface FetchChatsPayload extends GetChatsResponse {
-
+export interface FetchChatsPayload extends GetGroupsResult {
 }
 
-export const fetchChats = createAsyncThunk<GetChatsResponse, void>(`${type}/fetchChats`, async () => {
-  const {data} = await groupChatsApi.getChats();
+export const fetchChats = createAsyncThunk<GetGroupsResult, void>(`${type}/fetchChats`, async () => {
+  const {data} = await groupChatsApi.getGroups();
 
   return data;
 });
 
-export interface FetchChatPayload extends GetChatResponse {
+export interface FetchChatPayload extends GetGroupResult {
 }
 
-export interface FetchChatData extends GetChatData {
+export interface FetchChatData extends GetGroupData {
   groupId: ID;
 }
 
 export const fetchChat = createAsyncThunk<FetchChatPayload, FetchChatData>(`${type}/fetchChat`, async (args) => {
-  const {data} = await groupChatsApi.getChat(args);
+  const {data} = await groupChatsApi.getGroup(args);
 
   return data;
 });
 
-export interface FetchMessagesPayload extends GetChatMessagesResponse {
+export interface FetchMessagesPayload extends GetMessagesResult {
 }
 
-export interface FetchMessagesData extends GetChatMessagesData {
+export interface FetchMessagesData extends GetMessagesData {
   groupId: ID;
 }
 
@@ -50,7 +49,7 @@ export const fetchMessages = createAsyncThunk<FetchMessagesPayload, FetchMessage
   return data;
 });
 
-export interface FetchSendingMessagePayload extends SendMessageResponse {
+export interface FetchSendingMessagePayload extends SendMessageResult {
 }
 
 export interface FetchSendingMessageData extends SendMessageData {
@@ -65,7 +64,7 @@ export const fetchSendingMessage = createAsyncThunk<FetchSendingMessagePayload, 
 export interface FetchReadingMessageData extends ReadMessageData {
 }
 
-export interface FetchReadingMessagePayload extends ReadMessageResponse {
+export interface FetchReadingMessagePayload extends ReadMessageResult {
 }
 
 export const fetchReadingMessage = createAsyncThunk<FetchReadingMessagePayload, FetchReadingMessageData>(`${type}/fetchReadingMessage`,
@@ -75,16 +74,9 @@ export const fetchReadingMessage = createAsyncThunk<FetchReadingMessagePayload, 
     return data;
   });
 
-export interface SetScrollPayload {
-  groupId: ID;
-  scroll: number;
-}
-
-export const setScroll = createAction<SetScrollPayload>(`${type}/setScroll`);
-
 export interface AddMessagePayload {
-  message: GroupChatMessage;
   groupId: ID;
+  message: GroupMessage;
   isOwn: boolean;
 }
 
@@ -93,7 +85,7 @@ export const addMessage = createAction<AddMessagePayload>(`${type}/addMessage`);
 export interface UpdateMessagePayload {
   groupId: ID;
   messageId: ID;
-  partial: Partial<GroupChatMessage>;
+  partial: Partial<GroupMessage>;
 }
 
 export const updateMessage = createAction<UpdateMessagePayload>(`${type}/updateMessage`);
@@ -105,9 +97,40 @@ export interface ReadMessagePayload {
 
 export const readMessage = createAction<ReadMessagePayload>(`${type}/readMessage`);
 
-export interface SetNumberOfUnreadMessagesPayload {
+export interface SetUnreadPayload {
   groupId: ID;
-  number: number;
+  unread: number;
 }
 
-export const setNumberOfUnreadMessages = createAction<SetNumberOfUnreadMessagesPayload>(`${type}/setNumberOfUnreadMessages`);
+export const setUnread = createAction<SetUnreadPayload>(`${type}/setUnread`);
+
+export interface AddChatPayload {
+  group: Group;
+}
+
+export const addChat = createAction<AddChatPayload>(`${type}/addChat`);
+
+export interface RemoveChatPayload {
+  groupId: ID;
+}
+
+export const removeChat = createAction<RemoveChatPayload>(`${type}/removeChat`);
+
+export interface IncreaseParticipantsPayload {
+  groupId: ID;
+}
+
+export const increaseParticipants = createAction<IncreaseParticipantsPayload>(`${type}/increaseParticipants`);
+
+export interface DecreaseParticipantsPayload {
+  groupId: ID;
+}
+
+export const decreaseParticipants = createAction<DecreaseParticipantsPayload>(`${type}/decreaseParticipants`);
+
+export interface ChangeMemberPayload {
+  groupId: ID;
+  member: GroupMember;
+}
+
+export const changeMember = createAction<ChangeMemberPayload>(`${type}/changeMember`);

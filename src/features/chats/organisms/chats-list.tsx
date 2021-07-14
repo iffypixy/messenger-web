@@ -4,15 +4,42 @@ import {useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 
 import {chatsSelectors} from "@features/chats";
-import {directsSelectors, mapDirectToChat} from "@features/directs";
-import {groupsSelectors, mapGroupToChat} from "@features/groups";
+import {DirectsListItem, directsSelectors} from "@features/directs";
+import {GroupsListItem, groupsSelectors} from "@features/groups";
 import {authSelectors} from "@features/auth";
 import {usersSelectors} from "@features/users";
 import {Col, Row} from "@lib/layout";
 import {Text, Circle, H3, H5} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 import {formatMessageDate} from "../lib/formatting";
-import {ChatsListItem} from "../lib/typings";
+import {ID} from "@lib/typings";
+
+interface ChatsListItem {
+  id: ID;
+  name: string;
+  avatar: string;
+  message: string | null;
+  date: Date | null;
+  unread: number;
+  link: string;
+}
+
+const mapDirectToChat = ({details, lastMessage, partner, unread}: DirectsListItem): ChatsListItem => ({
+  unread, id: details.id,
+  name: partner.username,
+  avatar: partner.avatar,
+  message: lastMessage && `${lastMessage.text || "Attachments"}`,
+  date: lastMessage && new Date(lastMessage.createdAt),
+  link: `/direct/${partner.id}`
+});
+
+const mapGroupToChat = ({id, title, avatar, lastMessage, unread}: GroupsListItem): ChatsListItem => ({
+  id, avatar, unread,
+  name: title,
+  message: lastMessage && `${lastMessage.text || "Attachments"}`,
+  date: lastMessage && new Date(lastMessage.createdAt),
+  link: `/group/${id}`
+});
 
 export const ChatsList: React.FC = () => {
   const credentials = useSelector(authSelectors.credentials)!;
@@ -88,7 +115,7 @@ export const ChatsList: React.FC = () => {
               avatar={avatar}
               message={null}
               date={null}
-              unreadMessages={0}
+              unread={0}
               link={`/direct/${id}`}
             />
           ))}
@@ -118,11 +145,11 @@ interface ListItemProps {
   name: string;
   message: string | null;
   date: Date | null;
-  unreadMessages: number;
+  unread: number;
   link: string;
 }
 
-const ListItem: React.FC<ListItemProps> = ({avatar, name, message, date, unreadMessages, link}) => (
+const ListItem: React.FC<ListItemProps> = ({avatar, name, message, date, unread, link}) => (
   <Link to={link}>
     <Wrapper>
       <Avatar url={avatar}/>
@@ -135,7 +162,7 @@ const ListItem: React.FC<ListItemProps> = ({avatar, name, message, date, unreadM
 
         <Row width="100%" justify="space-between" align="center">
           {message && <Message>{message}</Message>}
-          {!!unreadMessages ? <UnreadMessages>{unreadMessages}</UnreadMessages> : null}
+          {!!unread ? <UnreadMessages>{unread}</UnreadMessages> : null}
         </Row>
       </Col>
     </Wrapper>

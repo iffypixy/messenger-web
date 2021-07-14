@@ -21,18 +21,16 @@ interface MessageProps {
   date: Date;
 }
 
-interface AudioState {
-  duration: number;
-  isPaused: boolean;
-  isStarted: boolean;
-  time: number;
-}
-
 export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text, date, images, files, audio: audioSrc}) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const messageRef = useRef<HTMLDivElement | null>(null);
 
-  const [audio, setAudio] = useState<AudioState>({
+  const [audio, setAudio] = useState<{
+    duration: number;
+    isPaused: boolean;
+    isStarted: boolean;
+    time: number;
+  }>({
     duration: 0,
     isPaused: true,
     isStarted: false,
@@ -46,9 +44,7 @@ export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text
   };
 
   const handleAudioDurationChange = ({currentTarget}: React.ChangeEvent<HTMLAudioElement>) => {
-    if (currentTarget.duration === Infinity) {
-      currentTarget.currentTime = 100000000;
-    }
+    if (currentTarget.duration === Infinity) currentTarget.currentTime = 100000000;
 
     const {duration} = currentTarget;
 

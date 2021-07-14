@@ -1,39 +1,39 @@
 import {User} from "@features/users";
 import {File, ID} from "@lib/typings";
 
-export interface GroupChatDetails {
+export interface GroupDetails {
   id: ID;
   avatar: string;
   title: string;
 }
 
-export interface GroupChatMember extends User {
+export interface GroupsListItem extends GroupDetails {
+  lastMessage: GroupMessage | null;
+  unread: number;
+}
+
+export interface GroupMember extends User {
   isOwner: boolean;
   isMember: boolean;
 }
 
-export interface GroupChat extends GroupChatDetails {
-  member: GroupChatMember;
-  numberOfMembers: number;
+export interface Group extends GroupDetails {
+  member: GroupMember;
+  participants: number;
 }
 
-export interface GroupChatMessage {
+export interface GroupMessage {
   id: ID;
-  text: string | null;
-  sender: GroupChatMember | null;
-  chat: GroupChatDetails;
+  text: string;
+  sender: GroupMember | null;
+  chat: GroupDetails;
   audio: string | null;
   images: string[] | null;
   files: File[] | null;
-  parent: GroupChatMessage | null;
+  parent: GroupMessage | null;
   isEdited: boolean;
   isRead: boolean;
   isSystem: boolean;
   createdAt: string;
 }
 
-export interface GroupChatsListItem extends GroupChatDetails {
-  lastMessage: GroupChatMessage | null;
-  numberOfMembers: number;
-  numberOfUnreadMessages: number;
-}

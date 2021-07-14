@@ -1,39 +1,46 @@
+import {AxiosPromise} from "axios";
+
 import {AttachedFile, AttachedAudio, AttachedImage} from "@features/chats";
-import {GroupChat, GroupChatMessage, GroupChatsListItem, GroupChatDetails} from "@features/groups";
+import {Group, GroupMessage, GroupsListItem, GroupDetails} from "@features/groups";
+import {request} from "@lib/http";
 import {ID} from "@lib/typings";
 import {socket} from "@lib/socket";
 
-export interface GetChatsResponse {
-  chats: GroupChatsListItem[];
+export interface GetGroupsResult {
+  chats: GroupsListItem[];
 }
 
-const getChats = (): Promise<{data: GetChatsResponse}> => new Promise((resolve) => {
-  socket.emit("GROUP_CHAT:GET_CHATS", null, (data: GetChatsResponse) => resolve({data}));
+const getGroups = (): AxiosPromise<GetGroupsResult> => request({
+  url: "/groups",
+  method: "GET"
 });
 
-export interface GetChatData {
-  group: ID;
+export interface GetGroupData {
+  groupId: ID;
 }
 
-export interface GetChatResponse {
-  chat: GroupChat;
+export interface GetGroupResult {
+  chat: Group;
 }
 
-const getChat = (data: GetChatData): Promise<{data: GetChatResponse}> => new Promise((resolve) => {
-  socket.emit("GROUP_CHAT:GET_CHAT", data, (data: GetChatResponse) => resolve({data}));
+const getGroup = ({groupId}: GetGroupData): AxiosPromise<GetGroupResult> => request({
+  url: `/groups/${groupId}`,
+  method: "GET"
 });
 
-export interface GetChatMessagesData {
-  group: ID;
-  skip?: number;
+export interface GetMessagesData {
+  groupId: ID;
+  skip: number;
 }
 
-export interface GetChatMessagesResponse {
-  messages: GroupChatMessage[];
+export interface GetMessagesResult {
+  messages: GroupMessage[];
 }
 
-const getMessages = (data: GetChatMessagesData): Promise<{data: GetChatMessagesResponse}> => new Promise((resolve) => {
-  socket.emit("GROUP_CHAT:GET_MESSAGES", data, (data: GetChatMessagesResponse) => resolve({data}));
+const getMessages = ({groupId, skip}: GetMessagesData): AxiosPromise<GetMessagesResult> => request({
+  url: `/groups/${groupId}/messages`,
+  method: "GET",
+  data: {skip}
 });
 
 export interface SendMessageData {
@@ -45,12 +52,12 @@ export interface SendMessageData {
   group: ID;
 }
 
-export interface SendMessageResponse {
-  message: GroupChatMessage;
+export interface SendMessageResult {
+  message: GroupMessage;
 }
 
-const sendMessage = (data: SendMessageData): Promise<{data: SendMessageResponse}> => new Promise((resolve) => {
-  socket.emit("GROUP_CHAT:CREATE_MESSAGE", data, (data: SendMessageResponse) => resolve({data}));
+const sendMessage = (data: SendMessageData): Promise<{data: SendMessageResult}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:CREATE_MESSAGE", data, (data: SendMessageResult) => resolve({data}));
 });
 
 export interface ReadMessageData {
@@ -58,57 +65,63 @@ export interface ReadMessageData {
   message: ID;
 }
 
-export interface ReadMessageResponse {
-  message: GroupChatMessage;
-  chat: GroupChatDetails;
+export interface ReadMessageResult {
+  message: GroupMessage;
+  chat: GroupDetails;
 }
 
-const readMessage = (data: ReadMessageData): Promise<{data: ReadMessageResponse}> => new Promise((resolve) => {
-  socket.emit("GROUP_CHAT:READ_MESSAGE", data, (data: ReadMessageResponse) => resolve({data}));
+const readMessage = (data: ReadMessageData): Promise<{data: ReadMessageResult}> => new Promise((resolve) => {
+  socket.emit("GROUP_CHAT:READ_MESSAGE", data, (data: ReadMessageResult) => resolve({data}));
 });
 
-export interface GetAudiosData {
-  group: ID;
-  skip?: number;
+export interface GetAttachedAudiosData {
+  groupId: ID;
+  skip: number;
 }
 
-export interface GetAudiosResponse {
+export interface GetAttachedAudiosResult {
   audios: AttachedAudio[];
 }
 
-const getAudios = (data: GetAudiosData): Promise<{data: GetAudiosResponse}> => new Promise((resolve) => {
-  socket.emit("GROUP_CHAT:GET_AUDIOS", data, (data: GetAudiosResponse) => resolve({data}));
+const getAttachedAudios = ({groupId, skip}: GetAttachedAudiosData): AxiosPromise<GetAttachedAudiosResult> => request({
+  url: `/groups/${groupId}/attached/audios`,
+  method: "GET",
+  data: {skip}
 });
 
-export interface GetImagesData {
-  group: ID;
-  skip?: number;
+export interface GetAttachedImagesData {
+  groupId: ID;
+  skip: number;
 }
 
-export interface GetImagesResponse {
+export interface GetAttachedImagesResult {
   images: AttachedImage[];
 }
 
-const getImages = (data: GetImagesData): Promise<{data: GetImagesResponse}> => new Promise((resolve) => {
-  socket.emit("GROUP_CHAT:GET_IMAGES", data, (data: GetImagesResponse) => resolve({data}));
+const getAttachedImages = ({groupId, skip}: GetAttachedImagesData): AxiosPromise<GetAttachedImagesResult> => request({
+  url: `/groups/${groupId}/attached/images`,
+  method: "GET",
+  data: {skip}
 });
 
-export interface GetFilesData {
-  group: ID;
-  skip?: number;
+export interface GetAttachedFilesData {
+  groupId: ID;
+  skip: number;
 }
 
-export interface GetFilesResponse {
+export interface GetAttachedFilesResult {
   files: AttachedFile[];
 }
 
-const getFiles = (data: GetFilesData): Promise<{data: GetFilesResponse}> => new Promise((resolve) => {
-  socket.emit("GROUP_CHAT:GET_FILES", data, (data: GetFilesResponse) => resolve({data}));
+const getAttachedFiles = ({groupId, skip}: GetAttachedFilesData): AxiosPromise<GetAttachedFilesResult> => request({
+  url: `/groups/${groupId}/attached/images`,
+  method: "GET",
+  data: {skip}
 });
 
 export const groupChatsApi = {
-  getChats, getChat, getMessages,
-  sendMessage, readMessage, getAudios,
-  getImages, getFiles
+  getGroups, getGroup, getMessages,
+  sendMessage, readMessage, getAttachedFiles,
+  getAttachedImages, getAttachedAudios
 };
 

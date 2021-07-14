@@ -7,16 +7,15 @@ import {authSelectors} from "@features/auth";
 import {Message, SystemMessage} from "@features/chats";
 import {Col} from "@lib/layout";
 import {ID} from "@lib/typings";
-import {isEmpty} from "@lib/utils";
 import {useRootDispatch} from "@lib/store";
-import {scrollToBottom, isElementVisible, isAtBottom, isAtTop, INFINITE_SCROLL} from "@lib/dom";
+import {scrollToBottom, isElementVisible, isAtBottom, isAtTop} from "@lib/dom";
 import {H2} from "@ui/atoms";
-import {DirectChatMessage} from "../lib/typings";
+import {DirectMessage} from "../lib/typings";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
 interface DirectMessagesListProps {
-  messages: DirectChatMessage[] | null;
+  messages: DirectMessage[] | null;
   areFetching: boolean;
 }
 
@@ -30,78 +29,65 @@ export const DirectMessagesList: React.FC<DirectMessagesListProps> = ({messages,
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const credentials = useSelector(authSelectors.credentials)!;
-  const scroll = useSelector(selectors.scroll(partnerId));
-  const areMessagesFetched = useSelector(selectors.areMessagesFetched(partnerId));
   const areMessagesFetching = useSelector(selectors.areMessagesFetching(partnerId));
   const areMessagesLeftToFetch = useSelector(selectors.areMessagesLeftToFetch(partnerId));
 
   const last = messages && messages[messages.length - 1];
 
   useEffect(() => {
-    if (!last) return;
+    if (last) {
+      const list = listRef.current!;
 
-    const list = listRef.current!;
+      if (!isScrolled) {
+        scrollToBottom(list);
 
-    if (!isScrolled) {
-      if (!isEmpty(scroll)) list.scroll(0, scroll!);
-      else scrollToBottom(list);
+        handleReadingMessages(list);
 
-      handleReadingMessages(list);
+        return setIsScrolled(true);
+      }
 
-      return setIsScrolled(true);
+      const isOwn = ((!!last.sender && last.sender.id) === credentials.id);
+
+      if (isOwn || isAtBottom(list)) {
+        scrollToBottom(list);
+
+        handleReadingMessages(list);
+      }
     }
-
-    const isOwn = ((!!last.sender && last.sender.id) === credentials.id);
-
-    if (isOwn || isAtBottom(list)) scrollToBottom(list);
   }, [last]);
 
-  useEffect(() => {
-    if (isScrolled && !!scroll) listRef.current!.scroll(0, scroll);
-  }, [areMessagesFetched]);
-
   const handleListScroll = ({currentTarget}: React.UIEvent<HTMLDivElement>) => {
-    dispatch(actions.setScroll({
-      partnerId, scroll: isAtBottom(currentTarget) ? INFINITE_SCROLL : currentTarget.scrollTop
-    }));
-
     const toFetchMessages = isAtTop(currentTarget) && !areMessagesFetching && areMessagesLeftToFetch;
 
-    if (toFetchMessages) {
-      dispatch(actions.fetchMessages({
-        partnerId, partner: partnerId,
-        skip: messages ? messages.length : 0
-      }));
-    }
-
-    handleReadingMessages(currentTarget);
+    if (toFetchMessages) dispatch(actions.fetchMessages({
+      partnerId, skip: messages ? messages.length : 0
+    }));
   };
 
   const handleReadingMessages = (list: Element) => {
     const messages = [...list.children] as HTMLElement[];
-
     const reversed = [...messages].reverse();
-    const unread = reversed.find((message) =>
+
+    const last = reversed.find((message) =>
       message.dataset.isRead === "false" && message.dataset.isOwn === "false") || null;
 
-    if (!!unread) {
-      const isVisible = isElementVisible(unread);
+    if (!!last) {
+      const isVisible = isElementVisible(last);
 
       if (isVisible) {
-        const id = unread.dataset.id as ID;
+        const id = last.dataset.id as ID;
 
         dispatch(actions.readMessage({
-          partnerId,
-          messageId: id
+          partnerId, messageId: id
         }));
 
-        const numberOfUnreadMessages = reversed.slice(0, reversed.indexOf(unread))
+        const unread = reversed.slice(0, reversed.indexOf(last))
           .filter((message) =>
             message.dataset.isOwn === "false" &&
             message.dataset.isRead === "false").length;
 
-        dispatch(actions.setNumberOfUnreadMessages({
-          partnerId, number: numberOfUnreadMessages
+        dispatch(actions.setUnread({
+          partnerId, unread
         }));
 
         dispatch(actions.fetchReadingMessage({

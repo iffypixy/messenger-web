@@ -1,6 +1,6 @@
 import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
-import {GetCredentialsResponse, LoginResponse, RegisterResponse} from "@api/auth.api";
+import {GetCredentialsResult, LoginResult, RegisterResult} from "@api/auth.api";
 import {Credentials} from "./lib/typings";
 import * as actions from "./actions";
 
@@ -25,7 +25,7 @@ export const reducer = createReducer<AuthState>(
       state.isLoginFetching = true;
     },
 
-    [actions.fetchLogin.fulfilled.type]: (state, {payload}: PayloadAction<LoginResponse>) => {
+    [actions.fetchLogin.fulfilled.type]: (state, {payload}: PayloadAction<LoginResult>) => {
       state.isAuthenticated = true;
       state.isLoginFetching = false;
       state.credentials = payload.credentials;
@@ -39,7 +39,7 @@ export const reducer = createReducer<AuthState>(
       state.isRegisterFetching = true;
     },
 
-    [actions.fetchRegister.fulfilled.type]: (state, {payload}: PayloadAction<RegisterResponse>) => {
+    [actions.fetchRegister.fulfilled.type]: (state, {payload}: PayloadAction<RegisterResult>) => {
       state.isAuthenticated = true;
       state.isRegisterFetching = false;
       state.credentials = payload.credentials;
@@ -53,7 +53,7 @@ export const reducer = createReducer<AuthState>(
       state.areCredentialsFetching = true;
     },
 
-    [actions.fetchCredentials.fulfilled.type]: (state, {payload}: PayloadAction<GetCredentialsResponse>) => {
+    [actions.fetchCredentials.fulfilled.type]: (state, {payload}: PayloadAction<GetCredentialsResult>) => {
       state.isAuthenticated = true;
       state.credentials = payload.credentials;
       state.areCredentialsFetching = false;

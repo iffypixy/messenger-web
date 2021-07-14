@@ -1,35 +1,37 @@
 import {User} from "@features/users";
 import {File, ID} from "@lib/typings";
 
-export interface DirectChatDetails {
+export interface DirectDetails {
   id: ID;
 }
 
-export interface DirectChatPartner extends User {
+export interface DirectsListItem extends Direct {
+  lastMessage: DirectMessage;
+  unread: number;
+}
+
+export interface DirectPartner extends User {
   isBanned: boolean;
 }
 
-export interface DirectChat extends DirectChatDetails {
-  partner: DirectChatPartner;
+export interface Direct {
+  details: DirectDetails;
+  partner: DirectPartner;
   isBanned: boolean;
 }
 
-export interface DirectChatMessage {
+export interface DirectMessage {
   id: ID;
-  sender: DirectChatPartner | null;
-  text: string | null;
+  sender: DirectPartner | null;
+  text: string;
   images: string[] | null;
   files: File[] | null;
   audio: string | null;
-  chat: DirectChatDetails;
-  parent: DirectChatMessage | null;
+  chat: DirectDetails;
+  parent: DirectMessage | null;
   isEdited: boolean;
   isRead: boolean;
   isSystem: boolean;
   createdAt: string;
 }
 
-export interface DirectChatsListItem extends DirectChat {
-  lastMessage: DirectChatMessage;
-  numberOfUnreadMessages: number;
-}

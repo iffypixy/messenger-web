@@ -4,7 +4,6 @@ import styled from "styled-components";
 import {useSelector} from "react-redux";
 import prettyBytes from "pretty-bytes";
 
-import {AttachmentType} from "@features/chats";
 import {useRootDispatch} from "@lib/store";
 import {ID} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
@@ -13,10 +12,12 @@ import {Icon, Text} from "@ui/atoms";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
+export type Attachment = "images" | "files" | "audios";
+
 export const DirectAttachmentsModal: React.FC<ModalProps> = ({closeModal}) => {
   const dispatch = useRootDispatch();
 
-  const [tab, useTab] = useState<AttachmentType>("images");
+  const [tab, useTab] = useState<Attachment>("images");
 
   const {partnerId} = useParams<{partnerId: ID}>();
 
@@ -32,20 +33,20 @@ export const DirectAttachmentsModal: React.FC<ModalProps> = ({closeModal}) => {
   useEffect(() => {
     if (tab === "images") {
       if (!areImagesFetching) {
-        dispatch(actions.fetchImages({
-          partnerId, partner: partnerId
+        dispatch(actions.fetchAttachedImages({
+          partnerId, skip: 0
         }));
       }
     } else if (tab === "files") {
       if (!areFilesFetching) {
-        dispatch(actions.fetchFiles({
-          partnerId, partner: partnerId
+        dispatch(actions.fetchAttachedFiles({
+          partnerId, skip: 0
         }));
       }
     } else if (tab === "audios") {
       if (!areAudiosFetching) {
-        dispatch(actions.fetchAudios({
-          partnerId, partner: partnerId
+        dispatch(actions.fetchAttachedAudios({
+          partnerId, skip: 0
         }));
       }
     }

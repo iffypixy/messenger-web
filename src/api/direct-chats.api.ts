@@ -1,41 +1,47 @@
+import {AxiosPromise} from "axios";
+
 import {AttachedImage, AttachedFile, AttachedAudio} from "@features/chats";
-import {DirectChatsListItem, DirectChat, DirectChatMessage, DirectChatDetails} from "@features/directs";
+import {DirectsListItem, Direct, DirectMessage, DirectDetails} from "@features/directs";
 import {ID} from "@lib/typings";
+import {request} from "@lib/http";
 import {socket} from "@lib/socket";
 
-export interface GetChatsResponse {
-  chats: DirectChatsListItem[];
+export interface GetDirectsResult {
+  chats: DirectsListItem[];
 }
 
-const getChats = (): Promise<{data: GetChatsResponse}> => new Promise((resolve) => {
-  socket.emit("DIRECT_CHAT:GET_CHATS", null, (data: GetChatsResponse) => resolve({data}));
+const getDirects = (): AxiosPromise<GetDirectsResult> => request({
+  url: "/directs",
+  method: "GET"
 });
 
-export interface GetChatData {
-  partner: ID;
+export interface GetDirectData {
+  partnerId: ID;
 }
 
-export interface GetChatResponse {
-  chat: DirectChat;
+export interface GetDirectResult {
+  chat: Direct;
 }
 
-const getChat = (data: GetChatData): Promise<{data: GetChatResponse}> => new Promise((resolve) => {
-  socket.emit("DIRECT_CHAT:GET_CHAT", data, (data: GetChatResponse) => resolve({data}));
+const getDirect = ({partnerId}: GetDirectData): AxiosPromise<GetDirectResult> => request({
+  url: `/directs/${partnerId}`,
+  method: "GET"
 });
 
-export interface GetChatMessagesData {
-  partner: ID;
-  skip?: number;
+export interface GetMessagesData {
+  partnerId: ID;
+  skip: number;
 }
 
-export interface GetChatMessagesResponse {
-  messages: DirectChatMessage[];
+export interface GetMessagesResult {
+  messages: DirectMessage[];
 }
 
-const getMessages = (data: GetChatMessagesData): Promise<{data: GetChatMessagesResponse}> =>
-  new Promise((resolve) => {
-    socket.emit("DIRECT_CHAT:GET_MESSAGES", data, (data: GetChatMessagesResponse) => resolve({data}));
-  });
+const getMessages = ({partnerId, skip}: GetMessagesData): AxiosPromise<GetMessagesResult> => request({
+  url: `/directs/${partnerId}/messages`,
+  method: "GET",
+  data: {skip},
+});
 
 export interface SendMessageData {
   text?: string | null;
@@ -46,12 +52,12 @@ export interface SendMessageData {
   partner: ID;
 }
 
-export interface SendMessageResponse {
-  message: DirectChatMessage;
+export interface SendMessageResult {
+  message: DirectMessage;
 }
 
-const sendMessage = (data: SendMessageData): Promise<{data: SendMessageResponse}> => new Promise((resolve) => {
-  socket.emit("DIRECT_CHAT:CREATE_MESSAGE", data, (data: SendMessageResponse) => resolve({data}));
+const sendMessage = (data: SendMessageData): Promise<{data: SendMessageResult}> => new Promise((resolve) => {
+  socket.emit("DIRECT_CHAT:CREATE_MESSAGE", data, (data: SendMessageResult) => resolve({data}));
 });
 
 export interface ReadMessageData {
@@ -59,53 +65,62 @@ export interface ReadMessageData {
   message: ID;
 }
 
-export interface ReadMessageResponse {
-  message: DirectChatMessage;
-  chat: DirectChatDetails;
+export interface ReadMessageResult {
+  message: DirectMessage;
+  chat: DirectDetails;
 }
 
-const readMessage = (data: ReadMessageData): Promise<{data: ReadMessageResponse}> => new Promise((resolve) => {
-  socket.emit("DIRECT_CHAT:READ_MESSAGE", data, (data: ReadMessageResponse) => resolve({data}));
+const readMessage = (data: ReadMessageData): Promise<{data: ReadMessageResult}> => new Promise((resolve) => {
+  socket.emit("DIRECT_CHAT:READ_MESSAGE", data, (data: ReadMessageResult) => resolve({data}));
 });
 
-export interface GetAudiosData {
-  partner: ID;
+export interface GetAttachedAudiosData {
+  partnerId: ID;
+  skip: number;
 }
 
-export interface GetAudiosResponse {
+export interface GetAttachedAudiosResult {
   audios: AttachedAudio[];
 }
 
-const getAudios = (data: GetAudiosData): Promise<{data: GetAudiosResponse}> => new Promise((resolve) => {
-  socket.emit("DIRECT_CHAT:GET_AUDIOS", data, (data: GetAudiosResponse) => resolve({data}));
+const getAttachedAudios = ({partnerId, skip}: GetAttachedAudiosData): AxiosPromise<GetAttachedAudiosResult> => request({
+  url: `/directs/${partnerId}/attached/audios`,
+  method: "GET",
+  data: {skip}
 });
 
-export interface GetImagesData {
-  partner: ID;
+export interface GetAttachedImagesData {
+  partnerId: ID;
+  skip: number;
 }
 
-export interface GetImagesResponse {
+export interface GetAttachedImagesResult {
   images: AttachedImage[];
 }
 
-const getImages = (data: GetImagesData): Promise<{data: GetImagesResponse}> => new Promise((resolve) => {
-  socket.emit("DIRECT_CHAT:GET_IMAGES", data, (data: GetImagesResponse) => resolve({data}));
+const getAttachedImages = ({partnerId, skip}: GetAttachedImagesData): AxiosPromise<GetAttachedImagesResult> => request({
+  url: `/directs/${partnerId}/attached/images`,
+  method: "GET",
+  data: {skip}
 });
 
-export interface GetFilesData {
-  partner: ID;
+export interface GetAttachedFilesData {
+  partnerId: ID;
+  skip: number;
 }
 
-export interface GetFilesResponse {
+export interface GetAttachedFilesResult {
   files: AttachedFile[];
 }
 
-const getFiles = (data: GetFilesData): Promise<{data: GetFilesResponse}> => new Promise((resolve) => {
-  socket.emit("DIRECT_CHAT:GET_FILES", data, (data: GetFilesResponse) => resolve({data}));
+const getAttachedFiles = ({partnerId, skip}: GetAttachedFilesData): AxiosPromise<GetAttachedFilesResult> => request({
+  url: `/directs/${partnerId}/attached/files`,
+  method: "GET",
+  data: {skip}
 });
 
 export const directChatsApi = {
-  getChats, getChat, getMessages,
-  sendMessage, readMessage, getAudios,
-  getImages, getFiles
+  getDirects, getDirect, getMessages,
+  sendMessage, readMessage, getAttachedAudios,
+  getAttachedImages, getAttachedFiles
 };

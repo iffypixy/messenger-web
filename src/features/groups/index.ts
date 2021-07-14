@@ -1,6 +1,5 @@
 export * as groupsActions from "./actions";
 export {reducer as groupsReducer} from "./reducer";
 export * as groupsSelectors from "./selectors";
-export type {GroupChatsListItem, GroupChat, GroupChatMessage, GroupChatDetails} from "./lib/typings";
-export {mapGroupToChat} from "./lib/map-group-to-chat";
+export type {GroupsListItem, Group, GroupMessage, GroupDetails} from "./lib/typings";
 export {GroupMessagesList, GroupEventsHandler} from "./organisms";

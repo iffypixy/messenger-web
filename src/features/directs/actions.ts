@@ -2,61 +2,61 @@ import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 
 import {
   directChatsApi,
-  GetChatData,
-  GetChatMessagesData,
-  GetChatMessagesResponse,
-  GetChatResponse,
-  GetChatsResponse,
+  GetDirectData,
+  GetMessagesData,
+  GetMessagesResult,
+  GetDirectResult,
+  GetDirectsResult,
   ReadMessageData,
-  ReadMessageResponse,
+  ReadMessageResult,
   SendMessageData,
-  SendMessageResponse,
-  GetAudiosResponse,
-  GetAudiosData, GetImagesData, GetImagesResponse, GetFilesData, GetFilesResponse
+  SendMessageResult,
+  GetAttachedAudiosResult,
+  GetAttachedAudiosData, GetAttachedImagesData, GetAttachedImagesResult, GetAttachedFilesData, GetAttachedFilesResult
 } from "@api/direct-chats.api";
 import {ID} from "@lib/typings";
-import {DirectChat, DirectChatMessage} from "./lib/typings";
+import {Direct, DirectMessage} from "./lib/typings";
 
 const type = "directs";
 
-export interface FetchChatsPayload extends GetChatsResponse {
+export interface FetchChatsPayload extends GetDirectsResult {
 }
 
 export const fetchChats = createAsyncThunk<FetchChatsPayload, void>(`${type}/fetchChats`, async () => {
-  const {data} = await directChatsApi.getChats();
+  const {data} = await directChatsApi.getDirects();
 
   return data;
 });
 
-export interface FetchChatPayload extends GetChatResponse {
+export interface FetchChatPayload extends GetDirectResult {
 }
 
-export interface FetchChatData extends GetChatData {
+export interface FetchChatData extends GetDirectData {
   partnerId: ID;
 }
 
 export const fetchChat = createAsyncThunk<FetchChatPayload, FetchChatData>(`${type}/fetchChat`,
-  async ({partner}) => {
-    const {data} = await directChatsApi.getChat({partner});
+  async ({partnerId}) => {
+    const {data} = await directChatsApi.getDirect({partnerId});
 
     return data;
   });
 
-export interface FetchMessagesPayload extends GetChatMessagesResponse {
+export interface FetchMessagesPayload extends GetMessagesResult {
 }
 
-export interface FetchMessagesData extends GetChatMessagesData {
+export interface FetchMessagesData extends GetMessagesData {
   partnerId: ID;
 }
 
 export const fetchMessages = createAsyncThunk<FetchMessagesPayload, FetchMessagesData>(`${type}/fetchMessages`,
-  async ({skip, partner}) => {
-    const {data} = await directChatsApi.getMessages({skip, partner});
+  async ({skip, partnerId}) => {
+    const {data} = await directChatsApi.getMessages({skip, partnerId});
 
     return data;
   });
 
-export interface FetchSendingMessagePayload extends SendMessageResponse {
+export interface FetchSendingMessagePayload extends SendMessageResult {
 }
 
 export interface FetchSendingMessageData extends SendMessageData {
@@ -72,7 +72,7 @@ export const fetchSendingMessage = createAsyncThunk<FetchSendingMessagePayload, 
 export interface FetchReadingMessageData extends ReadMessageData {
 }
 
-export interface FetchReadingMessagePayload extends ReadMessageResponse {
+export interface FetchReadingMessagePayload extends ReadMessageResult {
 }
 
 export const fetchReadingMessage = createAsyncThunk<FetchReadingMessagePayload, FetchReadingMessageData>(`${type}/fetchReadingMessage`,
@@ -82,58 +82,52 @@ export const fetchReadingMessage = createAsyncThunk<FetchReadingMessagePayload, 
     return data;
   });
 
-export interface FetchAudiosData extends GetAudiosData {
+export interface FetchAttachedAudiosData extends GetAttachedAudiosData {
   partnerId: ID;
 }
 
-export interface FetchAudiosPayload extends GetAudiosResponse {
+export interface FetchAttachedAudiosPayload extends GetAttachedAudiosResult {
 }
 
-export const fetchAudios = createAsyncThunk<FetchAudiosPayload, FetchAudiosData>(`${type}/fetchAudios`,
+export const fetchAttachedAudios = createAsyncThunk<FetchAttachedAudiosPayload, FetchAttachedAudiosData>(`${type}/fetchAttachedAudios`,
   async (args) => {
-    const {data} = await directChatsApi.getAudios(args);
+    const {data} = await directChatsApi.getAttachedAudios(args);
 
     return data;
   });
 
-export interface FetchImagesData extends GetImagesData {
+export interface FetchAttachedImagesData extends GetAttachedImagesData {
   partnerId: ID;
 }
 
-export interface FetchImagesPayload extends GetImagesResponse {
+export interface FetchAttachedImagesPayload extends GetAttachedImagesResult {
 }
 
-export const fetchImages = createAsyncThunk<FetchImagesPayload, FetchImagesData>(`${type}/fetchImages`,
+export const fetchAttachedImages = createAsyncThunk<FetchAttachedImagesPayload, FetchAttachedImagesData>(`${type}/fetchAttachedImages`,
   async (args) => {
-    const {data} = await directChatsApi.getImages(args);
+    const {data} = await directChatsApi.getAttachedImages(args);
 
     return data;
   });
 
-export interface FetchFilesData extends GetFilesData {
+export interface FetchAttachedFilesData extends GetAttachedFilesData {
   partnerId: ID;
 }
 
-export interface FetchFilesPayload extends GetFilesResponse {
+export interface FetchAttachedFilesPayload extends GetAttachedFilesResult {
 }
 
-export const fetchFiles = createAsyncThunk<FetchFilesPayload, FetchFilesData>(`${type}/fetchFiles`,
+export const fetchAttachedFiles = createAsyncThunk<FetchAttachedFilesPayload, FetchAttachedFilesData>(`${type}/fetchAttachedFiles`,
   async (args) => {
-    const {data} = await directChatsApi.getFiles(args);
+    const {data} = await directChatsApi.getAttachedFiles(args);
 
     return data;
   });
-
-export interface SetScrollPayload {
-  partnerId: ID;
-  scroll: number;
-}
-
-export const setScroll = createAction<SetScrollPayload>(`${type}/setScroll`);
 
 export interface AddMessagePayload {
   partnerId: ID;
-  message: DirectChatMessage;
+  message: DirectMessage;
+  chat: Direct;
   isOwn: boolean;
 }
 
@@ -142,7 +136,7 @@ export const addMessage = createAction<AddMessagePayload>(`${type}/addMessage`);
 export interface UpdateMessagePayload {
   partnerId: ID;
   messageId: ID;
-  partial: Partial<DirectChatMessage>;
+  partial: Partial<DirectMessage>;
 }
 
 export const updateMessage = createAction<UpdateMessagePayload>(`${type}/updateMessage`);
@@ -154,16 +148,16 @@ export interface ReadMessagePayload {
 
 export const readMessage = createAction<ReadMessagePayload>(`${type}/readMessage`);
 
-export interface SetNumberOfUnreadMessagesPayload {
+export interface SetUnreadPayload {
   partnerId: ID;
-  number: number;
+  unread: number;
 }
 
-export const setNumberOfUnreadMessages = createAction<SetNumberOfUnreadMessagesPayload>(`${type}/setNumberOfUnreadMessages`);
+export const setUnread = createAction<SetUnreadPayload>(`${type}/setUnread`);
 
-export interface AddChatPayload {
+export interface SetDirectPayload {
   partnerId: ID;
-  chat: DirectChat;
+  direct: Direct;
 }
 
-export const addChat = createAction<AddChatPayload>(`${type}/addChat`);
+export const setDirect = createAction<SetDirectPayload>(`${type}/setDirect`);

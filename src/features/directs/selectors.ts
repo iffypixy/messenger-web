@@ -10,7 +10,7 @@ export const areChatsFetching = (state: RootState) => directsState(state).areCha
 export const chat = (partnerId: ID) => (state: RootState) => {
   const chat = directsState(state).chats[partnerId];
 
-  return chat?.chat || null;
+  return chat?.direct || null;
 };
 
 export const isChatFetching = (partnerId: ID) => (state: RootState) => {
@@ -35,12 +35,6 @@ export const areMessagesFetched = (partnerId: ID) => (state: RootState) => {
   const chat = directsState(state).chats[partnerId];
 
   return chat?.areMessagesFetched || false;
-};
-
-export const scroll = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
-
-  return chat?.scroll || null;
 };
 
 export const areMessagesLeftToFetch = (partnerId: ID) => (state: RootState) => {

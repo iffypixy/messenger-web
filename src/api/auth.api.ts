@@ -9,11 +9,11 @@ export interface LoginData {
     fingerprint: string;
 }
 
-export interface LoginResponse {
+export interface LoginResult {
     credentials: Credentials;
 }
 
-const login = (data: LoginData): AxiosPromise<LoginResponse> => request({
+const login = (data: LoginData): AxiosPromise<LoginResult> => request({
     url: "/auth/login",
     method: "POST", data
 });
@@ -24,20 +24,20 @@ export interface RegisterData {
     fingerprint: string;
 }
 
-export interface RegisterResponse {
+export interface RegisterResult {
     credentials: Credentials;
 }
 
-const register = (data: RegisterData): AxiosPromise<RegisterResponse> => request({
+const register = (data: RegisterData): AxiosPromise<RegisterResult> => request({
     url: "/auth/register",
     method: "POST", data
 });
 
-export interface GetCredentialsResponse {
+export interface GetCredentialsResult {
     credentials: Credentials;
 }
 
-const getCredentials = (): AxiosPromise<GetCredentialsResponse> => request({
+const getCredentials = (): AxiosPromise<GetCredentialsResult> => request({
     url: "/auth/credentials",
     method: "GET"
 });

@@ -1,38 +1,73 @@
 import React, {useEffect} from "react";
-import {useSelector} from "react-redux";
 
-import {authSelectors} from "@features/auth";
 import {useRootDispatch} from "@lib/store";
 import {socket} from "@lib/socket";
-import {DirectChatMessage, DirectChatPartner} from "../lib/typings";
+import {DirectDetails, DirectMessage, DirectPartner} from "../lib/typings";
 import {serverEvents} from "../lib/socket-events";
 import * as actions from "../actions";
 
 export const DirectEventsHandler: React.FC = () => {
   const dispatch = useRootDispatch();
 
-  const credentials = useSelector(authSelectors.credentials)!;
-
   useEffect(() => {
-    socket.on(serverEvents.MESSAGE, ({message, partner}: {message: DirectChatMessage; partner: DirectChatPartner}) => {
-      const isOwn = (message.sender && message.sender.id) === credentials.id;
-
-      if (!isOwn) dispatch(actions.addMessage({
-        message, isOwn: false,
-        partnerId: partner.id
+    socket.on(serverEvents.MESSAGE, ({message, partner, chat, isBanned}: {
+      message: DirectMessage;
+      partner: DirectPartner;
+      chat: DirectDetails;
+      isBanned: boolean;
+    }) => {
+      dispatch(actions.addMessage({
+        message,
+        isOwn: false,
+        partnerId: partner.id,
+        chat: {
+          details: chat,
+          partner, isBanned
+        },
       }));
     });
 
-    socket.on(serverEvents.MESSAGE_READ, ({message, partner}: {message: DirectChatMessage; partner: DirectChatPartner}) => {
+    socket.on(serverEvents.MESSAGE_READ, ({message, partner}: {
+      message: DirectMessage;
+      partner: DirectPartner;
+    }) => {
       dispatch(actions.readMessage({
         partnerId: partner.id,
         messageId: message.id
       }));
     });
 
+    socket.on(serverEvents.BANNED, ({details, partner}: {
+      details: DirectDetails;
+      partner: DirectPartner;
+    }) => {
+      dispatch(actions.setDirect({
+        partnerId: partner.id,
+        direct: {
+          details, partner,
+          isBanned: true
+        }
+      }));
+    });
+
+    socket.on(serverEvents.UNBANNED, ({details, partner}: {
+      details: DirectDetails;
+      partner: DirectPartner;
+    }) => {
+      dispatch(actions.setDirect({
+        partnerId: partner.id,
+        direct: {
+          details, partner,
+          isBanned: false
+        }
+      }));
+    });
+
     return () => {
       socket.off(serverEvents.MESSAGE);
       socket.off(serverEvents.MESSAGE_READ);
+      socket.off(serverEvents.BANNED);
+      socket.off(serverEvents.UNBANNED);
     };
   }, []);
 

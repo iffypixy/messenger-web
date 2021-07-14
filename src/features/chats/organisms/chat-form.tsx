@@ -4,7 +4,6 @@ import prettyBytes from "pretty-bytes";
 import styled from "styled-components";
 
 import {uploadApi} from "@api/upload.api";
-import {UploadingFile} from "@features/chats";
 import {stopMediaStream} from "@lib/media-stream";
 import {Col, Row} from "@lib/layout";
 import {formatDuration} from "@lib/date";
@@ -14,34 +13,46 @@ import {ProgressBar} from "@ui/molecules";
 
 interface ChatFormProps {
   handleSubmit: (options: {
-    text: string | null;
+    text: string;
     files: File[] | null;
-    audio: {id: ID; url: string} | null;
-    images: {id: ID; url: string}[] | null;
+    audio: {
+      id: ID;
+      url: string;
+    } | null;
+    images: {
+      id: ID;
+      url: string;
+    }[] | null;
   }) => void;
 }
 
-interface ChatFormState {
-  images: UploadingFile[];
-  files: UploadingFile[];
-  audio: ID;
-  text: string;
-}
-
-interface ChatRecordingState {
-  isRecording: boolean;
+interface UploadingFile {
+  id?: ID;
+  key: string;
+  url?: string;
+  name?: string;
+  size?: number;
   isUploading: boolean;
-  mediaRecorder: MediaRecorder | null;
-  duration: number;
+  progress: number;
 }
 
 export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
-  const [form, setForm] = useState<ChatFormState>({
-    audio: "", files: [],
-    images: [], text: ""
+  const [form, setForm] = useState<{
+    images: UploadingFile[];
+    files: UploadingFile[];
+    audio: ID;
+    text: string;
+  }>({
+    audio: "", text: "",
+    images: [], files: []
   });
 
-  const [audio, setAudio] = useState<ChatRecordingState>({
+  const [audio, setAudio] = useState<{
+    isRecording: boolean;
+    isUploading: boolean;
+    mediaRecorder: MediaRecorder | null;
+    duration: number;
+  }>({
     isRecording: false,
     isUploading: false,
     mediaRecorder: null,
@@ -50,13 +61,13 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
 
   const {text, images, files} = form;
 
-  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTextInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setForm({
       ...form, text: event.currentTarget.value
     });
   };
 
-  const handleFilesChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.currentTarget.files && event.currentTarget.files[0];
 
     if (!file) return;
@@ -64,10 +75,12 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
     const key = nanoid();
 
     setForm({
-      ...form, files: [...files, {
-        key, isUploading: true, progress: 0,
-        name: file.name
-      }]
+      ...form, files: [
+        ...files, {
+          key, isUploading: true,
+          progress: 0, name: file.name
+        }
+      ]
     });
 
     uploadApi.upload({file}, {
@@ -95,7 +108,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
     });
   };
 
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.currentTarget.files && event.currentTarget.files[0];
 
     if (!file) return;
@@ -103,11 +116,12 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
     const key = nanoid();
 
     setForm({
-      ...form,
-      images: [...images, {
-        key, progress: 0, isUploading: true,
-        name: file.name
-      }]
+      ...form, images: [
+        ...images, {
+          key, progress: 0, isUploading: true,
+          name: file.name
+        }
+      ]
     });
 
     uploadApi.upload({file}, {
@@ -135,19 +149,19 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
     });
   };
 
-  const removeFile = (key: UploadingFile["key"]) => {
+  const removeFile = (key: string) => {
     setForm({
       ...form, files: files.filter((file) => file.key !== key)
     });
   };
 
-  const removeImage = (key: UploadingFile["key"]) => {
+  const removeImage = (key: string) => {
     setForm({
       ...form, images: images.filter((image) => image.key !== key)
     });
   };
 
-  const attachments: (UploadingFile & {type: string})[] = [
+  const attachments = [
     ...files.map((file) => ({...file, type: "files"})),
     ...images.map(((image) => ({...image, type: "images"})))
   ];
@@ -160,8 +174,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
       isUploading: false
     });
 
-    navigator.mediaDevices.getUserMedia({audio: true})
-      .then((stream) => {
+    navigator.mediaDevices.getUserMedia({audio: true}).then((stream) => {
         const mediaRecorder = new MediaRecorder(stream);
 
         setAudio((audio) => ({
@@ -215,7 +228,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
           }).then(({data: {file: {id, url}}}) => {
             handleSubmit({
               audio: {id, url},
-              text: null,
+              text: "",
               images: null,
               files: null
             });
@@ -260,10 +273,10 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
 
     const attachedFiles = files
       .filter(({isUploading}) => !isUploading)
-      .map(({id, url, name, size}) => ({id: id!, url: url!, name: name!, size: size!}))
+      .map(({id, url, name, size}) => ({id: id!, url: url!, name: name!, size: size!}));
 
     handleSubmit({
-      text: text || null, audio: null,
+      text, audio: null,
       images: !!attachedImages.length ? attachedImages : null,
       files: !!attachedFiles.length ? attachedFiles : null
     });
@@ -289,7 +302,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
 
               <Text>{formatDuration(Math.ceil(audio.duration))}</Text>
 
-              {audio.isUploading ? <Loader /> : (
+              {audio.isUploading ? <Loader/> : (
                 <Button type="submit" pure>
                   <Icon name="telegram"/>
                 </Button>
@@ -301,7 +314,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
               <Input
                 type="file"
                 name="file"
-                onChange={handleFilesChange}
+                onChange={handleFileInputChange}
                 invisible label={(
                 <Icon
                   name="attachment"
@@ -311,7 +324,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
               <Input
                 type="file"
                 name="image"
-                onChange={handleImageChange}
+                onChange={handleImageInputChange}
                 accept="image/*"
                 invisible label={(
                 <Icon
@@ -329,7 +342,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
                 name="message"
                 type="text"
                 value={text}
-                onChange={handleTextChange}
+                onChange={handleTextInputChange}
                 transparent/>
 
               <Icon

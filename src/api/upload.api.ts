@@ -1,17 +1,17 @@
 import {AxiosPromise, AxiosRequestConfig} from "axios";
 
 import {request} from "@lib/http";
-import {File as IFile} from "@lib/typings";
+import {File} from "@lib/typings";
 
 interface UploadData {
+  file: globalThis.File;
+}
+
+interface UploadResult {
   file: File;
 }
 
-interface UploadResponse {
-  file: IFile;
-}
-
-const upload = ({file}: UploadData, options: Partial<AxiosRequestConfig> = {}): AxiosPromise<UploadResponse> => {
+const upload = ({file}: UploadData, options: Partial<AxiosRequestConfig> = {}): AxiosPromise<UploadResult> => {
   const formData = new FormData();
 
   formData.append("file", file);
@@ -22,7 +22,7 @@ const upload = ({file}: UploadData, options: Partial<AxiosRequestConfig> = {}): 
     data: formData,
     ...options
   });
-}
+};
 
 export const uploadApi = {
   upload
