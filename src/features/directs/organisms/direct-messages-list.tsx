@@ -77,7 +77,7 @@ export const DirectMessagesList: React.FC<DirectMessagesListProps> = ({messages,
       if (isVisible) {
         const id = last.dataset.id as ID;
 
-        dispatch(actions.readMessage({
+        dispatch(actions.setMessagesRead({
           partnerId, messageId: id
         }));
 
@@ -91,8 +91,7 @@ export const DirectMessagesList: React.FC<DirectMessagesListProps> = ({messages,
         }));
 
         dispatch(actions.fetchReadingMessage({
-          message: id,
-          partner: partnerId
+          messageId: id, partnerId
         }));
       }
     }

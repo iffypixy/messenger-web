@@ -27,7 +27,6 @@ export interface FetchChatPayload extends GetGroupResult {
 }
 
 export interface FetchChatData extends GetGroupData {
-  groupId: ID;
 }
 
 export const fetchChat = createAsyncThunk<FetchChatPayload, FetchChatData>(`${type}/fetchChat`, async (args) => {
@@ -40,7 +39,6 @@ export interface FetchMessagesPayload extends GetMessagesResult {
 }
 
 export interface FetchMessagesData extends GetMessagesData {
-  groupId: ID;
 }
 
 export const fetchMessages = createAsyncThunk<FetchMessagesPayload, FetchMessagesData>(`${type}/fetchMessages`, async (args) => {
@@ -90,12 +88,12 @@ export interface UpdateMessagePayload {
 
 export const updateMessage = createAction<UpdateMessagePayload>(`${type}/updateMessage`);
 
-export interface ReadMessagePayload {
+export interface SetMessagesReadPayload {
   groupId: ID;
   messageId: ID;
 }
 
-export const readMessage = createAction<ReadMessagePayload>(`${type}/readMessage`);
+export const setMessagesRead = createAction<SetMessagesReadPayload>(`${type}/setMessagesRead`);
 
 export interface SetUnreadPayload {
   groupId: ID;

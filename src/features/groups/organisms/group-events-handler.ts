@@ -25,7 +25,7 @@ export const GroupEventsHandler: React.FC = () => {
       message: GroupMessage;
       chat: GroupDetails;
     }) => {
-      dispatch(actions.readMessage({
+      dispatch(actions.setMessagesRead({
         groupId: chat.id,
         messageId: message.id
       }));

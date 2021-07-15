@@ -40,16 +40,16 @@ export interface GetMessagesResult {
 const getMessages = ({partnerId, skip}: GetMessagesData): AxiosPromise<GetMessagesResult> => request({
   url: `/directs/${partnerId}/messages`,
   method: "GET",
-  data: {skip},
+  params: {skip},
 });
 
 export interface SendMessageData {
-  text?: string | null;
-  audio?: ID | null;
-  images?: ID[] | null;
-  files?: ID[] | null;
-  parent?: ID | null;
-  partner: ID;
+  text?: string;
+  audioId?: ID | null;
+  imagesIds?: ID[] | null;
+  filesIds?: ID[] | null;
+  parentId?: ID | null;
+  partnerId: ID;
 }
 
 export interface SendMessageResult {
@@ -61,8 +61,8 @@ const sendMessage = (data: SendMessageData): Promise<{data: SendMessageResult}> 
 });
 
 export interface ReadMessageData {
-  partner: ID;
-  message: ID;
+  partnerId: ID;
+  messageId: ID;
 }
 
 export interface ReadMessageResult {
@@ -86,7 +86,7 @@ export interface GetAttachedAudiosResult {
 const getAttachedAudios = ({partnerId, skip}: GetAttachedAudiosData): AxiosPromise<GetAttachedAudiosResult> => request({
   url: `/directs/${partnerId}/attached/audios`,
   method: "GET",
-  data: {skip}
+  params: {skip}
 });
 
 export interface GetAttachedImagesData {
@@ -101,7 +101,7 @@ export interface GetAttachedImagesResult {
 const getAttachedImages = ({partnerId, skip}: GetAttachedImagesData): AxiosPromise<GetAttachedImagesResult> => request({
   url: `/directs/${partnerId}/attached/images`,
   method: "GET",
-  data: {skip}
+  params: {skip}
 });
 
 export interface GetAttachedFilesData {
@@ -116,7 +116,7 @@ export interface GetAttachedFilesResult {
 const getAttachedFiles = ({partnerId, skip}: GetAttachedFilesData): AxiosPromise<GetAttachedFilesResult> => request({
   url: `/directs/${partnerId}/attached/files`,
   method: "GET",
-  data: {skip}
+  params: {skip}
 });
 
 export const directChatsApi = {

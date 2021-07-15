@@ -5,27 +5,27 @@ import * as actions from "./actions";
 import {FetchSearchingUsersPayload} from "./actions";
 
 interface UsersState {
-  searched: User[] | null;
-  areSearchingFetching: boolean;
+  searching: User[];
+  isSearchingFetching: boolean;
 }
 
 export const reducer = createReducer<UsersState>(
   {
-    searched: null,
-    areSearchingFetching: false
+    searching: [],
+    isSearchingFetching: false
   },
   {
     [actions.fetchSearchingUsers.pending.type]: (state) => {
-      state.areSearchingFetching = true;
+      state.isSearchingFetching = true;
     },
 
     [actions.fetchSearchingUsers.fulfilled.type]: (state, {payload}: PayloadAction<FetchSearchingUsersPayload>) => {
-      state.searched = payload.users;
-      state.areSearchingFetching = false;
+      state.searching = payload.users;
+      state.isSearchingFetching = false;
     },
 
     [actions.fetchSearchingUsers.rejected.type]: (state) => {
-      state.areSearchingFetching = false;
+      state.isSearchingFetching = false;
     },
   }
 );

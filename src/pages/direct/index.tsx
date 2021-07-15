@@ -35,23 +35,26 @@ export const DirectPage = () => {
   const {closeModal, isModalOpen, openModal} = useModal();
 
   const chat = useSelector(directsSelectors.chat(partnerId));
-  const isChatFetching = useSelector(directsSelectors.isChatFetching(partnerId));
   const messages = useSelector(directsSelectors.messages(partnerId));
   const areMessagesFetching = useSelector(directsSelectors.areMessagesFetching(partnerId));
   const areMessagesFetched = useSelector(directsSelectors.areMessagesFetched(partnerId));
-
-  const toFetchMessages = !areMessagesFetched || (!messages && !areMessagesFetching);
+  const isChatFetching = useSelector(directsSelectors.isChatFetching(partnerId));
 
   const toFetchChat = !chat && !isChatFetching;
+  const toFetchMessages = !areMessagesFetched && !areMessagesFetching;
 
   useEffect(() => {
-    if (toFetchChat) dispatch(directsActions.fetchChat({
-      partnerId
-    }));
-
-    if (toFetchMessages) dispatch(directsActions.fetchMessages({
-      partnerId, skip: messages ? messages.length : 0
-    }));
+    if (toFetchChat) {
+      dispatch(directsActions.fetchChat({partnerId}))
+        .then(unwrapResult)
+        .then(() => {
+          if (toFetchMessages) {
+            dispatch(directsActions.fetchMessages({
+              partnerId, skip: messages.length
+            }));
+          }
+        });
+    }
   }, [partnerId]);
 
   return (
@@ -232,11 +235,12 @@ const DirectChat: React.FC = () => {
             }));
 
             dispatch(directsActions.fetchSendingMessage({
-              text, parent: null,
-              images: images && images.map(({id}) => id),
-              files: files && files.map(({id}) => id),
-              audio: audio && audio.id,
-              partner: chat.partner.id
+              text,
+              parentId: null,
+              partnerId: chat.partner.id,
+              imagesIds: images && images.map(({id}) => id),
+              filesIds: files && files.map(({id}) => id),
+              audioId: audio && audio.id
             })).then(unwrapResult)
               .then(({message}) => {
                 dispatch(directsActions.updateMessage({

@@ -40,16 +40,16 @@ export interface GetMessagesResult {
 const getMessages = ({groupId, skip}: GetMessagesData): AxiosPromise<GetMessagesResult> => request({
   url: `/groups/${groupId}/messages`,
   method: "GET",
-  data: {skip}
+  params: {skip}
 });
 
 export interface SendMessageData {
-  text?: string | null;
-  audio?: ID | null;
-  images?: ID[] | null;
-  files?: ID[] | null;
-  parent?: ID | null;
-  group: ID;
+  text?: string;
+  audioId?: ID | null;
+  imagesIds?: ID[] | null;
+  filesIds?: ID[] | null;
+  parentId?: ID | null;
+  groupId: ID;
 }
 
 export interface SendMessageResult {
@@ -61,8 +61,8 @@ const sendMessage = (data: SendMessageData): Promise<{data: SendMessageResult}> 
 });
 
 export interface ReadMessageData {
-  group: ID;
-  message: ID;
+  groupId: ID;
+  messageId: ID;
 }
 
 export interface ReadMessageResult {
@@ -86,7 +86,7 @@ export interface GetAttachedAudiosResult {
 const getAttachedAudios = ({groupId, skip}: GetAttachedAudiosData): AxiosPromise<GetAttachedAudiosResult> => request({
   url: `/groups/${groupId}/attached/audios`,
   method: "GET",
-  data: {skip}
+  params: {skip}
 });
 
 export interface GetAttachedImagesData {
@@ -101,7 +101,7 @@ export interface GetAttachedImagesResult {
 const getAttachedImages = ({groupId, skip}: GetAttachedImagesData): AxiosPromise<GetAttachedImagesResult> => request({
   url: `/groups/${groupId}/attached/images`,
   method: "GET",
-  data: {skip}
+  params: {skip}
 });
 
 export interface GetAttachedFilesData {
@@ -116,7 +116,7 @@ export interface GetAttachedFilesResult {
 const getAttachedFiles = ({groupId, skip}: GetAttachedFilesData): AxiosPromise<GetAttachedFilesResult> => request({
   url: `/groups/${groupId}/attached/images`,
   method: "GET",
-  data: {skip}
+  params: {skip}
 });
 
 export const groupChatsApi = {

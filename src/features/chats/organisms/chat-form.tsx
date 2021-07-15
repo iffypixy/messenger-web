@@ -11,6 +11,18 @@ import {File, ID} from "@lib/typings";
 import {Button, Icon, Input, Loader, Text} from "@ui/atoms";
 import {ProgressBar} from "@ui/molecules";
 
+type Attachment = "images" | "files";
+
+interface UploadingFile {
+  id?: ID;
+  key: string;
+  url?: string;
+  name?: string;
+  size?: number;
+  isUploading: boolean;
+  progress: number;
+}
+
 interface ChatFormProps {
   handleSubmit: (options: {
     text: string;
@@ -24,16 +36,6 @@ interface ChatFormProps {
       url: string;
     }[] | null;
   }) => void;
-}
-
-interface UploadingFile {
-  id?: ID;
-  key: string;
-  url?: string;
-  name?: string;
-  size?: number;
-  isUploading: boolean;
-  progress: number;
 }
 
 export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
@@ -161,9 +163,9 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
     });
   };
 
-  const attachments = [
-    ...files.map((file) => ({...file, type: "files"})),
-    ...images.map(((image) => ({...image, type: "images"})))
+  const attachments: (UploadingFile & {type: Attachment})[] = [
+    ...files.map((file) => ({...file, type: "files" as const})),
+    ...images.map(((image) => ({...image, type: "images" as const})))
   ];
 
   const startRecording = () => {

@@ -4,15 +4,15 @@ import {useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 
 import {chatsSelectors} from "@features/chats";
-import {DirectsListItem, directsSelectors} from "@features/directs";
-import {GroupsListItem, groupsSelectors} from "@features/groups";
+import {directsSelectors} from "@features/directs";
+import {groupsSelectors} from "@features/groups";
 import {authSelectors} from "@features/auth";
 import {usersSelectors} from "@features/users";
 import {Col, Row} from "@lib/layout";
+import {ID} from "@lib/typings";
 import {Text, Circle, H3, H5} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 import {formatMessageDate} from "../lib/formatting";
-import {ID} from "@lib/typings";
 
 interface ChatsListItem {
   id: ID;
@@ -24,31 +24,14 @@ interface ChatsListItem {
   link: string;
 }
 
-const mapDirectToChat = ({details, lastMessage, partner, unread}: DirectsListItem): ChatsListItem => ({
-  unread, id: details.id,
-  name: partner.username,
-  avatar: partner.avatar,
-  message: lastMessage && `${lastMessage.text || "Attachments"}`,
-  date: lastMessage && new Date(lastMessage.createdAt),
-  link: `/direct/${partner.id}`
-});
-
-const mapGroupToChat = ({id, title, avatar, lastMessage, unread}: GroupsListItem): ChatsListItem => ({
-  id, avatar, unread,
-  name: title,
-  message: lastMessage && `${lastMessage.text || "Attachments"}`,
-  date: lastMessage && new Date(lastMessage.createdAt),
-  link: `/group/${id}`
-});
-
 export const ChatsList: React.FC = () => {
   const credentials = useSelector(authSelectors.credentials)!;
   const directs = useSelector(directsSelectors.chats);
   const groups = useSelector(groupsSelectors.chats);
+  const search = useSelector(chatsSelectors.search);
+  const searching = useSelector(usersSelectors.searching);
   const areDirectsFetching = useSelector(directsSelectors.areChatsFetching);
   const areGroupsFetching = useSelector(groupsSelectors.areChatsFetching);
-  const searching = useSelector(chatsSelectors.search);
-  const searched = useSelector(usersSelectors.searched);
 
   const isFetching = areDirectsFetching || areGroupsFetching;
 
@@ -58,57 +41,79 @@ export const ChatsList: React.FC = () => {
     </List>
   );
 
+  const supplementMessage = ({text, isOwn}: {
+    text: string | null;
+    isOwn: boolean;
+  }): string => {
+    const message = text || "Attachments";
+
+    return isOwn ? `You: ${message}` : message;
+  };
+
   const chats: ChatsListItem[] = [];
 
-  directs && chats.push(...directs.map((direct) => {
-    const chat = mapDirectToChat(direct);
+  if (directs) {
+    chats.push(...directs.map(({details, lastMessage: {text, sender, createdAt}, partner, unread}) => {
+      const isOwn = !!sender && (sender.id === credentials.id);
 
-    const lastMessage = direct.lastMessage;
-    const isOwn = (lastMessage && lastMessage.sender) && (lastMessage.sender.id === credentials.id);
+      const completed = supplementMessage({text, isOwn});
 
-    const prefix = isOwn ? "You: " : "";
+      return {
+        unread,
+        id: details.id,
+        name: partner.username,
+        avatar: partner.avatar,
+        message: completed,
+        date: new Date(createdAt),
+        link: `/direct/${partner.id}`
+      };
+    }));
+  }
 
-    chat.message = lastMessage && `${prefix}${chat.message}`;
+  if (groups) {
+    chats.push(...groups.map(({id, avatar, lastMessage, title, unread}) => {
+      const isOwn = (!!lastMessage && !!lastMessage.sender) && (lastMessage.sender.id === credentials.id);
 
-    return chat;
-  }));
+      const completed = supplementMessage({
+        text: lastMessage && lastMessage.text, isOwn
+      });
 
-  groups && chats.push(...groups.map((group) => {
-    const chat = mapGroupToChat(group);
+      return {
+        id, avatar, unread,
+        name: title,
+        message: completed,
+        date: lastMessage && new Date(lastMessage.createdAt),
+        link: `/group/${id}`
+      };
+    }));
+  }
 
-    const lastMessage = group.lastMessage;
-    const isOwn = (lastMessage && lastMessage.sender) && (lastMessage.sender.id === credentials.id);
-
-    const prefix = isOwn ? "You: " : "";
-
-    chat.message = lastMessage && `${prefix}${chat.message}`;
-
-    return chat;
-  }));
-
-  const filteredSearched = (directs && searched) && searched.filter(({id}) =>
-    directs.findIndex(({partner}) => partner.id === id) === -1);
+  const filtered = (search && directs) && searching.filter(({id}) =>
+    credentials.id !== id && !directs.some(({partner}) => partner.id === id));
 
   return (
     <List>
       <Col width="100%" gap="2rem">
         {[...chats]
-          .filter(({name}) => name.toLowerCase().startsWith(searching.toLowerCase()))
-          .map((props) => (
-            <ListItem key={props.id} {...props}/>
-          ))}
+          .sort((a, b) => {
+            const first = a.date ? +a.date : 0;
+            const second = b.date ? +b.date : 0;
+
+            return first - second;
+          })
+          .map((props) => <ListItem key={props.id} {...props}/>)}
       </Col>
 
-      {filteredSearched && (
+      {filtered && (
         <SearchList gap="2rem">
-          {filteredSearched.length === 0 ? (
+          {filtered.length === 0 ? (
             <Row
               width="100%"
               justify="center"
               align="center">
               <H5>No users found</H5>
             </Row>
-          ) : filteredSearched.map(({id, username, avatar}) => (
+          ) : filtered.map(({id, username, avatar}) => (
             <ListItem
               key={id}
               name={username}

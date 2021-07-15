@@ -7,14 +7,15 @@ import {
   FetchChatPayload,
   FetchMessagesData,
   FetchMessagesPayload,
-  ReadMessagePayload,
   SetUnreadPayload,
   UpdateMessagePayload,
   FetchChatsPayload,
   AddChatPayload,
   IncreaseParticipantsPayload,
   DecreaseParticipantsPayload,
-  RemoveChatPayload, ChangeMemberPayload
+  RemoveChatPayload,
+  ChangeMemberPayload,
+  SetMessagesReadPayload
 } from "./actions";
 import * as actions from "./actions";
 import {AttachedAudio, AttachedFile, AttachedImage} from "@features/chats";
@@ -42,7 +43,7 @@ interface GroupsState {
   };
 }
 
-const fallback: Chat = {
+export const fallback: Chat = {
   group: null,
   messages: [],
   images: [],
@@ -117,8 +118,7 @@ export const reducer = createReducer<GroupsState>({
       areMessagesFetching: false,
       areMessagesFetched: true,
       areMessagesLeftToFetch: !!payload.messages.length,
-      messages: chat.messages ? [...payload.messages, ...chat.messages]
-        : payload.messages
+      messages: [...payload.messages, ...chat.messages]
     };
   },
 
@@ -130,79 +130,54 @@ export const reducer = createReducer<GroupsState>({
     };
   },
 
-  [actions.readMessage.type]: (state, {payload}: PayloadAction<ReadMessagePayload>) => {
+  [actions.setMessagesRead.type]: (state, {payload}: PayloadAction<SetMessagesReadPayload>) => {
     const chat = state.chats[payload.groupId] || fallback;
 
-    const idx = chat.messages && chat.messages
-      .findIndex((message) => message.id === payload.messageId);
+    const idx = chat.messages.findIndex(({id}) => id === payload.messageId);
 
     state.chats[payload.groupId] = {
-      ...chat,
-      messages: chat.messages && chat.messages
-        .map((message, index) => idx >= index ? ({...message, isRead: true}) : message)
+      ...chat, messages: chat.messages.map((msg, index) =>
+        idx >= index ? ({...msg, isRead: true}) : msg)
     };
 
-    state.list = state.list && state.list.map((chat) => {
-      const isCurrent = chat.id === payload.groupId &&
-        (chat.lastMessage && chat.lastMessage.id) === payload.messageId;
-
-      if (isCurrent) return ({
+    state.list = state.list && state.list.map((chat) =>
+      (chat.id === payload.groupId) && (chat.lastMessage && (chat.lastMessage.id === payload.messageId)) ? ({
         ...chat, lastMessage: {
-          ...chat.lastMessage!, isRead: true
+          ...chat.lastMessage!,
+          isRead: true
         }
-      });
-
-      return chat;
-    });
+      }) : chat);
   },
 
   [actions.addMessage.type]: (state, {payload}: PayloadAction<AddMessagePayload>) => {
     const chat = state.chats[payload.groupId] || fallback;
 
     state.chats[payload.groupId] = {
-      ...chat,
-      messages: chat.messages ? [...chat.messages, payload.message] : [payload.message]
+      ...chat, messages: [...chat.messages, payload.message]
     };
 
-    state.list = state.list && state.list.map((chat) => {
-      const isCurrent = chat.id === payload.groupId;
-
-      if (isCurrent) {
-        const unread = payload.isOwn ? chat.unread : (chat.unread ? chat.unread + 1 : 1);
-
-        return {
-          ...chat, unread,
-          lastMessage: payload.message
-        };
-      }
-
-      return chat;
-    });
+    state.list = state.list && state.list.map((chat) => chat.id === payload.groupId ? ({
+      ...chat,
+      lastMessage: payload.message,
+      unread: payload.isOwn ? chat.unread : chat.unread + 1
+    }) : chat);
   },
 
   [actions.updateMessage.type]: (state, {payload}: PayloadAction<UpdateMessagePayload>) => {
     const chat = state.chats[payload.groupId] || fallback;
 
     state.chats[payload.groupId] = {
-      ...chat, messages: chat.messages &&
-        chat.messages.map((message) => message.id === payload.messageId ?
-          ({...message, ...payload.partial}) : message)
+      ...chat, messages: chat.messages.map((message) =>
+        message.id === payload.messageId ? ({...message, ...payload.partial}) : message)
     };
 
-    state.list = state.list && state.list.map((chat) => {
-      const isCurrent = chat.id === payload.groupId &&
-        (chat.lastMessage && chat.lastMessage.id) === payload.messageId;
-
-      if (isCurrent) return {
-        ...chat,
-        lastMessage: {
+    state.list = state.list && state.list.map((chat) =>
+      (chat.id === payload.groupId) && (chat.lastMessage && (chat.lastMessage.id === payload.messageId)) ? ({
+        ...chat, lastMessage: {
           ...chat.lastMessage!,
           ...payload.partial
         }
-      };
-
-      return chat;
-    });
+      }) : chat);
   },
 
   [actions.setUnread.type]: (state, {payload}: PayloadAction<SetUnreadPayload>) => {
@@ -212,8 +187,7 @@ export const reducer = createReducer<GroupsState>({
 
   [actions.addChat.type]: (state, {payload}: PayloadAction<AddChatPayload>) => {
     state.chats[payload.group.id] = {
-      ...fallback,
-      group: payload.group
+      ...fallback, group: payload.group
     };
   },
 

@@ -15,9 +15,10 @@ import {
   FetchAttachedImagesPayload,
   FetchMessagesData,
   FetchMessagesPayload,
-  ReadMessagePayload,
   SetUnreadPayload,
-  UpdateMessagePayload, SetDirectPayload
+  UpdateMessagePayload,
+  SetDirectPayload,
+  SetMessagesReadPayload
 } from "./actions";
 import * as actions from "./actions";
 
@@ -44,7 +45,7 @@ interface DirectsState {
   };
 }
 
-const fallback: Chat = {
+export const fallback: Chat = {
   direct: null,
   messages: [],
   images: [],
@@ -119,7 +120,7 @@ export const reducer = createReducer<DirectsState>({
       areMessagesFetching: false,
       areMessagesFetched: true,
       areMessagesLeftToFetch: !!payload.messages.length,
-      messages: chat.messages ? [...payload.messages, ...chat.messages] : payload.messages
+      messages: [...payload.messages, ...chat.messages]
     };
   },
 
@@ -205,8 +206,7 @@ export const reducer = createReducer<DirectsState>({
     const chat = state.chats[arg.partnerId] || fallback;
 
     state.chats[arg.partnerId] = {
-      ...chat,
-      areFilesFetching: false
+      ...chat, areFilesFetching: false
     };
   },
 
@@ -215,93 +215,70 @@ export const reducer = createReducer<DirectsState>({
 
     state.chats[payload.partnerId] = {
       ...chat,
-      messages: chat.messages ? [...chat.messages, payload.message] : [payload.message],
+      messages: [...chat.messages, payload.message],
       direct: chat.direct || payload.chat
     };
 
-    state.list = state.list && state.list.map((chat, idx, {length}) => {
-      const isCurrent = chat.partner.id === payload.partnerId;
-      const isLast = idx === length - 1;
+    if (!!state.list) {
+      const doesExist = state.list.some(({partner}) => partner.id === payload.partnerId);
 
-      if (isLast && !isCurrent) {
-        state.list!.push({
+      if (doesExist) {
+        state.list = state.list.map((chat) => chat.partner.id === payload.partnerId ? ({
+          ...chat,
+          lastMessage: payload.message,
+          unread: payload.isOwn ? chat.unread : chat.unread + 1
+        }) : chat);
+      } else {
+        state.list.push({
           details: payload.chat.details,
           partner: payload.chat.partner,
           lastMessage: payload.message,
           isBanned: payload.chat.isBanned,
-          unread: 1
+          unread: payload.isOwn ? 0 : 1
         });
       }
-
-      if (isCurrent) {
-        const unread = payload.isOwn ? chat.unread : (chat.unread ? chat.unread + 1 : 1);
-
-        return {
-          ...chat,
-          unread,
-          lastMessage: payload.message
-        };
-      }
-
-      return chat;
-    });
+    }
   },
 
   [actions.updateMessage.type]: (state, {payload}: PayloadAction<UpdateMessagePayload>) => {
     const chat = state.chats[payload.partnerId] || fallback;
 
     state.chats[payload.partnerId] = {
-      ...chat, messages: chat.messages &&
-        chat.messages.map((message) => message.id === payload.messageId ?
-          ({...message, ...payload.partial}) : message)
+      ...chat, messages: chat.messages.map((msg) =>
+        msg.id === payload.messageId ? ({...msg, ...payload.partial}) : msg)
     };
 
-    state.list = state.list && state.list.map((chat) => {
-      const isCurrent = chat.partner.id === payload.partnerId &&
-        (chat.lastMessage && chat.lastMessage.id) === payload.messageId;
-
-      if (isCurrent) return {
-        ...chat,
-        lastMessage: {
-          ...chat.lastMessage!,
+    state.list = state.list && state.list.map((chat) =>
+      (chat.partner.id === payload.partnerId) && (chat.lastMessage.id === payload.messageId) ? ({
+        ...chat, lastMessage: {
+          ...chat.lastMessage,
           ...payload.partial
         }
-      };
-
-      return chat;
-    });
+      }) : chat);
   },
 
-  [actions.readMessage.type]: (state, {payload}: PayloadAction<ReadMessagePayload>) => {
+  [actions.setMessagesRead.type]: (state, {payload}: PayloadAction<SetMessagesReadPayload>) => {
     const chat = state.chats[payload.partnerId] || fallback;
 
-    const idx = chat.messages && chat.messages
-      .findIndex((message) => message.id === payload.messageId);
+    const idx = chat.messages.findIndex(({id}) => id === payload.messageId);
 
     state.chats[payload.partnerId] = {
-      ...chat,
-      messages: chat.messages && chat.messages
-        .map((message, index) => idx >= index ? ({...message, isRead: true}) : message)
+      ...chat, messages: chat.messages.map((msg, index) =>
+        idx >= index ? ({...msg, isRead: true}) : msg)
     };
 
-    state.list = state.list && state.list.map((chat) => {
-      const isCurrent = chat.partner.id === payload.partnerId &&
-        (chat.lastMessage && chat.lastMessage.id) === payload.messageId;
-
-      if (isCurrent) return ({
+    state.list = state.list && state.list.map((chat) =>
+      (chat.partner.id === payload.partnerId) && (chat.lastMessage.id === payload.messageId) ? ({
         ...chat, lastMessage: {
-          ...chat.lastMessage!, isRead: true
+          ...chat.lastMessage,
+          isRead: true
         }
-      });
-
-      return chat;
-    });
+      }) : chat);
   },
 
   [actions.setUnread.type]: (state, {payload}: PayloadAction<SetUnreadPayload>) => {
-    state.list = state.list && state.list
-      .map((chat) => chat.partner.id === payload.partnerId ?
-        ({...chat, unread: payload.unread}) : chat);
+    state.list = state.list && state.list.map((chat) =>
+      chat.partner.id === payload.partnerId ? ({...chat, unread: payload.unread}) : chat);
   },
 
   [actions.setDirect.type]: (state, {payload}: PayloadAction<SetDirectPayload>) => {

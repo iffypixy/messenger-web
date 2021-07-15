@@ -32,7 +32,6 @@ export interface FetchChatPayload extends GetDirectResult {
 }
 
 export interface FetchChatData extends GetDirectData {
-  partnerId: ID;
 }
 
 export const fetchChat = createAsyncThunk<FetchChatPayload, FetchChatData>(`${type}/fetchChat`,
@@ -46,7 +45,6 @@ export interface FetchMessagesPayload extends GetMessagesResult {
 }
 
 export interface FetchMessagesData extends GetMessagesData {
-  partnerId: ID;
 }
 
 export const fetchMessages = createAsyncThunk<FetchMessagesPayload, FetchMessagesData>(`${type}/fetchMessages`,
@@ -83,7 +81,6 @@ export const fetchReadingMessage = createAsyncThunk<FetchReadingMessagePayload, 
   });
 
 export interface FetchAttachedAudiosData extends GetAttachedAudiosData {
-  partnerId: ID;
 }
 
 export interface FetchAttachedAudiosPayload extends GetAttachedAudiosResult {
@@ -97,7 +94,6 @@ export const fetchAttachedAudios = createAsyncThunk<FetchAttachedAudiosPayload, 
   });
 
 export interface FetchAttachedImagesData extends GetAttachedImagesData {
-  partnerId: ID;
 }
 
 export interface FetchAttachedImagesPayload extends GetAttachedImagesResult {
@@ -111,7 +107,6 @@ export const fetchAttachedImages = createAsyncThunk<FetchAttachedImagesPayload, 
   });
 
 export interface FetchAttachedFilesData extends GetAttachedFilesData {
-  partnerId: ID;
 }
 
 export interface FetchAttachedFilesPayload extends GetAttachedFilesResult {
@@ -141,12 +136,12 @@ export interface UpdateMessagePayload {
 
 export const updateMessage = createAction<UpdateMessagePayload>(`${type}/updateMessage`);
 
-export interface ReadMessagePayload {
+export interface SetMessagesReadPayload {
   partnerId: ID;
   messageId: ID;
 }
 
-export const readMessage = createAction<ReadMessagePayload>(`${type}/readMessage`);
+export const setMessagesRead = createAction<SetMessagesReadPayload>(`${type}/setMessagesRead`);
 
 export interface SetUnreadPayload {
   partnerId: ID;

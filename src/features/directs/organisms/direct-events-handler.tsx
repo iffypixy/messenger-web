@@ -10,20 +10,17 @@ export const DirectEventsHandler: React.FC = () => {
   const dispatch = useRootDispatch();
 
   useEffect(() => {
-    socket.on(serverEvents.MESSAGE, ({message, partner, chat, isBanned}: {
+    socket.on(serverEvents.MESSAGE, ({message, partner, details, isBanned}: {
       message: DirectMessage;
       partner: DirectPartner;
-      chat: DirectDetails;
+      details: DirectDetails;
       isBanned: boolean;
     }) => {
       dispatch(actions.addMessage({
         message,
         isOwn: false,
         partnerId: partner.id,
-        chat: {
-          details: chat,
-          partner, isBanned
-        },
+        chat: {details, partner, isBanned},
       }));
     });
 
@@ -31,7 +28,7 @@ export const DirectEventsHandler: React.FC = () => {
       message: DirectMessage;
       partner: DirectPartner;
     }) => {
-      dispatch(actions.readMessage({
+      dispatch(actions.setMessagesRead({
         partnerId: partner.id,
         messageId: message.id
       }));

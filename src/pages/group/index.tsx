@@ -28,15 +28,21 @@ export const GroupPage = () => {
   const areMessagesFetching = useSelector(groupsSelectors.areMessagesFetching(groupId));
   const areMessagesFetched = useSelector(groupsSelectors.areMessagesFetched(groupId));
 
-  const toFetchMessages = !areMessagesFetched || (!messages && !areMessagesFetching);
   const toFetchChat = !chat && !isChatFetching;
+  const toFetchMessages = !areMessagesFetched && !areMessagesFetching;
 
   useEffect(() => {
-    if (toFetchChat) dispatch(groupsActions.fetchChat({groupId}));
-
-    if (toFetchMessages) dispatch(groupsActions.fetchMessages({
-      groupId, skip: messages ? messages.length : 0
-    }));
+    if (toFetchChat) {
+      dispatch(groupsActions.fetchChat({groupId}))
+        .then(unwrapResult)
+        .then(() => {
+          if (toFetchMessages) {
+            dispatch(groupsActions.fetchMessages({
+              groupId, skip: messages.length
+            }));
+          }
+        });
+    }
   }, [groupId]);
 
   return (
@@ -193,10 +199,12 @@ const GroupChat: React.FC = () => {
         }));
 
         dispatch(groupsActions.fetchSendingMessage({
-          images: images && images.map(({id}) => id),
-          files: files && files.map(({id}) => id),
-          audio: audio && audio.id, text,
-          parent: null, group: chat.id
+          text,
+          parentId: null,
+          groupId: chat.id,
+          imagesIds: images && images.map(({id}) => id),
+          filesIds: files && files.map(({id}) => id),
+          audioId: audio && audio.id
         }))
           .then(unwrapResult)
           .then(({message}) => {

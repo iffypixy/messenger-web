@@ -10,4 +10,5 @@ export const serverEvents = {
   ADDED: `${prefix}:ADDED`,
   KICKED: `${prefix}:KICKED`,
   OWNER_REPLACEMENT: `${prefix}:OWNER_REPLACEMENT`,
+  SUBSCRIBE: `${prefix}:SUBSCRIBE`
 };

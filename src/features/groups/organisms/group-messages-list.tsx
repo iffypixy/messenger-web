@@ -77,9 +77,8 @@ export const GroupMessagesList: React.FC<GroupMessagesListProps> = ({messages, a
       if (isVisible) {
         const id = last.dataset.id as ID;
 
-        dispatch(actions.readMessage({
-          groupId,
-          messageId: id
+        dispatch(actions.setMessagesRead({
+          groupId, messageId: id
         }));
 
         const unread = reversed.slice(0, reversed.indexOf(last))
@@ -92,8 +91,7 @@ export const GroupMessagesList: React.FC<GroupMessagesListProps> = ({messages, a
         }));
 
         dispatch(actions.fetchReadingMessage({
-          message: id,
-          group: groupId
+          messageId: id, groupId
         }));
       }
     }

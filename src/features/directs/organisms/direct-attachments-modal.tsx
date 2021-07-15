@@ -12,23 +12,23 @@ import {Icon, Text} from "@ui/atoms";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
-export type Attachment = "images" | "files" | "audios";
+export type Tab = "images" | "files" | "audios";
 
 export const DirectAttachmentsModal: React.FC<ModalProps> = ({closeModal}) => {
   const dispatch = useRootDispatch();
 
-  const [tab, useTab] = useState<Attachment>("images");
+  const [tab, useTab] = useState<Tab>("images");
 
   const {partnerId} = useParams<{partnerId: ID}>();
 
-  const files = useSelector(selectors.files(partnerId));
-  const areFilesFetching = useSelector(selectors.areFilesFetching(partnerId));
+  const files = useSelector(selectors.attachedFiles(partnerId));
+  const areFilesFetching = useSelector(selectors.areAttachedFilesFetching(partnerId));
 
-  const images = useSelector(selectors.images(partnerId));
-  const areImagesFetching = useSelector(selectors.areImagesFetching(partnerId));
+  const images = useSelector(selectors.attachedImages(partnerId));
+  const areImagesFetching = useSelector(selectors.areAttachedImagesFetching(partnerId));
 
-  const audios = useSelector(selectors.audios(partnerId));
-  const areAudiosFetching = useSelector(selectors.areAudiosFetching(partnerId));
+  const audios = useSelector(selectors.attachedAudios(partnerId));
+  const areAudiosFetching = useSelector(selectors.areAttachedAudiosFetching(partnerId));
 
   useEffect(() => {
     if (tab === "images") {

@@ -1,5 +1,6 @@
 import {RootState} from "@lib/store";
 import {ID} from "@lib/typings";
+import {fallback} from "./reducer";
 
 const directsState = (state: RootState) => state.directs;
 
@@ -8,73 +9,73 @@ export const chats = (state: RootState) => directsState(state).list;
 export const areChatsFetching = (state: RootState) => directsState(state).areChatsFetching;
 
 export const chat = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return chat?.direct || null;
+  return chat.direct;
 };
 
 export const isChatFetching = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return !!chat && (chat.isFetching || false);
+  return chat.isFetching;
 };
 
 export const messages = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return chat?.messages || null;
+  return chat.messages;
 };
 
 export const areMessagesFetching = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return chat?.areMessagesFetching || false;
+  return chat.areMessagesFetching;
 };
 
 export const areMessagesFetched = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return chat?.areMessagesFetched || false;
+  return chat.areMessagesFetched;
 };
 
 export const areMessagesLeftToFetch = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return !chat?.areMessagesLeftToFetch;
+  return chat.areMessagesLeftToFetch;
 };
 
-export const images = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+export const attachedImages = (partnerId: ID) => (state: RootState) => {
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return chat?.images || [];
+  return chat.images;
 };
 
-export const areImagesFetching = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+export const areAttachedImagesFetching = (partnerId: ID) => (state: RootState) => {
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return chat?.areImagesFetching || false;
+  return chat.areImagesFetching;
 };
 
-export const files = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+export const attachedFiles = (partnerId: ID) => (state: RootState) => {
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return chat?.files || [];
+  return chat.files;
 };
 
-export const areFilesFetching = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+export const areAttachedFilesFetching = (partnerId: ID) => (state: RootState) => {
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return chat?.areFilesFetching || false;
+  return chat.areFilesFetching;
 };
 
-export const audios = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+export const attachedAudios = (partnerId: ID) => (state: RootState) => {
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return chat?.audios || [];
+  return chat.audios;
 };
 
-export const areAudiosFetching = (partnerId: ID) => (state: RootState) => {
-  const chat = directsState(state).chats[partnerId];
+export const areAttachedAudiosFetching = (partnerId: ID) => (state: RootState) => {
+  const chat = directsState(state).chats[partnerId] || fallback;
 
-  return chat?.areAudiosFetching || false;
+  return chat.areAudiosFetching;
 };
