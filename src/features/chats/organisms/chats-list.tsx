@@ -167,7 +167,7 @@ const ListItem: React.FC<ListItemProps> = ({avatar, name, message, date, unread,
 
         <Row width="100%" justify="space-between" align="center">
           {message && <Message>{message}</Message>}
-          {!!unread ? <UnreadMessages>{unread}</UnreadMessages> : null}
+          {!!unread ? <Unread>{unread}</Unread> : null}
         </Row>
       </Col>
     </Wrapper>
@@ -197,7 +197,7 @@ const Message = styled(Text).attrs(() => ({
   font-weight: 500;
 `;
 
-const UnreadMessages = styled(Circle)`
+const Unread = styled(Circle)`
   font-size: 1rem;
   margin-left: 1rem;
 `;

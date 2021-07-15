@@ -1,7 +1,7 @@
 import React, {useState} from "react";
 import {nanoid} from "nanoid";
 import prettyBytes from "pretty-bytes";
-import {BaseEmoji} from "emoji-mart";
+import {BaseEmoji} from "emoji-mart/dist-es";
 import styled from "styled-components";
 
 import {uploadApi} from "@api/upload.api";
@@ -286,6 +286,8 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
       .filter(({isUploading}) => !isUploading)
       .map(({id, url, name, size}) => ({id: id!, url: url!, name: name!, size: size!}));
 
+    if (!text && !attachedImages.length && !attachedFiles.length) return;
+
     handleSubmit({
       text, audio: null,
       images: !!attachedImages.length ? attachedImages : null,
@@ -297,7 +299,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
 
   const handleFormSubmit = audio.isRecording ? handleAudioFormSubmit : handleMessageFormSubmit;
 
-  const areFilesAttached = !!attachments.length;
+  const areAttachmentsAttached = !!attachments.length;
 
   return (
     <Row width="100%" padding="2rem 5rem">
@@ -368,13 +370,13 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
                 type="button"
                 secondary pointer/>
 
-              <Button type="submit" pure>
+              <SubmitButton type="submit" pure>
                 <Icon name="telegram"/>
-              </Button>
+              </SubmitButton>
             </FormPanel>
           )}
 
-          {areFilesAttached && (
+          {areAttachmentsAttached && (
             <Row width="100%" padding="0 1rem">
               <Col width="100%" gap="1rem">
                 {attachments.map(({key, name, size, url, progress, isUploading, type}) => {
@@ -458,6 +460,10 @@ const FormPanel = styled(Row).attrs(() => ({
 const AttachedImage = styled.img`
   max-width: 7.5rem;
   max-height: 7.5rem;
+`;
+
+const SubmitButton = styled(Button)`
+  display: inline-flex;
 `;
 
 const EmojiButtonWrapper = styled.div`

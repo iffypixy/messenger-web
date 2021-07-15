@@ -1,6 +1,7 @@
-import {createAsyncThunk} from "@reduxjs/toolkit";
+import {createAction, createAsyncThunk} from "@reduxjs/toolkit";
 
 import {SearchUsersResult, SearchUsersData, usersApi} from "@api/users.api";
+import {User} from "@features/users/lib/typings";
 
 const type = "users";
 
@@ -16,3 +17,9 @@ export const fetchSearchingUsers = createAsyncThunk<FetchSearchingUsersPayload, 
 
     return data;
   });
+
+export interface SetSearchingPayload {
+  searching: User[];
+}
+
+export const setSearching = createAction<SetSearchingPayload>(`${type}/setSearching`);

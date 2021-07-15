@@ -2,8 +2,8 @@ import {createAction} from "@reduxjs/toolkit";
 
 const type = "chats";
 
-export interface SetSearchingPayload {
+export interface SetSearchPayload {
   search: string;
 }
 
-export const setSearching = createAction<SetSearchingPayload>(`${type}/setSearching`);
+export const setSearch = createAction<SetSearchPayload>(`${type}/setSearch`);

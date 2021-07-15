@@ -1,6 +1,6 @@
 import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
-import {SetSearchingPayload} from "./actions";
+import {SetSearchPayload} from "./actions";
 import * as actions from "./actions";
 
 interface ChatsState {
@@ -12,7 +12,7 @@ export const reducer = createReducer<ChatsState>(
     search: ""
   },
   {
-    [actions.setSearching.type]: (state, {payload}: PayloadAction<SetSearchingPayload>) => {
+    [actions.setSearch.type]: (state, {payload}: PayloadAction<SetSearchPayload>) => {
       state.search = payload.search;
     }
   }

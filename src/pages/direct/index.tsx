@@ -6,22 +6,13 @@ import {nanoid} from "nanoid";
 import {unwrapResult} from "@reduxjs/toolkit";
 
 import {authSelectors} from "@features/auth";
-import {
-  ChatsList,
-  formatMessageDate,
-  ChatForm,
-  useFetchingChats,
-  ChatCreationModal,
-  chatsSelectors,
-  chatsActions
-} from "@features/chats";
+import {ChatsList, formatMessageDate, ChatForm, useFetchingChats, ChatCreationModal, SearchBar} from "@features/chats";
 import {directsSelectors, directsActions, DirectMessagesList, DirectAttachmentsModal} from "@features/directs";
-import {usersActions} from "@features/users";
 import {Col, Row} from "@lib/layout";
 import {ID} from "@lib/typings";
 import {useModal} from "@lib/modal";
 import {useRootDispatch} from "@lib/store";
-import {H4, Icon, Input, Text} from "@ui/atoms";
+import {H4, Icon, Text} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 import {MainTemplate} from "@ui/templates";
 
@@ -95,31 +86,6 @@ export const DirectPage = () => {
         </Wrapper>
       </MainTemplate>
     </>
-  );
-};
-
-const SearchBar: React.FC = () => {
-  const dispatch = useRootDispatch();
-
-  const search = useSelector(chatsSelectors.search);
-
-  const handleChange = ({currentTarget}: React.ChangeEvent<HTMLInputElement>) => {
-    const value = currentTarget.value;
-
-    dispatch(chatsActions.setSearching({
-      search: value
-    }));
-
-    dispatch(usersActions.fetchSearchingUsers({
-      query: value
-    }));
-  };
-
-  return (
-    <Input
-      placeholder="Search chat"
-      onChange={handleChange}
-      value={search}/>
   );
 };
 

@@ -4,11 +4,10 @@ import {useSelector} from "react-redux";
 
 import {directsActions, directsSelectors} from "@features/directs";
 import {groupsActions, groupsSelectors} from "@features/groups";
-import {chatsActions, ChatsList, chatsSelectors} from "@features/chats";
-import {usersActions} from "@features/users";
+import {ChatsList, SearchBar} from "@features/chats";
 import {Col, Row} from "@lib/layout";
 import {useRootDispatch} from "@lib/store";
-import {Icon, H4, Input, Text, H3} from "@ui/atoms";
+import {Icon, H4, Text, H3} from "@ui/atoms";
 import {MainTemplate} from "@ui/templates";
 
 export const HomePage: React.FC = () => {
@@ -57,31 +56,6 @@ export const HomePage: React.FC = () => {
         </ChatPanelWrapper>
       </Wrapper>
     </MainTemplate>
-  );
-};
-
-const SearchBar: React.FC = () => {
-  const dispatch = useRootDispatch();
-
-  const search = useSelector(chatsSelectors.search);
-
-  const handleChange = ({currentTarget}: React.ChangeEvent<HTMLInputElement>) => {
-    const value = currentTarget.value;
-
-    dispatch(chatsActions.setSearching({
-      search: value
-    }));
-
-    dispatch(usersActions.fetchSearchingUsers({
-      query: value
-    }));
-  };
-
-  return (
-    <Input
-      placeholder="Search chat"
-      onChange={handleChange}
-      value={search}/>
   );
 };
 
