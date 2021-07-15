@@ -1,12 +1,14 @@
 import React, {useState} from "react";
 import {nanoid} from "nanoid";
 import prettyBytes from "pretty-bytes";
+import {BaseEmoji} from "emoji-mart";
 import styled from "styled-components";
 
 import {uploadApi} from "@api/upload.api";
 import {stopMediaStream} from "@lib/media-stream";
 import {Col, Row} from "@lib/layout";
 import {formatDuration} from "@lib/date";
+import {EmojiPicker} from "@lib/emoji";
 import {File, ID} from "@lib/typings";
 import {Button, Icon, Input, Loader, Text} from "@ui/atoms";
 import {ProgressBar} from "@ui/molecules";
@@ -67,6 +69,13 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
     setForm({
       ...form, text: event.currentTarget.value
     });
+  };
+
+  const handleEmojiSelect = (emoji: BaseEmoji) => {
+    setForm((form) => ({
+      ...form,
+      text: `${form.text}${emoji.native}`
+    }));
   };
 
   const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -177,74 +186,74 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
     });
 
     navigator.mediaDevices.getUserMedia({audio: true}).then((stream) => {
-        const mediaRecorder = new MediaRecorder(stream);
+      const mediaRecorder = new MediaRecorder(stream);
 
+      setAudio((audio) => ({
+        ...audio, mediaRecorder
+      }));
+
+      let durationInterval: NodeJS.Timeout | null = null;
+      let isCancelled: boolean = false;
+
+      mediaRecorder.onstart = () => {
         setAudio((audio) => ({
-          ...audio, mediaRecorder
+          ...audio, isRecording: true
         }));
 
-        let durationInterval: NodeJS.Timeout | null = null;
-        let isCancelled: boolean = false;
-
-        mediaRecorder.onstart = () => {
+        durationInterval = setInterval(() => {
           setAudio((audio) => ({
-            ...audio, isRecording: true
+            ...audio, duration: audio.duration + 1000
           }));
+        }, 1000);
+      };
 
-          durationInterval = setInterval(() => {
-            setAudio((audio) => ({
-              ...audio, duration: audio.duration + 1000
-            }));
-          }, 1000);
-        };
+      mediaRecorder.onstop = () => {
+        if (durationInterval) clearInterval(durationInterval);
 
-        mediaRecorder.onstop = () => {
-          if (durationInterval) clearInterval(durationInterval);
+        stopMediaStream(mediaRecorder.stream);
+      };
 
-          stopMediaStream(mediaRecorder.stream);
-        };
+      mediaRecorder.onpause = () => {
+        isCancelled = true;
 
-        mediaRecorder.onpause = () => {
-          isCancelled = true;
+        stopMediaStream(mediaRecorder.stream);
 
-          stopMediaStream(mediaRecorder.stream);
+        setAudio({
+          ...audio, isRecording: false
+        });
+      };
 
-          setAudio({
-            ...audio, isRecording: false
+      mediaRecorder.ondataavailable = (event) => {
+        if (isCancelled) return;
+
+        setAudio((audio) => ({
+          ...audio, isUploading: true
+        }));
+
+        const mp3 = new Blob([event.data], {
+          type: "audio/mpeg"
+        });
+
+        uploadApi.upload({
+          file: mp3 as globalThis.File
+        }).then(({data: {file: {id, url}}}) => {
+          handleSubmit({
+            audio: {id, url},
+            text: "",
+            images: null,
+            files: null
           });
-        };
-
-        mediaRecorder.ondataavailable = (event) => {
-          if (isCancelled) return;
-
+        }).finally(() => {
           setAudio((audio) => ({
-            ...audio, isUploading: true
+            ...audio,
+            isUploading: false,
+            isRecording: false
           }));
+        });
+      };
 
-          const mp3 = new Blob([event.data], {
-            type: "audio/mpeg"
-          });
-
-          uploadApi.upload({
-            file: mp3 as globalThis.File
-          }).then(({data: {file: {id, url}}}) => {
-            handleSubmit({
-              audio: {id, url},
-              text: "",
-              images: null,
-              files: null
-            });
-          }).finally(() => {
-            setAudio((audio) => ({
-              ...audio,
-              isUploading: false,
-              isRecording: false
-            }));
-          });
-        };
-
-        mediaRecorder.start();
-      });
+      mediaRecorder.start();
+    });
   };
 
   const cancelRecording = () => {
@@ -334,9 +343,15 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
                   secondary pointer/>
               )}/>
 
-              <Icon
-                name="smile"
-                secondary pointer/>
+              <EmojiButtonWrapper>
+                <Icon
+                  name="smile"
+                  secondary pointer/>
+
+                <EmojiPickerWrapper>
+                  <EmojiPicker onSelect={handleEmojiSelect}/>
+                </EmojiPickerWrapper>
+              </EmojiButtonWrapper>
 
               <Input
                 width="100%"
@@ -443,4 +458,23 @@ const FormPanel = styled(Row).attrs(() => ({
 const AttachedImage = styled.img`
   max-width: 7.5rem;
   max-height: 7.5rem;
+`;
+
+const EmojiButtonWrapper = styled.div`
+  display: inline-flex;
+  position: relative;
+  
+  &:hover > div {
+    visibility: visible;
+    opacity: 1;
+  }
+`;
+
+const EmojiPickerWrapper = styled.div`
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  left: 2rem;
+  bottom: 3.5rem;
+  transition: 0.1s linear;
 `;
