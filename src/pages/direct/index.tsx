@@ -12,6 +12,7 @@ import {Col, Row} from "@lib/layout";
 import {ID} from "@lib/typings";
 import {useModal} from "@lib/modal";
 import {useRootDispatch} from "@lib/store";
+import {Skeleton} from "@lib/skeleton";
 import {H4, Icon, Text} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 import {MainTemplate} from "@ui/templates";
@@ -50,10 +51,7 @@ export const DirectPage = () => {
 
   return (
     <>
-      {isModalOpen && (
-        <ChatCreationModal
-          closeModal={closeModal}/>
-      )}
+      {isModalOpen && <ChatCreationModal closeModal={closeModal}/>}
 
       <MainTemplate>
         <Wrapper>
@@ -139,11 +137,9 @@ const DirectChat: React.FC = () => {
 
   const credentials = useSelector(authSelectors.credentials)!;
   const chat = useSelector(directsSelectors.chat(partnerId))!;
-  const messages = useSelector(directsSelectors.messages(partnerId));
-  const areMessagesFetching = useSelector(directsSelectors.areMessagesFetching(partnerId));
   const isFetching = useSelector(directsSelectors.isChatFetching(partnerId));
 
-  if (isFetching) return <H4>Loading...</H4>;
+  if (isFetching) return <DirectSkeleton/>;
 
   if (!chat) return null;
 
@@ -173,9 +169,7 @@ const DirectChat: React.FC = () => {
           </Row>
         </Header>
 
-        <DirectMessagesList
-          messages={messages}
-          areFetching={areMessagesFetching}/>
+        <DirectMessagesList />
 
         <ChatForm handleSubmit={
           ({images, files, text, audio}) => {
@@ -229,3 +223,28 @@ const Header = styled(Row).attrs(() => ({
   border-bottom: 2px solid ${({theme}) => theme.palette.divider};
 `;
 
+const DirectSkeleton: React.FC = () => (
+  <Col width="100%" height="100%">
+    <Header>
+      <Row width="100%" height="100%" justify="space-between" align="center">
+        <Row height="100%" gap="3rem" align="center">
+          <Skeleton.Avatar/>
+
+          <Col gap="1rem" height="100%" justify="space-between" padding="1rem 0">
+            <Skeleton.Text width="20rem"/>
+            <Skeleton.Text width="10rem"/>
+          </Col>
+        </Row>
+
+        <Row gap="3rem">
+          <Icon name="attachment" pointer/>
+          <Icon name="options" pointer/>
+        </Row>
+      </Row>
+    </Header>
+
+    <DirectMessagesList />
+
+    <ChatForm handleSubmit={() => null}/>
+  </Col>
+);

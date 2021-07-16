@@ -6,6 +6,7 @@ import prettyBytes from "pretty-bytes";
 import {File, ID} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
 import {formatDuration} from "@lib/date";
+import {Skeleton} from "@lib/skeleton";
 import {Icon, Text} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 
@@ -101,11 +102,11 @@ export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text
       data-id={id}
       data-is-read={isRead}
       data-is-own={isOwn}>
-      <Block reverse={isOwn} isOwn={isOwn}>
+      <Block reverse={isOwn} right={isOwn}>
         <Avatar url={avatar} small/>
 
         {(text || images || audio || files) && (
-          <Bubble isOwn={isOwn}>
+          <Bubble secondary={isOwn}>
             <Col gap="2.5rem">
               {images && (
                 images.map((src, idx) => (
@@ -172,10 +173,6 @@ export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text
   );
 };
 
-interface MessageStylingProps {
-  isOwn: boolean;
-}
-
 const Wrapper = styled(Row).attrs(() => ({
   width: "100%"
 }))`
@@ -184,11 +181,13 @@ const Wrapper = styled(Row).attrs(() => ({
 
 const Block = styled(Row).attrs(() => ({
   align: "flex-end"
-}))<MessageStylingProps>`
-  ${({isOwn}) => css`
+}))<{
+  right: boolean;
+}>`
+  ${({right}) => css`
     & > :not(:first-child) {
-      margin-left: ${!isOwn ? "2rem" : 0};
-      margin-right: ${isOwn ? "2rem" : 0};
+      margin-left: ${!right ? "2rem" : 0};
+      margin-right: ${right ? "2rem" : 0};
     }
   `};
 `;
@@ -196,9 +195,11 @@ const Block = styled(Row).attrs(() => ({
 const Bubble = styled(Col).attrs(() => ({
   gap: "1.5rem",
   padding: "2rem"
-}))<MessageStylingProps>`
-  ${({isOwn}) => css`
-    background-color: ${({theme}) => isOwn ? theme.palette.secondary.light : theme.palette.primary.light};
+}))<{
+  secondary: boolean;
+}>`
+  ${({secondary}) => css`
+    background-color: ${({theme}) => secondary ? theme.palette.secondary.light : theme.palette.primary.light};
   `};
   
   border-radius: 1rem;
@@ -218,3 +219,21 @@ export const SystemMessage: React.FC<SystemMessageProps> = ({text}) => (
     <Text>{text}</Text>
   </Wrapper>
 );
+
+export const MessageSkeleton: React.FC = () => {
+  const [isOwn] = useState(Math.round(Math.random()) % 2 === 0);
+
+  return (
+    <Wrapper reverse={isOwn}>
+      <Block reverse={isOwn} right={isOwn}>
+        <Skeleton.Avatar small/>
+
+        <Bubble secondary={isOwn}>
+          <Col gap="2.5rem">
+            <Skeleton.Text width="10rem"/>
+          </Col>
+        </Bubble>
+      </Block>
+    </Wrapper>
+  );
+};

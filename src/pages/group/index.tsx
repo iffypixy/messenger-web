@@ -10,6 +10,7 @@ import {GroupMessagesList, groupsActions, groupsSelectors} from "@features/group
 import {ID} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
 import {useRootDispatch} from "@lib/store";
+import {Skeleton} from "@lib/skeleton";
 import {H4, Icon, Text} from "@ui/atoms";
 import {MainTemplate} from "@ui/templates";
 import {Avatar} from "@ui/molecules";
@@ -121,11 +122,9 @@ const GroupChat: React.FC = () => {
   const {groupId} = useParams<{groupId: ID}>();
 
   const chat = useSelector(groupsSelectors.chat(groupId));
-  const messages = useSelector(groupsSelectors.messages((groupId)));
   const isFetching = useSelector(groupsSelectors.isChatFetching(groupId));
-  const areMessagesFetching = useSelector(groupsSelectors.areMessagesFetching((groupId)));
 
-  if (isFetching) return <H4>Loading...</H4>;
+  if (isFetching) return <GroupSkeleton/>;
 
   if (!chat) return null;
 
@@ -149,9 +148,7 @@ const GroupChat: React.FC = () => {
         </Row>
       </Header>
 
-      <GroupMessagesList
-        messages={messages}
-        areFetching={areMessagesFetching}/>
+      <GroupMessagesList/>
 
       <ChatForm handleSubmit={({images, files, text, audio}) => {
         const id = nanoid();
@@ -200,3 +197,29 @@ const Header = styled(Row).attrs(() => ({
 }))`
   border-bottom: 2px solid ${({theme}) => theme.palette.divider};
 `;
+
+const GroupSkeleton: React.FC = () => (
+  <Col width="100%" height="100%">
+    <Header>
+      <Row width="100%" height="100%" justify="space-between" align="center">
+        <Row height="100%" gap="3rem" align="center">
+          <Skeleton.Avatar />
+
+          <Col gap="1rem" height="100%" justify="space-between" padding="1rem 0">
+            <Skeleton.Text width="20rem" />
+            <Skeleton.Text width="10rem" />
+          </Col>
+        </Row>
+
+        <Row gap="3rem">
+          <Icon name="loupe" pointer/>
+          <Icon name="options" pointer/>
+        </Row>
+      </Row>
+    </Header>
+
+    <GroupMessagesList/>
+
+    <ChatForm handleSubmit={() => null}/>
+  </Col>
+);

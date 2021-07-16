@@ -4,22 +4,17 @@ import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 
 import {authSelectors} from "@features/auth";
-import {Message, SystemMessage} from "@features/chats";
+import {Message, MessageSkeleton, SystemMessage} from "@features/chats";
 import {Col} from "@lib/layout";
 import {ID} from "@lib/typings";
 import {useRootDispatch} from "@lib/store";
 import {isElementVisible, scrollToBottom, isAtBottom, isAtTop} from "@lib/dom";
-import {H2} from "@ui/atoms";
-import {GroupMessage} from "../lib/typings";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
-interface GroupMessagesListProps {
-  messages: GroupMessage[] | null;
-  areFetching: boolean;
-}
+const DEFAULT_SKELETON_LIST = 7;
 
-export const GroupMessagesList: React.FC<GroupMessagesListProps> = ({messages, areFetching}) => {
+export const GroupMessagesList: React.FC = () => {
   const dispatch = useRootDispatch();
 
   const [isScrolled, setIsScrolled] = useState(false);
@@ -29,10 +24,12 @@ export const GroupMessagesList: React.FC<GroupMessagesListProps> = ({messages, a
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const credentials = useSelector(authSelectors.credentials)!;
+  const messages = useSelector(selectors.messages(groupId));
   const areMessagesFetching = useSelector(selectors.areMessagesFetching(groupId));
+  const areMessagesFetched = useSelector(selectors.areMessagesFetched(groupId));
   const areMessagesLeftToFetch = useSelector(selectors.areMessagesLeftToFetch(groupId));
 
-  const last = messages && messages[messages.length - 1];
+  const last = messages[messages.length - 1];
 
   useEffect(() => {
     if (last) {
@@ -60,7 +57,7 @@ export const GroupMessagesList: React.FC<GroupMessagesListProps> = ({messages, a
     const toFetchMessages = isAtTop(currentTarget) && !areMessagesFetching && areMessagesLeftToFetch;
 
     if (toFetchMessages) dispatch(actions.fetchMessages({
-      groupId, skip: messages ? messages.length : 0
+      groupId, skip: messages.length
     }));
   };
 
@@ -99,9 +96,12 @@ export const GroupMessagesList: React.FC<GroupMessagesListProps> = ({messages, a
 
   return (
     <List ref={listRef} onScroll={handleListScroll}>
-      {areFetching && <H2>Loading...</H2>}
+      {(areMessagesFetching && !areMessagesFetched) && Array.from(
+        {length: DEFAULT_SKELETON_LIST},
+        (_, idx) => <MessageSkeleton key={idx}/>
+      )}
 
-      {messages && messages.map(({id, images, files, audio, text, sender, isSystem, isRead, createdAt}) => {
+      {messages.map(({id, images, files, audio, text, sender, isSystem, isRead, createdAt}) => {
         if (isSystem) return (
           <SystemMessage
             key={id}

@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
-import {Link} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 
 import {chatsSelectors} from "@features/chats";
 import {directsSelectors} from "@features/directs";
@@ -9,10 +9,13 @@ import {groupsSelectors} from "@features/groups";
 import {authSelectors} from "@features/auth";
 import {usersSelectors} from "@features/users";
 import {Col, Row} from "@lib/layout";
+import {Skeleton} from "@lib/skeleton";
 import {ID} from "@lib/typings";
-import {Text, Circle, H3, H5} from "@ui/atoms";
+import {Text, Circle, H4} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 import {formatMessageDate} from "../lib/formatting";
+
+const DEFAULT_SKELETON_LIST = 5;
 
 interface ChatsListItem {
   id: ID;
@@ -22,9 +25,15 @@ interface ChatsListItem {
   date: Date | null;
   unread: number;
   link: string;
+  isSelected: boolean;
 }
 
 export const ChatsList: React.FC = () => {
+  const {partnerId, groupId} = useParams<{
+    partnerId: ID;
+    groupId: ID;
+  }>();
+
   const credentials = useSelector(authSelectors.credentials)!;
   const directs = useSelector(directsSelectors.chats);
   const groups = useSelector(groupsSelectors.chats);
@@ -34,12 +43,6 @@ export const ChatsList: React.FC = () => {
   const areGroupsFetching = useSelector(groupsSelectors.areChatsFetching);
 
   const isFetching = areDirectsFetching || areGroupsFetching;
-
-  if (isFetching) return (
-    <List>
-      <H3>Loading...</H3>
-    </List>
-  );
 
   const supplementMessage = ({text, isOwn}: {
     text: string | null;
@@ -65,7 +68,8 @@ export const ChatsList: React.FC = () => {
         avatar: partner.avatar,
         message: completed,
         date: new Date(createdAt),
-        link: `/direct/${partner.id}`
+        link: `/direct/${partner.id}`,
+        isSelected: partner.id === partnerId
       };
     }));
   }
@@ -83,7 +87,8 @@ export const ChatsList: React.FC = () => {
         name: title,
         message: completed,
         date: lastMessage && new Date(lastMessage.createdAt),
-        link: `/group/${id}`
+        link: `/group/${id}`,
+        isSelected: id === groupId
       };
     }));
   }
@@ -94,34 +99,40 @@ export const ChatsList: React.FC = () => {
   return (
     <List>
       <Col width="100%" gap="2rem">
-        {[...chats]
+        {isFetching && Array.from(
+          {length: DEFAULT_SKELETON_LIST},
+          (_, idx) => <ChatsListItemSkeleton key={idx}/>
+        )}
+
+        {!isFetching && [...chats]
           .sort((a, b) => {
             const first = a.date ? +a.date : 0;
             const second = b.date ? +b.date : 0;
 
             return first - second;
           })
-          .map((props) => <ListItem key={props.id} {...props}/>)}
+          .map((chat) => <ListItem key={chat.id} {...chat}/>)}
       </Col>
 
       {filtered && (
         <SearchList gap="2rem">
-          {filtered.length === 0 ? (
-            <Row
-              width="100%"
-              justify="center"
-              align="center">
-              <H5>No users found</H5>
+          {filtered.length === 0 && (
+            <Row width="100%" justify="center" align="center">
+              <H4>Your search returned no results</H4>
             </Row>
-          ) : filtered.map(({id, username, avatar}) => (
+          )}
+
+          {filtered.map(({id, username, avatar}) => (
             <ListItem
               key={id}
+              id={id}
               name={username}
               avatar={avatar}
               message={null}
               date={null}
               unread={0}
               link={`/direct/${id}`}
+              isSelected={id === partnerId}
             />
           ))}
         </SearchList>
@@ -131,7 +142,7 @@ export const ChatsList: React.FC = () => {
 };
 
 const List = styled(Col).attrs(() => ({
-  gap: "1rem",
+  gap: "3rem",
   width: "100%",
   height: "100%"
 }))`
@@ -142,31 +153,30 @@ const SearchList = styled(Col).attrs(() => ({
   width: "100%"
 }))`
   border-top: 2px solid ${({theme}) => theme.palette.divider};
-  padding-top: 1rem;
+  padding-top: 3rem;
 `;
 
-interface ListItemProps {
-  avatar: string;
-  name: string;
-  message: string | null;
-  date: Date | null;
-  unread: number;
-  link: string;
+interface ListItemProps extends ChatsListItem {
 }
 
-const ListItem: React.FC<ListItemProps> = ({avatar, name, message, date, unread, link}) => (
+const ListItem: React.FC<ListItemProps> = ({avatar, name, message, date, unread, link, isSelected}) => (
   <Link to={link}>
-    <Wrapper>
+    <Wrapper secondary={isSelected}>
       <Avatar url={avatar}/>
 
       <Col width="80%" height="100%" justify="space-between" padding="1rem 0">
         <Row width="100%" justify="space-between" align="center">
           <Text width="70%" ellipsis>{name}</Text>
-          {date && <DateText secondary small>{formatMessageDate(date)}</DateText>}
+
+          {date && (
+            <DateText secondary={!isSelected} small>
+              {formatMessageDate(date)}
+            </DateText>
+          )}
         </Row>
 
         <Row width="100%" justify="space-between" align="center">
-          {message && <Message>{message}</Message>}
+          {message && <Message secondary={!isSelected}>{message}</Message>}
           {!!unread ? <Unread>{unread}</Unread> : null}
         </Row>
       </Col>
@@ -179,8 +189,10 @@ const Wrapper = styled(Row).attrs(() => ({
   justify: "space-between",
   height: "100%",
   padding: "2rem"
-}))`
-  background-color: ${({theme}) => theme.palette.primary.light};
+}))<{
+  secondary?: boolean;
+}>`
+  background-color: ${({theme, secondary}) => secondary ? theme.palette.secondary.light : theme.palette.primary.light};
   border-radius: 1rem;
 `;
 
@@ -190,8 +202,7 @@ const DateText = styled(Text)`
 
 const Message = styled(Text).attrs(() => ({
   width: "85%",
-  ellipsis: true,
-  secondary: true
+  ellipsis: true
 }))`
   font-size: 1.4rem;
   font-weight: 500;
@@ -201,3 +212,21 @@ const Unread = styled(Circle)`
   font-size: 1rem;
   margin-left: 1rem;
 `;
+
+const ChatsListItemSkeleton: React.FC = () => (
+  <Wrapper>
+    <Skeleton.Avatar/>
+
+    <Col width="80%" height="100%" justify="space-between" padding="1rem 0">
+      <Row width="100%" justify="space-between" align="center">
+        <Skeleton.Text width="40%"/>
+
+        <Skeleton.Text width="5rem"/>
+      </Row>
+
+      <Row width="100%" justify="space-between" align="center">
+        <Skeleton.Text width="70%"/>
+      </Row>
+    </Col>
+  </Wrapper>
+);

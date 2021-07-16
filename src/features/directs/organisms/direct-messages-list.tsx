@@ -4,35 +4,32 @@ import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 
 import {authSelectors} from "@features/auth";
-import {Message, SystemMessage} from "@features/chats";
+import {Message, SystemMessage, MessageSkeleton} from "@features/chats";
 import {Col} from "@lib/layout";
 import {ID} from "@lib/typings";
 import {useRootDispatch} from "@lib/store";
 import {scrollToBottom, isElementVisible, isAtBottom, isAtTop} from "@lib/dom";
-import {H2} from "@ui/atoms";
-import {DirectMessage} from "../lib/typings";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
-interface DirectMessagesListProps {
-  messages: DirectMessage[] | null;
-  areFetching: boolean;
-}
+const DEFAULT_SKELETON_LIST = 3;
 
-export const DirectMessagesList: React.FC<DirectMessagesListProps> = ({messages, areFetching}) => {
+export const DirectMessagesList: React.FC = () => {
   const dispatch = useRootDispatch();
 
-  const [isScrolled, setIsScrolled] = useState(false);
-
   const {partnerId} = useParams<{partnerId: ID}>();
+
+  const [isScrolled, setIsScrolled] = useState(false);
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
   const credentials = useSelector(authSelectors.credentials)!;
+  const messages = useSelector(selectors.messages(partnerId));
   const areMessagesFetching = useSelector(selectors.areMessagesFetching(partnerId));
+  const areMessagesFetched = useSelector(selectors.areMessagesFetched(partnerId));
   const areMessagesLeftToFetch = useSelector(selectors.areMessagesLeftToFetch(partnerId));
 
-  const last = messages && messages[messages.length - 1];
+  const last = messages[messages.length - 1];
 
   useEffect(() => {
     if (last) {
@@ -60,7 +57,7 @@ export const DirectMessagesList: React.FC<DirectMessagesListProps> = ({messages,
     const toFetchMessages = isAtTop(currentTarget) && !areMessagesFetching && areMessagesLeftToFetch;
 
     if (toFetchMessages) dispatch(actions.fetchMessages({
-      partnerId, skip: messages ? messages.length : 0
+      partnerId, skip: messages.length
     }));
   };
 
@@ -99,14 +96,13 @@ export const DirectMessagesList: React.FC<DirectMessagesListProps> = ({messages,
 
   return (
     <List ref={listRef} onScroll={handleListScroll}>
-      {areFetching && <H2>Loading...</H2>}
+      {(areMessagesFetching && !areMessagesFetched) && Array.from(
+        {length: DEFAULT_SKELETON_LIST},
+        (_, idx) => <MessageSkeleton key={idx}/>
+      )}
 
-      {messages && messages.map(({id, images, files, audio, text, sender, isSystem, isRead, createdAt}) => {
-        if (isSystem) return (
-          <SystemMessage
-            key={id}
-            text={text}/>
-        );
+      {messages.map(({id, images, files, audio, text, sender, isSystem, isRead, createdAt}) => {
+        if (isSystem) return <SystemMessage key={id} text={text}/>;
 
         const isOwn = (!!sender && sender.id) === credentials.id;
 

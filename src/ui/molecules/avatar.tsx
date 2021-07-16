@@ -1,9 +1,8 @@
 import React from "react";
 import styled, {css} from "styled-components";
 
-interface AvatarProps {
+interface AvatarProps extends AvatarWrapperProps {
   url: string;
-  small?: boolean;
 }
 
 export const Avatar: React.FC<AvatarProps> = ({url, small}) => (
