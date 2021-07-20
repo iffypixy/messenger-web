@@ -5,7 +5,7 @@ import {ModalProps, Modal} from "@lib/modal";
 import {Col, Row} from "@lib/layout";
 import {H4, Icon} from "@ui/atoms";
 
-export const ChatCreationModal: React.FC<ModalProps> = ({closeModal}) => {
+export const GroupCreationModal: React.FC<ModalProps> = ({closeModal}) => {
   return (
     <Modal closeModal={closeModal}>
       <Wrapper>

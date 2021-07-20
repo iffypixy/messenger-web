@@ -1,13 +1,15 @@
 import React, {useEffect} from "react";
 import {useSelector} from "react-redux";
-import {useParams} from "react-router-dom";
+import {useParams, useHistory} from "react-router-dom";
 import styled from "styled-components";
 import {nanoid} from "nanoid";
 import {unwrapResult} from "@reduxjs/toolkit";
 
 import {authSelectors} from "@features/auth";
-import {ChatsList, formatMessageDate, ChatForm, useFetchingChats, ChatCreationModal, SearchBar} from "@features/chats";
+import {ChatsList, formatMessageDate, ChatForm, useFetchingChats, SearchBar, ChatMenu} from "@features/chats";
 import {directsSelectors, directsActions, DirectMessagesList, DirectAttachmentsModal} from "@features/directs";
+import {GroupCreationModal} from "@features/groups";
+import {ProfileModal} from "@features/profiles";
 import {Col, Row} from "@lib/layout";
 import {ID} from "@lib/typings";
 import {useModal} from "@lib/modal";
@@ -24,8 +26,12 @@ export const DirectPage = () => {
 
   const {partnerId} = useParams<{partnerId: ID}>();
 
-  const {closeModal, isModalOpen, openModal} = useModal();
+  const {closeModal: closeGroupCreationModal, isModalOpen: isGroupCreationModalOpen, openModal: openGroupCreationModal} = useModal();
+  const {closeModal: closeProfileModal, isModalOpen: isProfileModalOpen, openModal: openProfileModal} = useModal();
 
+  const history = useHistory();
+
+  const credentials = useSelector(authSelectors.credentials)!;
   const chat = useSelector(directsSelectors.chat(partnerId));
   const messages = useSelector(directsSelectors.messages(partnerId));
   const areMessagesFetching = useSelector(directsSelectors.areMessagesFetching(partnerId));
@@ -35,8 +41,12 @@ export const DirectPage = () => {
   const toFetchChat = !chat && !isChatFetching;
   const toFetchMessages = !areMessagesFetched && !areMessagesFetching;
 
+  const isOwn = credentials.id === partnerId;
+
   useEffect(() => {
-    if (toFetchChat) {
+    if (isOwn) history.push("/");
+
+    if (toFetchChat && !isOwn) {
       dispatch(directsActions.fetchChat({partnerId}))
         .then(unwrapResult)
         .then(() => {
@@ -51,13 +61,18 @@ export const DirectPage = () => {
 
   return (
     <>
-      {isModalOpen && <ChatCreationModal closeModal={closeModal}/>}
+      {isGroupCreationModalOpen && <GroupCreationModal closeModal={closeGroupCreationModal}/>}
+      {isProfileModalOpen && <ProfileModal closeModal={closeProfileModal}/>}
 
       <MainTemplate>
         <Wrapper>
           <SidebarWrapper>
             <Sidebar>
               <Icon name="logo"/>
+
+              <AvatarWrapper onClick={openProfileModal}>
+                <Avatar url={credentials.avatar}/>
+              </AvatarWrapper>
             </Sidebar>
           </SidebarWrapper>
 
@@ -66,9 +81,9 @@ export const DirectPage = () => {
               <Row justify="space-between">
                 <H4>Messages</H4>
                 <Text
-                  onClick={openModal}
+                  onClick={openGroupCreationModal}
                   clickable secondary>
-                  + Create new chat
+                  + Create group chat
                 </Text>
               </Row>
 
@@ -100,15 +115,19 @@ const SidebarWrapper = styled.aside`
   padding: 3rem 0 3rem 2rem;
 `;
 
-const Sidebar = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+const Sidebar = styled(Col).attrs(() => ({
+  width: "100%",
+  height: "100%",
+  align: "center",
+  justify: "space-between"
+}))`
   background-color: ${({theme}) => theme.palette.primary.light};
   border-radius: 1rem;
   padding: 3rem 0;
+`;
+
+const AvatarWrapper = styled.div`
+  cursor: pointer;
 `;
 
 const ListPanelWrapper = styled(Col).attrs(() => ({
@@ -143,6 +162,34 @@ const DirectChat: React.FC = () => {
 
   if (!chat) return null;
 
+  const handleBanningPartner = () => {
+    dispatch(directsActions.fetchBanningPartner({partnerId}));
+
+    dispatch(directsActions.setDirect({
+      partnerId, direct: {
+        ...chat, partner: {
+          ...chat.partner, isBanned: true
+        }
+      }
+    }));
+  };
+
+  const handleUnbanningPartner = () => {
+    dispatch(directsActions.fetchUnbanningPartner({partnerId}));
+
+    dispatch(directsActions.setDirect({
+      partnerId, direct: {
+        ...chat, partner: {
+          ...chat.partner, isBanned: false
+        }
+      }
+    }));
+  };
+
+  const formError =
+    chat.isBanned ? "Partner has blocked you, so you can not send message." :
+      chat.partner.isBanned ? "You have blocked partner. Unblock to send message." : null;
+
   return (
     <>
       {isModalOpen && (
@@ -162,16 +209,23 @@ const DirectChat: React.FC = () => {
               </Col>
             </Row>
 
-            <Row gap="3rem">
-              <Icon name="attachment" onClick={openModal} pointer/>
-              <Icon name="options" pointer/>
+            <Row>
+              <MenuWrapper>
+                <Icon name="options" pointer/>
+                <ChatMenu>
+                  <ChatMenu.Item onClick={openModal}>Show attachments</ChatMenu.Item>
+                  {chat.partner.isBanned ?
+                    <ChatMenu.Item onClick={handleUnbanningPartner}>Unblock partner</ChatMenu.Item> :
+                    <ChatMenu.Item onClick={handleBanningPartner}>Block partner</ChatMenu.Item>}
+                </ChatMenu>
+              </MenuWrapper>
             </Row>
           </Row>
         </Header>
 
-        <DirectMessagesList />
+        <DirectMessagesList/>
 
-        <ChatForm handleSubmit={
+        <ChatForm error={formError} handleSubmit={
           ({images, files, text, audio}) => {
             const id = nanoid();
 
@@ -223,6 +277,16 @@ const Header = styled(Row).attrs(() => ({
   border-bottom: 2px solid ${({theme}) => theme.palette.divider};
 `;
 
+const MenuWrapper = styled.div`
+  display: inline-flex;
+  position: relative;
+  
+  &:hover > div {
+    visibility: visible;
+    opacity: 1;
+  }
+`;
+
 const DirectSkeleton: React.FC = () => (
   <Col width="100%" height="100%">
     <Header>
@@ -236,15 +300,14 @@ const DirectSkeleton: React.FC = () => (
           </Col>
         </Row>
 
-        <Row gap="3rem">
-          <Icon name="attachment" pointer/>
+        <Row>
           <Icon name="options" pointer/>
         </Row>
       </Row>
     </Header>
 
-    <DirectMessagesList />
+    <DirectMessagesList/>
 
-    <ChatForm handleSubmit={() => null}/>
+    <ChatForm error={null} handleSubmit={() => null}/>
   </Col>
 );

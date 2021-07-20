@@ -31,7 +31,7 @@ const ToggleButton = styled(Button)<ToggleButtonProps>`
      border-bottom-right-radius: 0;
      border-top-right-radius: 0;
      border-bottom-left-radius: 15px;
-     border-top-left-radius:15px;
+     border-top-left-radius: 15px;
   }
     
   &:last-child {

@@ -287,5 +287,5 @@ export const reducer = createReducer<DirectsState>({
     state.chats[payload.partnerId] = {
       ...chat, direct: payload.direct
     };
-  }
+  },
 });

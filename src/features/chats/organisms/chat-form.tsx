@@ -4,7 +4,7 @@ import prettyBytes from "pretty-bytes";
 import {BaseEmoji} from "emoji-mart/dist-es";
 import styled from "styled-components";
 
-import {uploadApi} from "@api/upload.api";
+import {uploadsApi} from "@api/uploads.api";
 import {stopMediaStream} from "@lib/media-stream";
 import {Col, Row} from "@lib/layout";
 import {formatDuration} from "@lib/date";
@@ -26,6 +26,7 @@ interface UploadingFile {
 }
 
 interface ChatFormProps {
+  error: string | null;
   handleSubmit: (options: {
     text: string;
     files: File[] | null;
@@ -40,7 +41,7 @@ interface ChatFormProps {
   }) => void;
 }
 
-export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
+export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit, error}) => {
   const [form, setForm] = useState<{
     images: UploadingFile[];
     files: UploadingFile[];
@@ -94,7 +95,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
       ]
     });
 
-    uploadApi.upload({file}, {
+    uploadsApi.upload({file}, {
       onUploadProgress: ({loaded, total}) => {
         setForm((form) => ({
           ...form, files: form.files.map((file) => file.key === key ?
@@ -135,7 +136,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
       ]
     });
 
-    uploadApi.upload({file}, {
+    uploadsApi.upload({file}, {
       onUploadProgress: ({loaded, total}) => {
         setForm((form) => ({
           ...form, images: form.images.map((image) => image.key === key ?
@@ -234,7 +235,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
           type: "audio/mpeg"
         });
 
-        uploadApi.upload({
+        uploadsApi.upload({
           file: mp3 as globalThis.File
         }).then(({data: {file: {id, url}}}) => {
           handleSubmit({
@@ -300,6 +301,16 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit}) => {
   const handleFormSubmit = audio.isRecording ? handleAudioFormSubmit : handleMessageFormSubmit;
 
   const areAttachmentsAttached = !!attachments.length;
+
+  if (!!error) return (
+    <Row width="100%" padding="2rem 5rem">
+      <FormPanel>
+        <Row width="100%" justify="center" padding="2rem 0">
+          <Text>{error}</Text>
+        </Row>
+      </FormPanel>
+    </Row>
+  );
 
   return (
     <Row width="100%" padding="2rem 5rem">

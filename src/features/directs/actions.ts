@@ -8,11 +8,15 @@ import {
   GetDirectResult,
   GetDirectsResult,
   ReadMessageData,
-  ReadMessageResult,
   SendMessageData,
   SendMessageResult,
   GetAttachedAudiosResult,
-  GetAttachedAudiosData, GetAttachedImagesData, GetAttachedImagesResult, GetAttachedFilesData, GetAttachedFilesResult
+  GetAttachedAudiosData,
+  GetAttachedImagesData,
+  GetAttachedImagesResult,
+  GetAttachedFilesData,
+  GetAttachedFilesResult,
+  BanPartnerData, UnbanPartnerData
 } from "@api/direct-chats.api";
 import {ID} from "@lib/typings";
 import {Direct, DirectMessage} from "./lib/typings";
@@ -70,14 +74,25 @@ export const fetchSendingMessage = createAsyncThunk<FetchSendingMessagePayload, 
 export interface FetchReadingMessageData extends ReadMessageData {
 }
 
-export interface FetchReadingMessagePayload extends ReadMessageResult {
+export const fetchReadingMessage = createAsyncThunk<void, FetchReadingMessageData>(`${type}/fetchReadingMessage`,
+  async (args) => {
+    await directChatsApi.readMessage(args);
+  });
+
+export interface FetchBanningPartnerData extends BanPartnerData {
 }
 
-export const fetchReadingMessage = createAsyncThunk<FetchReadingMessagePayload, FetchReadingMessageData>(`${type}/fetchReadingMessage`,
+export const fetchBanningPartner = createAsyncThunk<void, FetchBanningPartnerData>(`${type}/fetchBanningPartner`,
   async (args) => {
-    const {data} = await directChatsApi.readMessage(args);
+    await directChatsApi.banPartner(args);
+  });
 
-    return data;
+export interface FetchUnbanningPartnerData extends UnbanPartnerData {
+}
+
+export const fetchUnbanningPartner = createAsyncThunk<void, FetchUnbanningPartnerData>(`${type}/fetchUnbanningPartner`,
+  async (args) => {
+    await directChatsApi.unbanPartner(args);
   });
 
 export interface FetchAttachedAudiosData extends GetAttachedAudiosData {

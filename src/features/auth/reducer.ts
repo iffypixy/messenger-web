@@ -1,5 +1,6 @@
 import {createReducer, PayloadAction} from "@reduxjs/toolkit";
 
+import {profilesActions, FetchUpdatingProfilePayload} from "@features/profiles";
 import {GetCredentialsResult, LoginResult, RegisterResult} from "@api/auth.api";
 import {Credentials} from "./lib/typings";
 import * as actions from "./actions";
@@ -61,6 +62,15 @@ export const reducer = createReducer<AuthState>(
 
     [actions.fetchCredentials.rejected.type]: (state) => {
       state.areCredentialsFetching = false;
+    },
+
+    [actions.fetchLogout.fulfilled.type]: (state) => {
+      state.credentials = null;
+      state.isAuthenticated = false;
+    },
+
+    [profilesActions.fetchUpdatingProfile.fulfilled.type]: (state, {payload}: PayloadAction<FetchUpdatingProfilePayload>) => {
+      state.credentials = payload.credentials;
     }
   }
 );

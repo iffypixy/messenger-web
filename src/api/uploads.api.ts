@@ -24,6 +24,6 @@ const upload = ({file}: UploadData, options: Partial<AxiosRequestConfig> = {}): 
   });
 };
 
-export const uploadApi = {
+export const uploadsApi = {
   upload
 };

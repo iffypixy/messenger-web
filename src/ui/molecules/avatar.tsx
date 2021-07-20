@@ -20,8 +20,8 @@ const Wrapper = styled.div<AvatarWrapperProps>`
   height: 7rem;
   
   ${({small}) => small && css`
-    width: 4rem;
-    height: 4rem;
+    width: 5.5rem;
+    height: 5.5rem;
   `}
 `;
 

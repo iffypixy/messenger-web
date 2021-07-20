@@ -1,7 +1,7 @@
 import {AxiosPromise} from "axios";
 
 import {AttachedImage, AttachedFile, AttachedAudio} from "@features/chats";
-import {DirectsListItem, Direct, DirectMessage, DirectDetails} from "@features/directs";
+import {DirectsListItem, Direct, DirectMessage} from "@features/directs";
 import {ID} from "@lib/typings";
 import {request} from "@lib/http";
 import {socket} from "@lib/socket";
@@ -65,13 +65,8 @@ export interface ReadMessageData {
   messageId: ID;
 }
 
-export interface ReadMessageResult {
-  message: DirectMessage;
-  chat: DirectDetails;
-}
-
-const readMessage = (data: ReadMessageData): Promise<{data: ReadMessageResult}> => new Promise((resolve) => {
-  socket.emit("DIRECT_CHAT:READ_MESSAGE", data, (data: ReadMessageResult) => resolve({data}));
+const readMessage = (data: ReadMessageData): Promise<void> => new Promise((resolve) => {
+  socket.emit("DIRECT_CHAT:READ_MESSAGE", data, resolve);
 });
 
 export interface GetAttachedAudiosData {
@@ -119,8 +114,25 @@ const getAttachedFiles = ({partnerId, skip}: GetAttachedFilesData): AxiosPromise
   params: {skip}
 });
 
+export interface BanPartnerData {
+  partnerId: ID;
+}
+
+const banPartner = (data: BanPartnerData): Promise<void> => new Promise((resolve) => {
+  socket.emit("DIRECT_CHAT:BAN_PARTNER", data, resolve);
+});
+
+export interface UnbanPartnerData {
+  partnerId: ID;
+}
+
+const unbanPartner = (data: UnbanPartnerData): Promise<void> => new Promise((resolve) => {
+  socket.emit("DIRECT_CHAT:UNBAN_PARTNER", data, resolve);
+});
+
 export const directChatsApi = {
   getDirects, getDirect, getMessages,
   sendMessage, readMessage, getAttachedAudios,
-  getAttachedImages, getAttachedFiles
+  getAttachedImages, getAttachedFiles,
+  banPartner, unbanPartner
 };

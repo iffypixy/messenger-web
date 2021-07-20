@@ -5,19 +5,23 @@ import {authApi, LoginResult, LoginData, RegisterResult, RegisterData, GetCreden
 const type = "auth";
 
 export const fetchLogin = createAsyncThunk<LoginResult, LoginData>(`${type}/fetchLogin`, async (args) => {
-    const {data} = await authApi.login(args);
+  const {data} = await authApi.login(args);
 
-    return data;
+  return data;
 });
 
 export const fetchRegister = createAsyncThunk<RegisterResult, RegisterData>(`${type}/fetchRegister`, async (args) => {
-    const {data} = await authApi.register(args);
+  const {data} = await authApi.register(args);
 
-    return data;
+  return data;
 });
 
 export const fetchCredentials = createAsyncThunk<GetCredentialsResult>(`${type}/fetchCredentials`, async () => {
-    const {data} = await authApi.getCredentials();
+  const {data} = await authApi.getCredentials();
 
-    return data;
+  return data;
+});
+
+export const fetchLogout = createAsyncThunk<void, void>(`${type}/fetchLogout`, async () => {
+  await authApi.logout();
 });

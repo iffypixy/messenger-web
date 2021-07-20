@@ -2,20 +2,27 @@ import React, {useEffect} from "react";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
 
+import {authSelectors} from "@features/auth";
 import {directsActions, directsSelectors} from "@features/directs";
-import {groupsActions, groupsSelectors} from "@features/groups";
+import {groupsActions, groupsSelectors, GroupCreationModal} from "@features/groups";
 import {ChatsList, SearchBar} from "@features/chats";
 import {Col, Row} from "@lib/layout";
 import {useRootDispatch} from "@lib/store";
 import {Icon, H4, Text, H3} from "@ui/atoms";
 import {MainTemplate} from "@ui/templates";
+import {useModal} from "@lib/modal";
+import {Avatar} from "@ui/molecules";
+import {ProfileModal} from "@features/profiles";
 
 export const HomePage: React.FC = () => {
   const dispatch = useRootDispatch();
 
+  const {closeModal: closeGroupCreationModal, isModalOpen: isGroupCreationModalOpen, openModal: openGroupCreationModal} = useModal();
+  const {closeModal: closeProfileModal, isModalOpen: isProfileModalOpen, openModal: openProfileModal} = useModal();
+
+  const credentials = useSelector(authSelectors.credentials)!;
   const directChats = useSelector(directsSelectors.chats);
   const areDirectChatsFetching = useSelector(directsSelectors.areChatsFetching);
-
   const groupChats = useSelector(groupsSelectors.chats);
   const areGroupChatsFetching = useSelector(groupsSelectors.areChatsFetching);
 
@@ -28,34 +35,45 @@ export const HomePage: React.FC = () => {
   }, []);
 
   return (
-    <MainTemplate>
-      <Wrapper>
-        <SidebarWrapper>
-          <Sidebar>
-            <Icon name="logo"/>
-          </Sidebar>
-        </SidebarWrapper>
+    <>
+      {isGroupCreationModalOpen && <GroupCreationModal closeModal={closeGroupCreationModal}/>}
+      {isProfileModalOpen && <ProfileModal closeModal={closeProfileModal}/>}
 
-        <ListPanelWrapper>
-          <Col gap="3rem">
-            <Row justify="space-between">
-              <H4>Messages</H4>
-              <Text clickable secondary>
-                + Create new chat
-              </Text>
-            </Row>
+      <MainTemplate>
+        <Wrapper>
+          <SidebarWrapper>
+            <Sidebar>
+              <Icon name="logo"/>
 
-            <SearchBar/>
-          </Col>
+              <AvatarWrapper onClick={openProfileModal}>
+                <Avatar url={credentials.avatar}/>
+              </AvatarWrapper>
+            </Sidebar>
+          </SidebarWrapper>
 
-          <ChatsList/>
-        </ListPanelWrapper>
+          <ListPanelWrapper>
+            <Col gap="3rem">
+              <Row justify="space-between">
+                <H4>Messages</H4>
+                <Text
+                  onClick={openGroupCreationModal}
+                  clickable secondary>
+                  + Create group chat
+                </Text>
+              </Row>
 
-        <ChatPanelWrapper>
-          <H3>Select chat to start messaging</H3>
-        </ChatPanelWrapper>
-      </Wrapper>
-    </MainTemplate>
+              <SearchBar/>
+            </Col>
+
+            <ChatsList/>
+          </ListPanelWrapper>
+
+          <ChatPanelWrapper>
+            <H3>Select chat to start messaging</H3>
+          </ChatPanelWrapper>
+        </Wrapper>
+      </MainTemplate>
+    </>
   );
 };
 
@@ -72,15 +90,19 @@ const SidebarWrapper = styled.aside`
   padding: 3rem 0 3rem 2rem;
 `;
 
-const Sidebar = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+const Sidebar = styled(Col).attrs(() => ({
+  width: "100%",
+  height: "100%",
+  align: "center",
+  justify: "space-between",
+  padding: "3rem 0"
+}))`
   background-color: ${({theme}) => theme.palette.primary.light};
   border-radius: 1rem;
-  padding: 3rem 0;
+`;
+
+const AvatarWrapper = styled.div`
+  cursor: pointer;
 `;
 
 const ListPanelWrapper = styled(Col).attrs(() => ({

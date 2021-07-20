@@ -32,7 +32,7 @@ export const Icon: React.FC<IconProps> = ({name, ...props}) => {
                         <g>
                             <path
                                 d="M162.133,93.867C142.677,93.867,128,119.543,128,153.6c0,4.71,3.823,8.533,8.533,8.533h51.2
-			c4.71,0,8.533-3.823,8.533-8.533C196.267,119.543,181.589,93.867,162.133,93.867z M145.442,145.067
+			c4.71,0,8.533-3.823,8.533-8.533C196.267,119.543a,181.589,93.867,162.133,93.867z M145.442,145.067
 			c1.894-21.086,10.522-34.133,16.691-34.133s14.797,13.047,16.691,34.133H145.442z"
                             />
                         </g>
@@ -322,7 +322,7 @@ export const Icon: React.FC<IconProps> = ({name, ...props}) => {
 
         case "attachment":
             return (
-                <SVG width="2.25rem" height="2.25rem" viewBox="0 0 512 512" xmlSpace="preserve"{...props}
+                <SVG width="2rem" height="2rem" viewBox="0 0 512 512" xmlSpace="preserve"{...props}
                 >
                     <g>
                         <g>
@@ -835,7 +835,7 @@ export const Icon: React.FC<IconProps> = ({name, ...props}) => {
 
       case "options":
         return (
-          <SVG width="2rem" height="2rem" viewBox="-192 0 512 512" {...props}>
+          <SVG width="2rem" height="2rem" viewBox="-192 0 512 512" style={{transform: "rotate(90deg)"}} {...props}>
             <path d="m128 256c0 35.347656-28.652344 64-64 64s-64-28.652344-64-64 28.652344-64 64-64 64 28.652344 64 64zm0 0"/>
             <path d="m128 64c0 35.347656-28.652344 64-64 64s-64-28.652344-64-64 28.652344-64 64-64 64 28.652344 64 64zm0 0"/>
             <path d="m128 448c0 35.347656-28.652344 64-64 64s-64-28.652344-64-64 28.652344-64 64-64 64 28.652344 64 64zm0 0"/>

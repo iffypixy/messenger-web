@@ -22,22 +22,22 @@ export const Button = styled.button<ButtonProps>`
   border-radius: 0.5rem;
   padding: 1.5rem 2.5rem;
   
-  ${({small}) => css`
-    font-size: ${small && "1.2rem"};
-    padding: ${small && "1rem 1.5rem"};
+  ${({small}) => small && css`
+    font-size: 1.2rem;
+    padding: 1rem 1.5rem;
   `};
   
-  ${({theme, danger}) => css`
-    background-color: ${danger && theme.palette.error.main};
+  ${({theme, danger}) => danger && css`
+    background-color: ${theme.palette.error.main};
   `};
   
-  ${({disabled}) => css`
-    opacity: ${disabled && "0.4"};
-    cursor: ${disabled && "not-allowed"};
+  ${({disabled}) => disabled && css`
+    opacity: 0.4;
+    cursor: not-allowed;
   `};
   
-  ${({pure}) => css`
-    background: ${pure && "transparent"};
-    padding: ${pure && "0"};
+  ${({pure}) => pure && css`
+    background: transparent;
+    padding: 0;
   `};
 `;

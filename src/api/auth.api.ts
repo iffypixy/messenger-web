@@ -51,7 +51,12 @@ const refreshTokens = (data: RefreshTokensData): AxiosPromise<void> => request({
     method: "POST", data
 });
 
+const logout = () => request({
+    url: "/auth/logout",
+    method: "POST"
+});
+
 export const authApi = {
     login, register, getCredentials,
-    refreshTokens
+    refreshTokens, logout
 };

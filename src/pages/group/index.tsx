@@ -5,15 +5,18 @@ import styled from "styled-components";
 import {nanoid} from "nanoid";
 import {unwrapResult} from "@reduxjs/toolkit";
 
-import {ChatForm, ChatsList, useFetchingChats, SearchBar} from "@features/chats";
-import {GroupMessagesList, groupsActions, groupsSelectors} from "@features/groups";
+import {authSelectors} from "@features/auth";
+import {ChatForm, ChatsList, useFetchingChats, SearchBar, ChatMenu} from "@features/chats";
+import {GroupCreationModal, GroupMessagesList, groupsActions, groupsSelectors} from "@features/groups";
 import {ID} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
 import {useRootDispatch} from "@lib/store";
 import {Skeleton} from "@lib/skeleton";
+import {useModal} from "@lib/modal";
 import {H4, Icon, Text} from "@ui/atoms";
 import {MainTemplate} from "@ui/templates";
 import {Avatar} from "@ui/molecules";
+import {ProfileModal} from "@features/profiles";
 
 export const GroupPage = () => {
   const dispatch = useRootDispatch();
@@ -22,6 +25,10 @@ export const GroupPage = () => {
 
   const {groupId} = useParams<{groupId: ID}>();
 
+  const {closeModal: closeGroupCreationModal, isModalOpen: isGroupCreationModalOpen, openModal: openGroupCreationModal} = useModal();
+  const {closeModal: closeProfileModal, isModalOpen: isProfileModalOpen, openModal: openProfileModal} = useModal();
+
+  const credentials = useSelector(authSelectors.credentials)!;
   const chat = useSelector(groupsSelectors.chat(groupId));
   const messages = useSelector(groupsSelectors.messages(groupId));
   const isChatFetching = useSelector(groupsSelectors.isChatFetching(groupId));
@@ -46,32 +53,45 @@ export const GroupPage = () => {
   }, [groupId]);
 
   return (
-    <MainTemplate>
-      <Wrapper>
-        <SidebarWrapper>
-          <Sidebar>
-            <Icon name="logo"/>
-          </Sidebar>
-        </SidebarWrapper>
+    <>
+      {isGroupCreationModalOpen && <GroupCreationModal closeModal={closeGroupCreationModal}/>}
+      {isProfileModalOpen && <ProfileModal closeModal={closeProfileModal}/>}
 
-        <ListPanelWrapper>
-          <Col gap="3rem">
-            <Row justify="space-between">
-              <H4>Messages</H4>
-              <Text clickable secondary>+ Create new chat</Text>
-            </Row>
+      <MainTemplate>
+        <Wrapper>
+          <SidebarWrapper>
+            <Sidebar>
+              <Icon name="logo"/>
 
-            <SearchBar/>
-          </Col>
+              <AvatarWrapper onClick={openProfileModal}>
+                <Avatar url={credentials.avatar}/>
+              </AvatarWrapper>
+            </Sidebar>
+          </SidebarWrapper>
 
-          <ChatsList/>
-        </ListPanelWrapper>
+          <ListPanelWrapper>
+            <Col gap="3rem">
+              <Row justify="space-between">
+                <H4>Messages</H4>
+                <Text
+                  onClick={openGroupCreationModal}
+                  clickable secondary>
+                  + Create group chat
+                </Text>
+              </Row>
 
-        <ChatPanelWrapper>
-          <GroupChat/>
-        </ChatPanelWrapper>
-      </Wrapper>
-    </MainTemplate>
+              <SearchBar/>
+            </Col>
+
+            <ChatsList/>
+          </ListPanelWrapper>
+
+          <ChatPanelWrapper>
+            <GroupChat/>
+          </ChatPanelWrapper>
+        </Wrapper>
+      </MainTemplate>
+    </>
   );
 };
 
@@ -88,15 +108,19 @@ const SidebarWrapper = styled.aside`
   padding: 3rem 0 3rem 2rem;
 `;
 
-const Sidebar = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+const Sidebar = styled(Col).attrs(() => ({
+  width: "100%",
+  height: "100%",
+  align: "center",
+  justify: "space-between",
+  padding: "3rem 0"
+}))`
   background-color: ${({theme}) => theme.palette.primary.light};
   border-radius: 1rem;
-  padding: 3rem 0;
+`;
+
+const AvatarWrapper = styled.div`
+  cursor: pointer;
 `;
 
 const ListPanelWrapper = styled(Col).attrs(() => ({
@@ -141,16 +165,18 @@ const GroupChat: React.FC = () => {
             </Col>
           </Row>
 
-          <Row gap="3rem">
-            <Icon name="loupe" pointer/>
-            <Icon name="options" pointer/>
+          <Row>
+            <ChatMenu>
+              <ChatMenu.Item>Show attachments</ChatMenu.Item>
+              <ChatMenu.Item>Leave group</ChatMenu.Item>
+            </ChatMenu>
           </Row>
         </Row>
       </Header>
 
       <GroupMessagesList/>
 
-      <ChatForm handleSubmit={({images, files, text, audio}) => {
+      <ChatForm error={null} handleSubmit={({images, files, text, audio}) => {
         const id = nanoid();
 
         dispatch(groupsActions.addMessage({
@@ -203,16 +229,15 @@ const GroupSkeleton: React.FC = () => (
     <Header>
       <Row width="100%" height="100%" justify="space-between" align="center">
         <Row height="100%" gap="3rem" align="center">
-          <Skeleton.Avatar />
+          <Skeleton.Avatar/>
 
           <Col gap="1rem" height="100%" justify="space-between" padding="1rem 0">
-            <Skeleton.Text width="20rem" />
-            <Skeleton.Text width="10rem" />
+            <Skeleton.Text width="20rem"/>
+            <Skeleton.Text width="10rem"/>
           </Col>
         </Row>
 
-        <Row gap="3rem">
-          <Icon name="loupe" pointer/>
+        <Row>
           <Icon name="options" pointer/>
         </Row>
       </Row>
@@ -220,6 +245,6 @@ const GroupSkeleton: React.FC = () => (
 
     <GroupMessagesList/>
 
-    <ChatForm handleSubmit={() => null}/>
+    <ChatForm error={null} handleSubmit={() => null}/>
   </Col>
 );
