@@ -66,108 +66,6 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit, error}) => {
 
   const {text, images, files} = form;
 
-  const handleTextareaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setForm({
-      ...form, text: event.currentTarget.value
-    });
-  };
-
-  const handleTextareaKeydown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.code === "Enter" && !event.shiftKey) {
-      event.preventDefault();
-      handleMessageFormSubmit();
-    }
-  };
-
-  const handleEmojiSelect = (emoji: BaseEmoji) => {
-    setForm((form) => ({
-      ...form,
-      text: `${form.text}${emoji.native}`
-    }));
-  };
-
-  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.currentTarget.files && event.currentTarget.files[0];
-
-    if (!file) return;
-
-    const key = nanoid();
-
-    setForm({
-      ...form, files: [
-        ...files, {
-          key, isUploading: true,
-          progress: 0, name: file.name
-        }
-      ]
-    });
-
-    uploadsApi.upload({file}, {
-      onUploadProgress: ({loaded, total}) => {
-        setForm((form) => ({
-          ...form, files: form.files.map((file) => file.key === key ?
-            ({...file, progress: loaded / total}) : file)
-        }));
-      }
-    }).then(({data}) => {
-      setForm((form) => ({
-        ...form, files: form.files.map((file) => file.key === key ? ({
-          ...file,
-          id: data.file.id,
-          size: data.file.size,
-          url: data.file.url,
-          isUploading: false,
-          progress: 1
-        }) : file)
-      }));
-    }).catch(() => {
-      setForm((form) => ({
-        ...form, files: form.files.filter((file) => file.key !== key)
-      }));
-    });
-  };
-
-  const handleImageInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.currentTarget.files && event.currentTarget.files[0];
-
-    if (!file) return;
-
-    const key = nanoid();
-
-    setForm({
-      ...form, images: [
-        ...images, {
-          key, progress: 0, isUploading: true,
-          name: file.name
-        }
-      ]
-    });
-
-    uploadsApi.upload({file}, {
-      onUploadProgress: ({loaded, total}) => {
-        setForm((form) => ({
-          ...form, images: form.images.map((image) => image.key === key ?
-            ({...image, progress: loaded / total}) : image)
-        }));
-      }
-    }).then(({data: {file}}) => {
-      setForm((form) => ({
-        ...form, images: form.images.map((image) => image.key === key ? ({
-          ...image,
-          id: file.id,
-          url: file.url,
-          size: file.size,
-          isUploading: false,
-          progress: 1
-        }) : image)
-      }));
-    }).catch(() => {
-      setForm((form) => ({
-        ...form, images: form.images.filter((image) => image.key !== key)
-      }));
-    });
-  };
-
   const removeFile = (key: string) => {
     setForm({
       ...form, files: files.filter((file) => file.key !== key)
@@ -275,6 +173,108 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit, error}) => {
     });
   };
 
+  const handleTextareaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setForm({
+      ...form, text: event.currentTarget.value
+    });
+  };
+
+  const handleTextareaKeydown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.code === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleMessageFormSubmit();
+    }
+  };
+
+  const handleEmojiSelect = (emoji: BaseEmoji) => {
+    setForm((form) => ({
+      ...form,
+      text: `${form.text}${emoji.native}`
+    }));
+  };
+
+  const handleFileInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.currentTarget.files && event.currentTarget.files[0];
+
+    if (!file) return;
+
+    const key = nanoid();
+
+    setForm({
+      ...form, files: [
+        ...files, {
+          key, isUploading: true,
+          progress: 0, name: file.name
+        }
+      ]
+    });
+
+    uploadsApi.upload({file}, {
+      onUploadProgress: ({loaded, total}) => {
+        setForm((form) => ({
+          ...form, files: form.files.map((file) => file.key === key ?
+            ({...file, progress: loaded / total}) : file)
+        }));
+      }
+    }).then(({data}) => {
+      setForm((form) => ({
+        ...form, files: form.files.map((file) => file.key === key ? ({
+          ...file,
+          id: data.file.id,
+          size: data.file.size,
+          url: data.file.url,
+          isUploading: false,
+          progress: 1
+        }) : file)
+      }));
+    }).catch(() => {
+      setForm((form) => ({
+        ...form, files: form.files.filter((file) => file.key !== key)
+      }));
+    });
+  };
+
+  const handleImageInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.currentTarget.files && event.currentTarget.files[0];
+
+    if (!file) return;
+
+    const key = nanoid();
+
+    setForm({
+      ...form, images: [
+        ...images, {
+          key, progress: 0, isUploading: true,
+          name: file.name
+        }
+      ]
+    });
+
+    uploadsApi.upload({file}, {
+      onUploadProgress: ({loaded, total}) => {
+        setForm((form) => ({
+          ...form, images: form.images.map((image) => image.key === key ?
+            ({...image, progress: loaded / total}) : image)
+        }));
+      }
+    }).then(({data: {file}}) => {
+      setForm((form) => ({
+        ...form, images: form.images.map((image) => image.key === key ? ({
+          ...image,
+          id: file.id,
+          url: file.url,
+          size: file.size,
+          isUploading: false,
+          progress: 1
+        }) : image)
+      }));
+    }).catch(() => {
+      setForm((form) => ({
+        ...form, images: form.images.filter((image) => image.key !== key)
+      }));
+    });
+  };
+
   const handleAudioFormSubmit = () => {
     audio.mediaRecorder!.stop();
 
@@ -301,7 +301,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit, error}) => {
     clearInputs();
   };
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
 
     if (audio.isRecording) handleAudioFormSubmit();
@@ -344,13 +344,9 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit, error}) => {
     </Row>
   );
 
-  const handle = (event:any) => {
-    event.preventDefault();
-  }
-
   return (
     <Row width="100%" padding="2rem 5rem">
-      <Form onSubmit={handle}>
+      <Form onSubmit={handleFormSubmit}>
         <Col width="100%" gap="2rem">
           <FormPanel>
             <Input
