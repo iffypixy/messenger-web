@@ -72,11 +72,11 @@ export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
   };
 
   const handleAvatarSave = (blob: Blob) => {
-    closeEditorModal();
-
     setAvatar({
       url: URL.createObjectURL(blob), blob
     });
+
+    closeEditorModal();
   };
 
   return (

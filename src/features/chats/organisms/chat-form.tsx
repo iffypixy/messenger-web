@@ -10,7 +10,7 @@ import {Col, Row} from "@lib/layout";
 import {formatDuration} from "@lib/date";
 import {EmojiPicker} from "@lib/emoji";
 import {File, ID} from "@lib/typings";
-import {Button, Icon, Input, Loader, Text} from "@ui/atoms";
+import {Button, Icon, Input, Loader, Text, Textarea} from "@ui/atoms";
 import {ProgressBar} from "@ui/molecules";
 
 type Attachment = "images" | "files";
@@ -66,10 +66,17 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit, error}) => {
 
   const {text, images, files} = form;
 
-  const handleTextInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTextareaChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setForm({
       ...form, text: event.currentTarget.value
     });
+  };
+
+  const handleTextareaKeydown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.code === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      handleMessageFormSubmit();
+    }
   };
 
   const handleEmojiSelect = (emoji: BaseEmoji) => {
@@ -268,17 +275,13 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit, error}) => {
     });
   };
 
-  const handleAudioFormSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
+  const handleAudioFormSubmit = () => {
     audio.mediaRecorder!.stop();
 
     clearInputs();
   };
 
-  const handleMessageFormSubmit = (event: React.FormEvent) => {
-    event.preventDefault();
-
+  const handleMessageFormSubmit = () => {
     const attachedImages = images
       .filter(({isUploading}) => !isUploading)
       .map(({id, url}) => ({id: id!, url: url!}));
@@ -298,7 +301,12 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit, error}) => {
     clearInputs();
   };
 
-  const handleFormSubmit = audio.isRecording ? handleAudioFormSubmit : handleMessageFormSubmit;
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (audio.isRecording) handleAudioFormSubmit();
+    else handleMessageFormSubmit();
+  };
 
   const areAttachmentsAttached = !!attachments.length;
 
@@ -312,80 +320,87 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit, error}) => {
     </Row>
   );
 
-  return (
+  if (audio.isRecording) return (
     <Row width="100%" padding="2rem 5rem">
       <Form onSubmit={handleFormSubmit}>
         <Col width="100%" gap="2rem">
-          {audio.isRecording ? (
-            <Row width="100%" justify="space-between" align="center">
+          <Row width="100%" justify="space-between" align="center">
+            <Icon
+              name="cross"
+              type="button"
+              onClick={cancelRecording}
+              pointer secondary/>
+
+            <Text>{formatDuration(Math.ceil(audio.duration))}</Text>
+
+            {audio.isUploading ? <Loader/> : (
+              <Button type="submit" pure>
+                <Icon name="telegram"/>
+              </Button>
+            )}
+          </Row>
+        </Col>
+      </Form>
+    </Row>
+  );
+
+  const handle = (event:any) => {
+    event.preventDefault();
+  }
+
+  return (
+    <Row width="100%" padding="2rem 5rem">
+      <Form onSubmit={handle}>
+        <Col width="100%" gap="2rem">
+          <FormPanel>
+            <Input
+              type="file"
+              name="file"
+              onChange={handleFileInputChange}
+              invisible label={(
               <Icon
-                name="cross"
-                type="button"
-                onClick={cancelRecording}
-                pointer secondary/>
+                name="attachment"
+                secondary pointer/>
+            )}/>
 
-              <Text>{formatDuration(Math.ceil(audio.duration))}</Text>
-
-              {audio.isUploading ? <Loader/> : (
-                <Button type="submit" pure>
-                  <Icon name="telegram"/>
-                </Button>
-              )}
-            </Row>
-          ) : (
-            <FormPanel>
-
-              <Input
-                type="file"
-                name="file"
-                onChange={handleFileInputChange}
-                invisible label={(
-                <Icon
-                  name="attachment"
-                  secondary pointer/>
-              )}/>
-
-              <Input
-                type="file"
-                name="image"
-                onChange={handleImageInputChange}
-                accept="image/*"
-                invisible label={(
-                <Icon
-                  name="uploading-image"
-                  secondary pointer/>
-              )}/>
-
-              <EmojiButtonWrapper>
-                <Icon
-                  name="smile"
-                  secondary pointer/>
-
-                <EmojiPickerWrapper>
-                  <EmojiPicker onSelect={handleEmojiSelect}/>
-                </EmojiPickerWrapper>
-              </EmojiButtonWrapper>
-
-              <Input
-                width="100%"
-                placeholder="Write a message..."
-                name="message"
-                type="text"
-                value={text}
-                onChange={handleTextInputChange}
-                transparent/>
-
+            <Input
+              type="file"
+              name="image"
+              onChange={handleImageInputChange}
+              accept="image/*"
+              invisible label={(
               <Icon
-                onClick={startRecording}
-                name="microphone"
-                type="button"
+                name="uploading-image"
+                secondary pointer/>
+            )}/>
+
+            <EmojiButtonWrapper>
+              <Icon
+                name="smile"
                 secondary pointer/>
 
-              <SubmitButton type="submit" pure>
-                <Icon name="telegram"/>
-              </SubmitButton>
-            </FormPanel>
-          )}
+              <EmojiPickerWrapper>
+                <EmojiPicker onSelect={handleEmojiSelect}/>
+              </EmojiPickerWrapper>
+            </EmojiButtonWrapper>
+
+            <Textarea
+              placeholder="Write a message..."
+              name="message"
+              value={text}
+              onKeyDown={handleTextareaKeydown}
+              onChange={handleTextareaChange}/>
+
+            <Icon
+              onClick={startRecording}
+              name="microphone"
+              type="button"
+              secondary pointer/>
+
+            <SubmitButton type="submit" pure>
+              <Icon name="telegram"/>
+            </SubmitButton>
+          </FormPanel>
 
           {areAttachmentsAttached && (
             <Col width="100%" align="center" gap="1rem" padding="0 1rem">

@@ -1,4 +1,4 @@
-export {ChatsList, Message, SystemMessage, ChatForm, SearchBar, MessageSkeleton, ChatMenu} from "./organisms";
+export {ChatsList, Message, SystemMessage, ChatForm, SearchBar, MessageSkeleton, ChatMenu, SelectableImage} from "./organisms";
 export {formatMessageDate} from "./lib/formatting";
 export type {AttachedAudio, AttachedFile, AttachedImage} from "./lib/typings";
 export {useFetchingChats} from "./lib/fetching";

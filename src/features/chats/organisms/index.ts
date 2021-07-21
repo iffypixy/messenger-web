@@ -3,3 +3,4 @@ export {Message, SystemMessage, MessageSkeleton} from "./message";
 export {ChatForm} from "./chat-form";
 export {SearchBar} from "./search-bar";
 export {ChatMenu} from "./chat-menu";
+export {SelectableImage} from "./selectable-image";

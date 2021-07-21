@@ -3,6 +3,7 @@ import styled, {css} from "styled-components";
 import format from "date-fns/format";
 import prettyBytes from "pretty-bytes";
 
+import {SelectableImage} from "@features/chats";
 import {File, ID} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
 import {formatDuration} from "@lib/date";
@@ -108,32 +109,23 @@ export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text
         {(text || images || audio || files) && (
           <Bubble secondary={isOwn}>
             <Col gap="2.5rem">
-              {images && (
-                images.map((src, idx) => (
-                  <Image
-                    key={idx}
-                    src={src}
-                    onLoad={handleImageLoad}
+              {images && images.map((src, idx) => (
+                <ImageWrapper key={idx}>
+                  <SelectableImage src={src} onLoad={handleImageLoad}/>
+                </ImageWrapper>
+              ))}
 
-                  />
-                ))
-              )}
-
-              {text && (
-                <Text>{text}</Text>
-              )}
+              {text && <Text preline>{text}</Text>}
 
               {audioSrc && (
-                <>
-                  <Row align="center" gap="2rem">
-                    <Icon
-                      name={audio.isPaused ? "play" : "pause"}
-                      onClick={audio.isPaused ? playAudio : pauseAudio}/>
+                <Row align="center" gap="2rem">
+                  <Icon
+                    name={audio.isPaused ? "play" : "pause"}
+                    onClick={audio.isPaused ? playAudio : pauseAudio}/>
 
-                    <Icon name="wave"/>
+                  <Icon name="wave"/>
 
-                    <Text>{formatDuration(audio.isStarted ? audio.time : audio.duration)}</Text>
-                  </Row>
+                  <Text>{formatDuration(audio.isStarted ? audio.time : audio.duration)}</Text>
 
                   <audio
                     ref={audioRef}
@@ -142,7 +134,7 @@ export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text
                     onTimeUpdate={handleAudioTimeUpdate}>
                     <source src={audioSrc}/>
                   </audio>
-                </>
+                </Row>
               )}
 
               {files && files.map(({id, url, name, size}) => (
@@ -160,10 +152,13 @@ export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text
             </Col>
 
             <Row width="100%" gap="1rem" align="center" justify="flex-end">
-              {isOwn && <Icon
-                width="1.5rem"
-                height="1.5rem"
-                name={isRead ? "double-check" : "check"}/>}
+              {isOwn && (
+                <Icon
+                  width={isRead ? "1.5rem" : "1rem"}
+                  height={isRead ? "1.5rem" : "1rem"}
+                  name={isRead ? "double-check" : "check"}/>
+              )}
+
               <Text small>{format(date, "HH:mm")}</Text>
             </Row>
           </Bubble>
@@ -205,7 +200,7 @@ const Bubble = styled(Col).attrs(() => ({
   border-radius: 1rem;
 `;
 
-const Image = styled.img`
+const ImageWrapper = styled.div`
   max-width: 20rem;
   max-height: 20rem;
 `;

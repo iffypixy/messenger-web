@@ -7,6 +7,7 @@ interface TextProps {
   small?: boolean;
   width?: string;
   uppercase?: boolean;
+  preline?: boolean;
 }
 
 export const Text = styled.span<TextProps>`
@@ -39,4 +40,8 @@ export const Text = styled.span<TextProps>`
   ${({uppercase}) => uppercase && css`
     text-transform: uppercase;
   `};
+  
+  ${({preline}) => preline && css`
+    white-space: pre-line;
+  `}
 `;
