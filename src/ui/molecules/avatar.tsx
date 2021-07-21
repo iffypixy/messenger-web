@@ -16,10 +16,15 @@ interface AvatarWrapperProps {
 }
 
 const Wrapper = styled.div<AvatarWrapperProps>`
+  min-width: 7rem;
+  min-height: 7rem;
   width: 7rem;
   height: 7rem;
   
+  
   ${({small}) => small && css`
+    min-width: 5.5rem;
+    min-height: 5.5rem;
     width: 5.5rem;
     height: 5.5rem;
   `}
