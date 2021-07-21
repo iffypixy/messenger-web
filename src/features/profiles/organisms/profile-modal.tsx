@@ -11,10 +11,20 @@ import {Text, Input, Button} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
+import * as yup from "yup";
+import {regex} from "@lib/regex";
+import {useForm} from "react-hook-form";
+import {yupResolver} from "@hookform/resolvers/yup";
+
+const schema = yup.object().shape({
+  username: yup.string()
+    .required("Username is required")
+    .matches(regex.alphaNumeric, "Username must contain only numbers and letters")
+    .min(3, "Username must contain at least 3 characters")
+});
 
 interface ProfileForm {
   username: string;
-  avatar: string;
 }
 
 export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
@@ -23,19 +33,27 @@ export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
   const credentials = useSelector(authSelectors.credentials)!;
   const isUpdatingProfileFetching = useSelector(selectors.isUpdatingProfileFetching);
 
-  const [avatarBlob, setAvatarBlob] = useState<Blob | null>(null);
-
-  const [form, setForm] = useState<ProfileForm>({
-    username: credentials.username,
-    avatar: credentials.avatar
+  const [avatar, setAvatar] = useState<{
+    blob: Blob | null;
+    url: string;
+  }>({
+    blob: null,
+    url: credentials.avatar
   });
 
   const {isModalOpen: isEditorModelOpen, openModal: openEditorModel, closeModal: closeEditorModal} = useModal();
 
-  const handleSave = () => {
+  const {register, handleSubmit, formState: {errors, isValid}} = useForm<ProfileForm>({
+    resolver: yupResolver(schema),
+    mode: "onChange",
+    defaultValues: {
+      username: credentials.username
+    }
+  });
+
+  const handleSave = ({username}: ProfileForm) => {
     dispatch(actions.fetchUpdatingProfile({
-      username: form.username,
-      avatar: avatarBlob as globalThis.File
+      username, avatar: avatar.blob as globalThis.File
     })).then(closeModal);
   };
 
@@ -48,7 +66,7 @@ export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
 
     if (!file) return;
 
-    setAvatarBlob(file as globalThis.File);
+    setAvatar((avatar) => ({...avatar, blob: file as globalThis.File}));
 
     openEditorModel();
   };
@@ -56,21 +74,19 @@ export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
   const handleAvatarSave = (blob: Blob) => {
     closeEditorModal();
 
-    setForm((form) => ({
-      ...form, avatar: URL.createObjectURL(blob)
-    }));
+    setAvatar((avatar) => ({...avatar, url: URL.createObjectURL(blob)}));
   };
 
   return (
     <Modal closeModal={closeModal}>
-      {(isEditorModelOpen && avatarBlob) && (
+      {(isEditorModelOpen && avatar.blob) && (
         <AvatarEditorModal
           title="Edit image"
           width={300}
           height={300}
           borderRadius={150}
           border={75}
-          image={URL.createObjectURL(avatarBlob)}
+          image={URL.createObjectURL(avatar.blob)}
           handleSave={handleAvatarSave}
           closeModal={closeEditorModal}/>
       )}
@@ -82,22 +98,24 @@ export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
                  onChange={handleAvatarChange}
                  label={(
                    <AvatarWrapper>
-                     <Avatar url={form.avatar}/>
+                     <Avatar url={avatar.url}/>
                    </AvatarWrapper>
                  )} hidden/>
-          <Text>{credentials.username}</Text>
+          <Text width="80%" ellipsis>{credentials.username}</Text>
         </Row>
 
-        <Settings>
+        <Form>
           <Col gap="1rem" width="100%">
             <Text uppercase small>Username</Text>
             <Input
+              {...register("username")}
               width="100%"
-              value={form.username}
-              onChange={({currentTarget}) => setForm({...form, username: currentTarget.value})}
+              type="text"
+              error={errors.username?.message}
+              name="username"
               secondary small/>
           </Col>
-        </Settings>
+        </Form>
 
         <Footer>
           <Button
@@ -105,8 +123,8 @@ export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
             danger small>Logout</Button>
 
           <Button
-            onClick={handleSave}
-            disabled={isUpdatingProfileFetching}
+            onClick={handleSubmit(handleSave)}
+            disabled={isUpdatingProfileFetching || !isValid}
             small>Save</Button>
         </Footer>
       </Wrapper>
@@ -127,13 +145,11 @@ const AvatarWrapper = styled.div`
   cursor: pointer;
 `;
 
-const Settings = styled(Col).attrs(() => ({
-  gap: "1.5rem",
-  padding: "1.5rem"
-}))`
+const Form = styled.form`
   background-color: ${({theme}) => theme.palette.primary.light};
   border-radius: 5px;
   margin: 2.5rem 0;
+  padding: 1.5rem;
 `;
 
 const Footer = styled(Row).attrs(() => ({

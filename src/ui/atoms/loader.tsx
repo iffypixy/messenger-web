@@ -5,42 +5,50 @@ export const Loader: React.FC = () => (
   <Wrapper>
     <div/>
     <div/>
+    <div/>
+    <div/>
   </Wrapper>
 );
 
-const ripple = keyframes`
+const ring = keyframes`
   0% {
-    top: 36px;
-    left: 36px;
-    width: 0;
-    height: 0;
-    opacity: 1;
+    transform: rotate(0deg);
   }
-
+  
   100% {
-    top: 0;
-    left: 0;
-    width: 72px;
-    height: 72px;
-    opacity: 0;
+    transform: rotate(360deg);
   }
 `;
 
 const Wrapper = styled.div`
   display: inline-block;
   position: relative;
-  width: 80px;
-  height: 80px;
+  width: 4rem;
+  height: 4rem;
 
   div {
+    box-sizing: border-box;
+    display: block;
     position: absolute;
-    border: 4px solid #fff;
-    opacity: 1;
+    width: 2.5rem;
+    height: 2.5rem;
+    margin: 0.5rem;
+    border-width: 0.5rem;
+    border-style: solid;
     border-radius: 50%;
-    animation: ${ripple} 1s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+    animation: ${ring} 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: #FFFFFF transparent transparent transparent;
   }
   
+  div:nth-child(1) {
+    animation-delay: -0.45s;
+  }
+
   div:nth-child(2) {
-    animation-delay: -0.5s;
+    animation-delay: -0.3s;
+  }
+
+  div:nth-child(3) {
+    animation-delay: -0.15s;
   }
 `;

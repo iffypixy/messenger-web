@@ -109,7 +109,7 @@ export const ChatsList: React.FC = () => {
             const first = a.date ? +a.date : 0;
             const second = b.date ? +b.date : 0;
 
-            return first - second;
+            return second - first;
           })
           .map((chat) => <ListItem key={chat.id} {...chat}/>)}
       </Col>

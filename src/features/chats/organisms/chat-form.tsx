@@ -388,65 +388,69 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit, error}) => {
           )}
 
           {areAttachmentsAttached && (
-            <Row width="100%" padding="0 1rem">
-              <Col width="100%" gap="1rem">
-                {attachments.map(({key, name, size, url, progress, isUploading, type}) => {
-                  const remove = () => type === "images" ? removeImage(key) :
-                    type === "files" ? removeFile(key) : null;
+            <Col width="100%" align="center" gap="1rem" padding="0 1rem">
+              {attachments.map(({key, name, size, url, progress, isUploading, type}) => {
+                const remove = () => type === "images" ? removeImage(key) :
+                  type === "files" ? removeFile(key) : null;
 
-                  return (
-                    <Row key={key} width="100%" justify="space-between" align="center">
-                      {isUploading ? (
-                        <>
-                          <Row width="70%" gap="1rem" align="center">
-                            <Row width="60%">
-                              <ProgressBar progress={progress}/>
-                            </Row>
-
-                            <Text width="40%" ellipsis>{name}</Text>
-                          </Row>
-
-                          <Icon
-                            onClick={remove}
-                            name="cross"
-                            type="button"
-                            pointer secondary/>
-                        </>
-                      ) : type === "files" ? (
-                        <>
-                          <Row width="70%" gap="1rem" align="center">
-                            <Icon name="document" width="3rem" height="3rem" secondary/>
-
-                            <Col justify="space-between">
-                              <Text secondary ellipsis>{name}</Text>
-                              <Text secondary ellipsis>{prettyBytes(size!)}</Text>
-                            </Col>
-                          </Row>
-
-                          <Icon
-                            onClick={remove}
-                            name="cross"
-                            type="button"
-                            pointer secondary/>
-                        </>
-                      ) : type === "images" ? (
-                        <>
+                return (
+                  <Row key={key} width="60%" justify="space-between" align="center">
+                    {isUploading ? (
+                      <>
+                        <Row width="90%" gap="2rem" align="center">
                           <Row width="70%">
-                            <AttachedImage src={url} alt="attached-image"/>
+                            <ProgressBar progress={progress * 100}>
+                              <div/>
+                            </ProgressBar>
                           </Row>
 
+                          <Text width="30%" secondary small ellipsis>{name}</Text>
+                        </Row>
+
+                        <Icon
+                          onClick={remove}
+                          name="cross"
+                          type="button"
+                          pointer secondary/>
+                      </>
+                    ) : type === "files" ? (
+                      <>
+                        <Row width="70%" gap="1rem" align="center">
                           <Icon
-                            onClick={remove}
-                            name="cross"
-                            type="button"
-                            pointer secondary/>
-                        </>
-                      ) : null}
-                    </Row>
-                  );
-                })}
-              </Col>
-            </Row>
+                            name="document"
+                            width="2.5rem"
+                            height="2.5rem"
+                            secondary/>
+
+                          <Col justify="space-between">
+                            <Text small secondary ellipsis>{name}</Text>
+                            <Text small secondary ellipsis>{prettyBytes(size!)}</Text>
+                          </Col>
+                        </Row>
+
+                        <Icon
+                          onClick={remove}
+                          name="cross"
+                          type="button"
+                          pointer secondary/>
+                      </>
+                    ) : type === "images" ? (
+                      <>
+                        <Row width="70%">
+                          <AttachedImage src={url} alt="attached-image"/>
+                        </Row>
+
+                        <Icon
+                          onClick={remove}
+                          name="cross"
+                          type="button"
+                          pointer secondary/>
+                      </>
+                    ) : null}
+                  </Row>
+                );
+              })}
+            </Col>
           )}
         </Col>
       </Form>
@@ -469,8 +473,8 @@ const FormPanel = styled(Row).attrs(() => ({
 `;
 
 const AttachedImage = styled.img`
-  max-width: 7.5rem;
-  max-height: 7.5rem;
+  max-width: 4rem;
+  max-height: 4rem;
 `;
 
 const SubmitButton = styled(Button)`

@@ -192,10 +192,7 @@ const DirectChat: React.FC = () => {
 
   return (
     <>
-      {isModalOpen && (
-        <DirectAttachmentsModal
-          closeModal={closeModal}/>
-      )}
+      {isModalOpen && <DirectAttachmentsModal closeModal={closeModal}/>}
 
       <Col width="100%" height="100%">
         <Header>

@@ -17,9 +17,9 @@ const DEFAULT_SKELETON_LIST = 3;
 export const DirectMessagesList: React.FC = () => {
   const dispatch = useRootDispatch();
 
-  const {partnerId} = useParams<{partnerId: ID}>();
-
   const [isScrolled, setIsScrolled] = useState(false);
+
+  const {partnerId} = useParams<{partnerId: ID}>();
 
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -32,33 +32,37 @@ export const DirectMessagesList: React.FC = () => {
   const last = messages[messages.length - 1];
 
   useEffect(() => {
-    if (last) {
-      const list = listRef.current!;
+    const list = listRef.current!;
 
-      if (!isScrolled) {
-        scrollToBottom(list);
+    scrollToBottom(list);
+    handleReadingMessages(list);
+  }, [partnerId]);
 
-        handleReadingMessages(list);
+  useEffect(() => {
+    if (!last) return;
 
-        return setIsScrolled(true);
-      }
+    const list = listRef.current!;
 
-      const isOwn = ((!!last.sender && last.sender.id) === credentials.id);
+    const isOwn = last.sender && (last.sender.id === credentials.id);
 
-      if (isOwn || isAtBottom(list)) {
-        scrollToBottom(list);
-
-        handleReadingMessages(list);
-      }
+    if (isAtBottom(list) || isOwn || !isScrolled) {
+      scrollToBottom(list);
+      handleReadingMessages(list);
     }
+
+    if (!isScrolled) setIsScrolled(true);
   }, [last]);
 
   const handleListScroll = ({currentTarget}: React.UIEvent<HTMLDivElement>) => {
     const toFetchMessages = isAtTop(currentTarget) && !areMessagesFetching && areMessagesLeftToFetch;
 
-    if (toFetchMessages) dispatch(actions.fetchMessages({
-      partnerId, skip: messages.length
-    }));
+    if (toFetchMessages) {
+      dispatch(actions.fetchMessages({
+        partnerId, skip: messages.length
+      }));
+    }
+
+    handleReadingMessages(currentTarget);
   };
 
   const handleReadingMessages = (list: Element) => {
@@ -68,30 +72,28 @@ export const DirectMessagesList: React.FC = () => {
     const last = reversed.find((message) =>
       message.dataset.isRead === "false" && message.dataset.isOwn === "false") || null;
 
-    if (!!last) {
-      const isVisible = isElementVisible(last);
+    const isVisible = !!last && isElementVisible(last);
 
-      if (isVisible) {
-        const id = last.dataset.id as ID;
+    if (!isVisible) return;
 
-        dispatch(actions.setMessagesRead({
-          partnerId, messageId: id
-        }));
+    const id = last!.dataset.id as ID;
 
-        const unread = reversed.slice(0, reversed.indexOf(last))
-          .filter((message) =>
-            message.dataset.isOwn === "false" &&
-            message.dataset.isRead === "false").length;
+    dispatch(actions.setMessagesRead({
+      partnerId, messageId: id
+    }));
 
-        dispatch(actions.setUnread({
-          partnerId, unread
-        }));
+    const unread = reversed.slice(0, reversed.indexOf(last!))
+      .filter((message) =>
+        message.dataset.isOwn === "false" &&
+        message.dataset.isRead === "false").length;
 
-        dispatch(actions.fetchReadingMessage({
-          messageId: id, partnerId
-        }));
-      }
-    }
+    dispatch(actions.setUnread({
+      partnerId, unread
+    }));
+
+    dispatch(actions.fetchReadingMessage({
+      messageId: id, partnerId
+    }));
   };
 
   return (

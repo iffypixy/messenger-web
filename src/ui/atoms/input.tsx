@@ -12,11 +12,11 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     secondary?: boolean;
 }
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(({error, label, name, width, ...props}, ref) => (
+export const Input = forwardRef<HTMLInputElement, InputProps>(({error, label, name, width, small, ...props}, ref) => (
     <Wrapper width={width}>
         {label && <Label htmlFor={name}>{label}</Label>}
-        <InputNative id={name} name={name} error={!!error} ref={ref} {...props} />
-        {error && <ErrorLabel>{error}</ErrorLabel>}
+        <InputNative id={name} name={name} error={!!error} small={small} ref={ref} {...props} />
+        {error && <ErrorLabel small={small}>{error}</ErrorLabel>}
     </Wrapper>
 ));
 
@@ -88,7 +88,11 @@ const Label = styled.label`
     text-transform: uppercase;
 `;
 
-const ErrorLabel = styled.span`
+interface ErrorLabelProps {
+    small?: boolean;
+}
+
+const ErrorLabel = styled.span<ErrorLabelProps>`
     ${({theme}) => css`
       color: ${theme.palette.error.main};
       font-family: ${theme.typography.fontFamily};
@@ -97,4 +101,8 @@ const ErrorLabel = styled.span`
     `};
     
     margin-top: 15px;
+    
+    ${({small}) => small && css`
+      font-size: 1.2rem;
+    `} 
 `;
