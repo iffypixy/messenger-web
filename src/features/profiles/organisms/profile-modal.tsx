@@ -74,7 +74,9 @@ export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
   const handleAvatarSave = (blob: Blob) => {
     closeEditorModal();
 
-    setAvatar((avatar) => ({...avatar, url: URL.createObjectURL(blob)}));
+    setAvatar({
+      url: URL.createObjectURL(blob), blob
+    });
   };
 
   return (
