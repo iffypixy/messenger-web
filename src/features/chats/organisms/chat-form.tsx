@@ -108,7 +108,7 @@ export const ChatForm: React.FC<ChatFormProps> = ({handleSubmit, error}) => {
 
         durationInterval = setInterval(() => {
           setAudio((audio) => ({
-            ...audio, duration: audio.duration + 1000
+            ...audio, duration: audio.duration + 1
           }));
         }, 1000);
       };

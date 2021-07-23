@@ -5,9 +5,11 @@ interface TextProps {
   secondary?: boolean;
   ellipsis?: boolean;
   small?: boolean;
+  medium?: boolean;
   width?: string;
   uppercase?: boolean;
   preline?: boolean;
+  error?: boolean;
 }
 
 export const Text = styled.span<TextProps>`
@@ -43,5 +45,13 @@ export const Text = styled.span<TextProps>`
   
   ${({preline}) => preline && css`
     white-space: pre-line;
-  `}
+  `};
+  
+  ${({medium}) => medium && css`
+    font-size: 1.4rem;
+  `};
+  
+  ${({error}) => error && css`
+    color: ${({theme}) => theme.palette.error.main};
+  `};
 `;

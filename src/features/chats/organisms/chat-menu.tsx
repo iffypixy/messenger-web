@@ -33,7 +33,7 @@ const Menu = styled(Col)`
   right: 2rem;
   visibility: hidden;
   opacity: 0;
-  transition: 0.2s linear;
+  transition: 0.25s linear;
   padding: 1rem 0;
 `;
 

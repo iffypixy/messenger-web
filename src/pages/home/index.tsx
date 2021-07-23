@@ -1,24 +1,23 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
 
 import {authSelectors} from "@features/auth";
 import {directsActions, directsSelectors} from "@features/directs";
 import {groupsActions, groupsSelectors, GroupCreationModal} from "@features/groups";
+import {ProfileModal} from "@features/profiles";
 import {ChatsList, SearchBar} from "@features/chats";
 import {Col, Row} from "@lib/layout";
 import {useRootDispatch} from "@lib/store";
 import {Icon, H4, Text, H3} from "@ui/atoms";
 import {MainTemplate} from "@ui/templates";
-import {useModal} from "@lib/modal";
 import {Avatar} from "@ui/molecules";
-import {ProfileModal} from "@features/profiles";
 
 export const HomePage: React.FC = () => {
   const dispatch = useRootDispatch();
 
-  const {closeModal: closeGroupCreationModal, isModalOpen: isGroupCreationModalOpen, openModal: openGroupCreationModal} = useModal();
-  const {closeModal: closeProfileModal, isModalOpen: isProfileModalOpen, openModal: openProfileModal} = useModal();
+  const [isGroupCreationModalOpen, setIsGroupCreationModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const credentials = useSelector(authSelectors.credentials)!;
   const directChats = useSelector(directsSelectors.chats);
@@ -36,8 +35,15 @@ export const HomePage: React.FC = () => {
 
   return (
     <>
-      {isGroupCreationModalOpen && <GroupCreationModal closeModal={closeGroupCreationModal}/>}
-      {isProfileModalOpen && <ProfileModal closeModal={closeProfileModal}/>}
+      <GroupCreationModal
+        isOpen={isGroupCreationModalOpen}
+        onRequestClose={() => setIsGroupCreationModalOpen(false)}
+        closeModal={() => setIsGroupCreationModalOpen(false)}/>
+
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onRequestClose={() => setIsProfileModalOpen(false)}
+        closeModal={() => setIsProfileModalOpen(false)}/>
 
       <MainTemplate>
         <Wrapper>
@@ -45,7 +51,7 @@ export const HomePage: React.FC = () => {
             <Sidebar>
               <Icon name="logo"/>
 
-              <AvatarWrapper onClick={openProfileModal}>
+              <AvatarWrapper onClick={() => setIsProfileModalOpen(true)}>
                 <Avatar url={credentials.avatar}/>
               </AvatarWrapper>
             </Sidebar>
@@ -56,7 +62,7 @@ export const HomePage: React.FC = () => {
               <Row justify="space-between">
                 <H4>Messages</H4>
                 <Text
-                  onClick={openGroupCreationModal}
+                  onClick={() => setIsGroupCreationModalOpen(true)}
                   clickable secondary>
                   + Create group chat
                 </Text>

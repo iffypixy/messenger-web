@@ -7,8 +7,10 @@ const normalize = (time: number): string => {
 };
 
 export const formatDuration = (duration: number): string => {
+  if (!duration) return "00:00";
+
   const {hours: hrs, minutes, seconds} = intervalToDuration({
-    start: 0, end: duration
+    start: 0, end: duration * 1000
   });
 
   const hours = hrs ? `${normalize(hrs)}:` : "";

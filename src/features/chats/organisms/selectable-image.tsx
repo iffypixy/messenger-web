@@ -1,34 +1,25 @@
-import React, {ImgHTMLAttributes} from "react";
+import React, {ImgHTMLAttributes, useState} from "react";
 import styled from "styled-components";
+import Modal from "react-modal";
 
-import {Modal, ModalProps, useModal} from "@lib/modal";
-
-interface ImageModalProps extends ModalProps {
-  url: string;
-}
-
-export const ImageModal: React.FC<ImageModalProps> = ({closeModal, url}) => (
-  <Modal closeModal={closeModal}>
-    <ModalImg src={url}/>
-  </Modal>
-);
-
-const ModalImg = styled.img`
-  display: block;
-  max-width: 65rem;
-  max-height: 65rem;
-`;
+import {customStyles} from "@lib/modal";
 
 interface SelectableImageProps extends ImgHTMLAttributes<HTMLImageElement> {
 }
 
 export const SelectableImage: React.FC<SelectableImageProps> = (props) => {
-  const {openModal, closeModal, isModalOpen} = useModal();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      {isModalOpen && <ImageModal closeModal={closeModal} url={props.src!}/>}
-      <SelectableImg onClick={openModal} {...props} />
+      <SelectableImg onClick={() => setIsOpen(true)} {...props} />
+
+      <Modal
+        style={customStyles}
+        isOpen={isOpen}
+        onRequestClose={() => setIsOpen(false)}>
+        <ModalImg src={props.src}/>
+      </Modal>
     </>
   );
 };
@@ -38,4 +29,12 @@ const SelectableImg = styled.img`
   width: 100%;
   height: 100%;
   cursor: pointer;
+  background-color: #FFFFFF;
+`;
+
+const ModalImg = styled.img`
+  display: block;
+  max-width: 65rem;
+  max-height: 65rem;
+  background-color: #FFFFFF;
 `;

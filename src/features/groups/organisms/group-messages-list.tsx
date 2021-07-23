@@ -8,7 +8,7 @@ import {Message, MessageSkeleton, SystemMessage} from "@features/chats";
 import {Col} from "@lib/layout";
 import {ID} from "@lib/typings";
 import {useRootDispatch} from "@lib/store";
-import {isElementVisible, scrollToBottom, isAtBottom, isAtTop} from "@lib/dom";
+import {isElementVisible, scrollToBottom, isAtTop, getOuterHeight} from "@lib/dom";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
@@ -45,7 +45,10 @@ export const GroupMessagesList: React.FC = () => {
 
     const isOwn = last.sender && (last.sender.id === credentials.id);
 
-    if (isAtBottom(list) || isOwn || !isScrolled) {
+    const isAtBottom = list.scrollTop + list.clientHeight +
+      getOuterHeight(list.children[list.children.length - 1] as HTMLElement) >= list.scrollHeight
+
+    if (isAtBottom || isOwn || !isScrolled) {
       scrollToBottom(list);
       handleReadingMessages(list);
     }

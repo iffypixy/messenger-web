@@ -50,7 +50,7 @@ export const commonTheme = {
         h5: {
             fontFamily: fontFamily,
             fontWeight: 500,
-            fontSize: "1.5rem",
+            fontSize: "1.8rem",
             lineHeight: 1.334,
             letterSpacing: "0em"
         },

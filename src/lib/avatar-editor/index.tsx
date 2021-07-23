@@ -1,31 +1,32 @@
 import React, {useState} from "react";
 import Editor, {AvatarEditorProps as EditorProps} from "react-avatar-editor";
 import styled from "styled-components";
+import Modal, {Props} from "react-modal";
 
-import {ModalProps, Modal} from "@lib/modal";
+import {customStyles} from "@lib/modal";
 import {Col, Row} from "@lib/layout";
 import {H4, Button, Slider} from "@ui/atoms";
 
 let editor: Editor | null = null;
 
-export interface AvatarEditorModalProps extends EditorProps, ModalProps {
-  title: string;
-  handleSave: (blob: Blob) => void;
+export interface AvatarEditorModalProps extends Omit<EditorProps, "className" | "style">, Omit<Props, "className" | "style"> {
+  handleBlobSave: (blob: Blob) => void;
+  closeModal: () => void;
 }
 
-export const AvatarEditorModal: React.FC<AvatarEditorModalProps> = ({closeModal, handleSave, title, ...props}) => {
+export const AvatarEditorModal: React.FC<AvatarEditorModalProps> = ({closeModal, handleBlobSave, ...props}) => {
   const [scale, setScale] = useState(1);
 
   const handleSaveButtonClick = () => {
     if (editor) editor.getImage().toBlob((blob) => {
-      if (blob) handleSave(blob);
+      if (blob) handleBlobSave(blob);
     });
   };
 
   return (
-    <Modal closeModal={closeModal}>
+    <Modal style={customStyles} {...props}>
       <Wrapper>
-        <H4>{title}</H4>
+        <H4>Edit image</H4>
 
         <Editor ref={(element) => editor = element} scale={scale} {...props} />
 

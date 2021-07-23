@@ -1,20 +1,21 @@
 import React, {useState} from "react";
 import styled from "styled-components";
 import {useSelector} from "react-redux";
+import Modal, {Props} from "react-modal";
+import {useForm} from "react-hook-form";
+import * as yup from "yup";
+import {yupResolver} from "@hookform/resolvers/yup";
 
 import {authSelectors, authActions} from "@features/auth";
 import {Col, Row} from "@lib/layout";
 import {useRootDispatch} from "@lib/store";
-import {ModalProps, Modal, useModal} from "@lib/modal";
+import {regex} from "@lib/regex";
 import {AvatarEditorModal} from "@lib/avatar-editor";
+import {customStyles} from "@lib/modal";
 import {Text, Input, Button} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
-import * as yup from "yup";
-import {regex} from "@lib/regex";
-import {useForm} from "react-hook-form";
-import {yupResolver} from "@hookform/resolvers/yup";
 
 const schema = yup.object().shape({
   username: yup.string()
@@ -23,11 +24,15 @@ const schema = yup.object().shape({
     .min(3, "Username must contain at least 3 characters")
 });
 
+interface ProfileModalProps extends Props {
+  closeModal: () => void;
+}
+
 interface ProfileForm {
   username: string;
 }
 
-export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
+export const ProfileModal: React.FC<ProfileModalProps> = (props) => {
   const dispatch = useRootDispatch();
 
   const credentials = useSelector(authSelectors.credentials)!;
@@ -41,7 +46,7 @@ export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
     url: credentials.avatar
   });
 
-  const {isModalOpen: isEditorModelOpen, openModal: openEditorModel, closeModal: closeEditorModal} = useModal();
+  const [isEditorModalOpen, setIsEditorModalOpen] = useState(false);
 
   const {register, handleSubmit, formState: {errors, isValid}} = useForm<ProfileForm>({
     resolver: yupResolver(schema),
@@ -51,10 +56,10 @@ export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
     }
   });
 
-  const handleSave = ({username}: ProfileForm) => {
+  const handleSaveButtonClick = ({username}: ProfileForm) => {
     dispatch(actions.fetchUpdatingProfile({
       username, avatar: avatar.blob as globalThis.File
-    })).then(closeModal);
+    })).then(props.closeModal);
   };
 
   const handleLogout = () => {
@@ -68,30 +73,29 @@ export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
 
     setAvatar((avatar) => ({...avatar, blob: file as globalThis.File}));
 
-    openEditorModel();
+    setIsEditorModalOpen(true);
   };
 
   const handleAvatarSave = (blob: Blob) => {
     setAvatar({
-      url: URL.createObjectURL(blob), blob
+      url: window.URL.createObjectURL(blob), blob
     });
 
-    closeEditorModal();
+    setIsEditorModalOpen(false);
   };
 
   return (
-    <Modal closeModal={closeModal}>
-      {(isEditorModelOpen && avatar.blob) && (
-        <AvatarEditorModal
-          title="Edit image"
-          width={300}
-          height={300}
-          borderRadius={150}
-          border={75}
-          image={URL.createObjectURL(avatar.blob)}
-          handleSave={handleAvatarSave}
-          closeModal={closeEditorModal}/>
-      )}
+    <Modal style={customStyles} {...props}>
+      {avatar.blob && <AvatarEditorModal
+        width={300}
+        height={300}
+        borderRadius={150}
+        border={75}
+        image={window.URL.createObjectURL(avatar.blob)}
+        handleBlobSave={handleAvatarSave}
+        isOpen={isEditorModalOpen}
+        onRequestClose={() => setIsEditorModalOpen(false)}
+        closeModal={() => setIsEditorModalOpen(false)}/>}
 
       <Wrapper>
         <Row align="center" gap="2rem">
@@ -125,7 +129,7 @@ export const ProfileModal: React.FC<ModalProps> = ({closeModal}) => {
             danger small>Logout</Button>
 
           <Button
-            onClick={handleSubmit(handleSave)}
+            onClick={handleSubmit(handleSaveButtonClick)}
             disabled={isUpdatingProfileFetching || !isValid}
             small>Save</Button>
         </Footer>

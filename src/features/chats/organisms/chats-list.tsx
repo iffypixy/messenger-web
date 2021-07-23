@@ -13,7 +13,7 @@ import {Skeleton} from "@lib/skeleton";
 import {ID} from "@lib/typings";
 import {Text, Circle, H4} from "@ui/atoms";
 import {Avatar} from "@ui/molecules";
-import {formatMessageDate} from "../lib/formatting";
+import {formatDate} from "../lib/formatting";
 
 const DEFAULT_SKELETON_LIST = 5;
 
@@ -170,7 +170,7 @@ const ListItem: React.FC<ListItemProps> = ({avatar, name, message, date, unread,
 
           {date && (
             <DateText secondary={!isSelected} small>
-              {formatMessageDate(date)}
+              {formatDate(date)}
             </DateText>
           )}
         </Row>

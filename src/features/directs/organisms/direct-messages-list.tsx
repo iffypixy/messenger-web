@@ -5,14 +5,15 @@ import {useParams} from "react-router-dom";
 
 import {authSelectors} from "@features/auth";
 import {Message, SystemMessage, MessageSkeleton} from "@features/chats";
-import {Col} from "@lib/layout";
+import {Col, Row} from "@lib/layout";
 import {ID} from "@lib/typings";
 import {useRootDispatch} from "@lib/store";
-import {scrollToBottom, isElementVisible, isAtBottom, isAtTop} from "@lib/dom";
+import {scrollToBottom, isElementVisible, isAtTop, getOuterHeight} from "@lib/dom";
+import {Loader} from "@ui/atoms";
 import * as actions from "../actions";
 import * as selectors from "../selectors";
 
-const DEFAULT_SKELETON_LIST = 3;
+const DEFAULT_SKELETON_LIST = 6;
 
 export const DirectMessagesList: React.FC = () => {
   const dispatch = useRootDispatch();
@@ -45,7 +46,10 @@ export const DirectMessagesList: React.FC = () => {
 
     const isOwn = last.sender && (last.sender.id === credentials.id);
 
-    if (isAtBottom(list) || isOwn || !isScrolled) {
+    const isAtBottom = list.scrollTop + list.clientHeight +
+      getOuterHeight(list.children[list.children.length - 1] as HTMLElement) >= list.scrollHeight
+
+    if (isAtBottom || isOwn || !isScrolled) {
       scrollToBottom(list);
       handleReadingMessages(list);
     }
@@ -98,6 +102,12 @@ export const DirectMessagesList: React.FC = () => {
 
   return (
     <List ref={listRef} onScroll={handleListScroll}>
+      {(areMessagesFetched && areMessagesFetching) && (
+        <Row width="100%" justify="center">
+          <Loader />
+        </Row>
+      )}
+
       {(areMessagesFetching && !areMessagesFetched) && Array.from(
         {length: DEFAULT_SKELETON_LIST},
         (_, idx) => <MessageSkeleton key={idx}/>

@@ -1,13 +1,18 @@
 import React from "react";
 import styled from "styled-components";
+import Modal, {Props} from "react-modal";
 
-import {ModalProps, Modal} from "@lib/modal";
+import {customStyles} from "@lib/modal";
 import {Col, Row} from "@lib/layout";
 import {H4, Icon} from "@ui/atoms";
 
-export const GroupCreationModal: React.FC<ModalProps> = ({closeModal}) => {
+interface GroupCreationModalProps extends Props {
+  closeModal: () => void;
+}
+
+export const GroupCreationModal: React.FC<GroupCreationModalProps> = ({closeModal, ...props}) => {
   return (
-    <Modal closeModal={closeModal}>
+    <Modal style={customStyles} {...props}>
       <Wrapper>
         <Header>
           <div />

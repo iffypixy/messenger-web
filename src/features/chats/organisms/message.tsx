@@ -46,16 +46,14 @@ export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text
   };
 
   const handleAudioDurationChange = ({currentTarget}: React.ChangeEvent<HTMLAudioElement>) => {
-    if (currentTarget.duration === Infinity) currentTarget.currentTime = 100000000;
+    if (currentTarget.duration === Infinity) currentTarget.currentTime = 10e10;
 
-    const {duration} = currentTarget;
-
-    if (duration === Infinity) return;
-
-    setAudio({
-      ...audio,
-      duration: Math.ceil(duration) * 1000
-    });
+    if (currentTarget.duration !== Infinity) {
+      setAudio({
+        ...audio,
+        duration: Math.ceil(currentTarget.duration)
+      });
+    }
   };
 
   const playAudio = () => {
@@ -92,7 +90,7 @@ export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text
   const handleAudioTimeUpdate = () => {
     setAudio({
       ...audio,
-      time: Math.ceil(audioRef.current!.currentTime) * 1000
+      time: Math.ceil(audioRef.current!.currentTime)
     });
   };
 
@@ -120,6 +118,7 @@ export const Message: React.FC<MessageProps> = ({id, isOwn, isRead, avatar, text
               {audioSrc && (
                 <Row align="center" gap="2rem">
                   <Icon
+                    pointer
                     name={audio.isPaused ? "play" : "pause"}
                     onClick={audio.isPaused ? playAudio : pauseAudio}/>
 

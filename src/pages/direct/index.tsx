@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {useParams, useHistory} from "react-router-dom";
 import styled from "styled-components";
@@ -6,13 +6,17 @@ import {nanoid} from "nanoid";
 import {unwrapResult} from "@reduxjs/toolkit";
 
 import {authSelectors} from "@features/auth";
-import {ChatsList, formatMessageDate, ChatForm, useFetchingChats, SearchBar, ChatMenu} from "@features/chats";
-import {directsSelectors, directsActions, DirectMessagesList, DirectAttachmentsModal} from "@features/directs";
+import {ChatsList, formatDate, ChatForm, useFetchingChats, SearchBar, ChatMenu} from "@features/chats";
+import {
+  directsSelectors,
+  directsActions,
+  DirectMessagesList,
+  DirectModal
+} from "@features/directs";
 import {GroupCreationModal} from "@features/groups";
 import {ProfileModal} from "@features/profiles";
 import {Col, Row} from "@lib/layout";
 import {ID} from "@lib/typings";
-import {useModal} from "@lib/modal";
 import {useRootDispatch} from "@lib/store";
 import {Skeleton} from "@lib/skeleton";
 import {H4, Icon, Text} from "@ui/atoms";
@@ -26,8 +30,8 @@ export const DirectPage = () => {
 
   const {partnerId} = useParams<{partnerId: ID}>();
 
-  const {closeModal: closeGroupCreationModal, isModalOpen: isGroupCreationModalOpen, openModal: openGroupCreationModal} = useModal();
-  const {closeModal: closeProfileModal, isModalOpen: isProfileModalOpen, openModal: openProfileModal} = useModal();
+  const [isGroupCreationModalOpen, setIsGroupCreationModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const history = useHistory();
 
@@ -61,8 +65,15 @@ export const DirectPage = () => {
 
   return (
     <>
-      {isGroupCreationModalOpen && <GroupCreationModal closeModal={closeGroupCreationModal}/>}
-      {isProfileModalOpen && <ProfileModal closeModal={closeProfileModal}/>}
+      <GroupCreationModal
+        isOpen={isGroupCreationModalOpen}
+        onRequestClose={() => setIsGroupCreationModalOpen(false)}
+        closeModal={() => setIsGroupCreationModalOpen(false)}/>
+
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onRequestClose={() => setIsProfileModalOpen(false)}
+        closeModal={() => setIsProfileModalOpen(false)}/>
 
       <MainTemplate>
         <Wrapper>
@@ -70,7 +81,7 @@ export const DirectPage = () => {
             <Sidebar>
               <Icon name="logo"/>
 
-              <AvatarWrapper onClick={openProfileModal}>
+              <AvatarWrapper onClick={() => setIsProfileModalOpen(true)}>
                 <Avatar url={credentials.avatar}/>
               </AvatarWrapper>
             </Sidebar>
@@ -81,7 +92,7 @@ export const DirectPage = () => {
               <Row justify="space-between">
                 <H4>Messages</H4>
                 <Text
-                  onClick={openGroupCreationModal}
+                  onClick={() => setIsGroupCreationModalOpen(true)}
                   clickable secondary>
                   + Create group chat
                 </Text>
@@ -150,7 +161,7 @@ const ChatPanelWrapper = styled.div`
 const DirectChat: React.FC = () => {
   const dispatch = useRootDispatch();
 
-  const {closeModal, openModal, isModalOpen} = useModal();
+  const [isDirectModalOpen, setIsDirectModalOpen] = useState(false);
 
   const {partnerId} = useParams<{partnerId: ID}>();
 
@@ -192,7 +203,10 @@ const DirectChat: React.FC = () => {
 
   return (
     <>
-      {isModalOpen && <DirectAttachmentsModal closeModal={closeModal}/>}
+      <DirectModal
+        isOpen={isDirectModalOpen}
+        onRequestClose={() => setIsDirectModalOpen(false)}
+        closeModal={() => setIsDirectModalOpen(false)}/>
 
       <Col width="100%" height="100%">
         <Header>
@@ -202,7 +216,7 @@ const DirectChat: React.FC = () => {
 
               <Col height="100%" justify="space-between" padding="1rem 0">
                 <H4>{chat.partner.username}</H4>
-                <Text small>Last seen at {formatMessageDate(new Date(chat.partner.lastSeen))}</Text>
+                <Text secondary small>last seen at {formatDate(new Date(chat.partner.lastSeen))}</Text>
               </Col>
             </Row>
 
@@ -210,7 +224,7 @@ const DirectChat: React.FC = () => {
               <MenuWrapper>
                 <Icon name="options" pointer/>
                 <ChatMenu>
-                  <ChatMenu.Item onClick={openModal}>Show attachments</ChatMenu.Item>
+                  <ChatMenu.Item onClick={() => setIsDirectModalOpen(true)}>Show info</ChatMenu.Item>
                   {chat.partner.isBanned ?
                     <ChatMenu.Item onClick={handleUnbanningPartner}>Unblock partner</ChatMenu.Item> :
                     <ChatMenu.Item onClick={handleBanningPartner}>Block partner</ChatMenu.Item>}
@@ -295,10 +309,6 @@ const DirectSkeleton: React.FC = () => (
             <Skeleton.Text width="20rem"/>
             <Skeleton.Text width="10rem"/>
           </Col>
-        </Row>
-
-        <Row>
-          <Icon name="options" pointer/>
         </Row>
       </Row>
     </Header>

@@ -1,4 +1,4 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {useSelector} from "react-redux";
 import {useParams} from "react-router-dom";
 import styled from "styled-components";
@@ -6,17 +6,16 @@ import {nanoid} from "nanoid";
 import {unwrapResult} from "@reduxjs/toolkit";
 
 import {authSelectors} from "@features/auth";
+import {ProfileModal} from "@features/profiles";
 import {ChatForm, ChatsList, useFetchingChats, SearchBar, ChatMenu} from "@features/chats";
 import {GroupCreationModal, GroupMessagesList, groupsActions, groupsSelectors} from "@features/groups";
 import {ID} from "@lib/typings";
 import {Col, Row} from "@lib/layout";
 import {useRootDispatch} from "@lib/store";
 import {Skeleton} from "@lib/skeleton";
-import {useModal} from "@lib/modal";
 import {H4, Icon, Text} from "@ui/atoms";
 import {MainTemplate} from "@ui/templates";
 import {Avatar} from "@ui/molecules";
-import {ProfileModal} from "@features/profiles";
 
 export const GroupPage = () => {
   const dispatch = useRootDispatch();
@@ -25,8 +24,8 @@ export const GroupPage = () => {
 
   const {groupId} = useParams<{groupId: ID}>();
 
-  const {closeModal: closeGroupCreationModal, isModalOpen: isGroupCreationModalOpen, openModal: openGroupCreationModal} = useModal();
-  const {closeModal: closeProfileModal, isModalOpen: isProfileModalOpen, openModal: openProfileModal} = useModal();
+  const [isGroupCreationModalOpen, setIsGroupCreationModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const credentials = useSelector(authSelectors.credentials)!;
   const chat = useSelector(groupsSelectors.chat(groupId));
@@ -54,8 +53,15 @@ export const GroupPage = () => {
 
   return (
     <>
-      {isGroupCreationModalOpen && <GroupCreationModal closeModal={closeGroupCreationModal}/>}
-      {isProfileModalOpen && <ProfileModal closeModal={closeProfileModal}/>}
+      <GroupCreationModal
+        isOpen={isGroupCreationModalOpen}
+        onRequestClose={() => setIsGroupCreationModalOpen(false)}
+        closeModal={() => setIsGroupCreationModalOpen(false)}/>
+
+      <ProfileModal
+        isOpen={isProfileModalOpen}
+        onRequestClose={() => setIsProfileModalOpen(false)}
+        closeModal={() => setIsProfileModalOpen(false)}/>
 
       <MainTemplate>
         <Wrapper>
@@ -63,7 +69,7 @@ export const GroupPage = () => {
             <Sidebar>
               <Icon name="logo"/>
 
-              <AvatarWrapper onClick={openProfileModal}>
+              <AvatarWrapper onClick={() => setIsProfileModalOpen(true)}>
                 <Avatar url={credentials.avatar}/>
               </AvatarWrapper>
             </Sidebar>
@@ -74,7 +80,7 @@ export const GroupPage = () => {
               <Row justify="space-between">
                 <H4>Messages</H4>
                 <Text
-                  onClick={openGroupCreationModal}
+                  onClick={() => setIsGroupCreationModalOpen(true)}
                   clickable secondary>
                   + Create group chat
                 </Text>
