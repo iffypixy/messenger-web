@@ -11,7 +11,7 @@
     "@craco/craco": "^5.9.0",
     "@hookform/resolvers": "^2.5.0",
     "@reduxjs/toolkit": "^1.5.1",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "css-what": "^5.0.1",
     "date-fns": "^2.21.3",
     "emoji-mart": "^3.0.1",
